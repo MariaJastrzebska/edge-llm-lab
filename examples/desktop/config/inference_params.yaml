@@ -1,0 +1,28 @@
+# Example inference parameters for LLM evaluation
+# These parameters control how models generate responses
+
+# Core generation parameters
+temperature: 0.7
+top_p: 0.9
+max_tokens: 1000
+context_size: 4000
+
+# Advanced parameters
+seed: 42
+frequency_penalty: 0.0
+presence_penalty: 0.0
+
+# Evaluation-specific settings
+evaluation_rounds: 5
+max_conversation_length: 10
+
+# Device-specific optimizations
+mobile_optimizations:
+  reduced_context: 2000
+  lower_temperature: 0.5
+  max_tokens: 500
+
+desktop_optimizations:
+  full_context: 4000
+  standard_temperature: 0.7
+  max_tokens: 1000

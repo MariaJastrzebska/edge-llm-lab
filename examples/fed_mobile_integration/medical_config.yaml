@@ -1,0 +1,46 @@
+# Example configuration for fed-mobile medical evaluation
+# This shows how to configure edge-llm-lab for medical domain
+
+source_path: "thesis_generators/source"
+inference_params_path: "fed_mobile_chat_flutter/assets/config/inference_params.yaml"
+evaluator_model: "gpt-4o-mini"
+ollama_host: "http://localhost:11434"
+
+agents:
+  constant_data:
+    name: "Constant Data Collection Agent"
+    description: "Collects constant medical data from patients"
+    prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/constant_data.txt"
+    schema_path: "fed_mobile_chat_flutter/assets/schemas/constantdata_schema.json"
+    validation_prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/validation.txt"
+    validation_schema_path: "fed_mobile_chat_flutter/assets/schemas/constantdata_en_schema.json"
+    display_prompt_path: "fed_mobile_chat_flutter/assets/prompts/display_prompt.txt"
+    tool_name: "send_medical_data"
+    
+  constant_data_en:
+    name: "Constant Data Collection Agent (English)"
+    description: "Collects constant medical data from patients in English"
+    prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/constant_data_en.txt"
+    schema_path: "fed_mobile_chat_flutter/assets/schemas/constantdataanalysiscot_schema.json"
+    validation_prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/validation_en.txt"
+    validation_schema_path: "fed_mobile_chat_flutter/assets/schemas/constantdata_en_schema.json"
+    display_prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/constant_display_en.txt"
+    tool_name: "send_medical_data_en"
+    
+  fluctuating_data:
+    name: "Fluctuating Data Collection Agent"
+    description: "Collects fluctuating medical data from patients"
+    prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/fluctuating_data.txt"
+    schema_path: "fed_mobile_chat_flutter/assets/schemas/fluctuatingdata_schema.json"
+    validation_prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/validation.txt"
+    validation_schema_path: "fed_mobile_chat_flutter/assets/schemas/fluctuatingdata_en_schema.json"
+    tool_name: "send_fluctuating_data"
+    
+  symptom:
+    name: "Symptom Collection Agent"
+    description: "Collects symptom data from patients"
+    prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/symptoms.txt"
+    schema_path: "fed_mobile_chat_flutter/assets/schemas/symptom_schema.json"
+    validation_prompt_path: "fed_mobile_chat_flutter/assets/prompts/multi_turn/validation.txt"
+    validation_schema_path: "fed_mobile_chat_flutter/assets/schemas/symptomanalysiscot_schema.json"
+    tool_name: "send_symptom_data"

@@ -1,0 +1,32 @@
+# Example configuration for Edge LLM Lab evaluation framework
+# This shows how to configure agents, prompts, and evaluation settings
+
+source_path: "examples/desktop/source"
+inference_params_path: "examples/desktop/config/inference_params.yaml"
+evaluator_model: "gpt-4o-mini"
+ollama_host: "http://localhost:11434"
+
+agents:
+  data_collection:
+    name: "Data Collection Agent"
+    description: "Collects structured data from user input"
+    prompt_path: "examples/desktop/prompts/data_collection.txt"
+    schema_path: "examples/desktop/schemas/data_collection.json"
+    validation_prompt_path: "examples/desktop/prompts/validation.txt"
+    validation_schema_path: "examples/desktop/schemas/validation.json"
+    display_prompt_path: "examples/desktop/prompts/display.txt"
+    tool_name: "send_collected_data"
+
+  qa_agent:
+    name: "Q&A Agent"
+    description: "Answers questions based on provided context"
+    prompt_path: "examples/desktop/prompts/qa.txt"
+    schema_path: "examples/desktop/schemas/qa.json"
+    tool_name: "send_answer"
+
+  summarization:
+    name: "Summarization Agent"
+    description: "Summarizes long text content"
+    prompt_path: "examples/desktop/prompts/summarization.txt"
+    schema_path: "examples/desktop/schemas/summarization.json"
+    tool_name: "send_summary"

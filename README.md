@@ -1,51 +1,270 @@
-# edge-llm-lab
-Framework for systematic evaluation of low-latency inference techniques in small language models. Includes caching, FlashAttention, continuous batching, and speculative decoding strategies for on-device LLMs.
+# Edge LLM Lab
 
-# 🧠 Edge LLM Optimization Lab
+A comprehensive framework for evaluating Large Language Models (LLMs) on edge devices, including desktop and mobile platforms. This framework provides tools for performance benchmarking, accuracy evaluation, and comparative analysis across different hardware configurations.
 
-A cross-platform research framework for **systematic inference optimization** of small and medium language models (SLMs/LLMs) running **locally** on both **desktop (llama.cpp)** and **mobile (fllama)** environments.
+## 🚀 Features
 
-The framework allows you to:
-- 🧩 **Test the same set of optimizations** on desktop and mobile backends.  
-- ⚙️ **Plug in your own prompt, model, or inference tool** and measure latency, throughput, and memory.  
-- 📊 **Compare** how each optimization — or their combination — impacts efficiency and quality.
+- **Configurable Agent System**: Define custom agents with their own prompts and schemas
+- **Multi-Platform Support**: Evaluate models on desktop and mobile devices
+- **Comprehensive Metrics**: ROUGE scores, factual accuracy, hallucination detection, and more
+- **Device Monitoring**: Track CPU, memory, and energy usage during evaluation
+- **Flexible Evaluation Strategies**: Support for referenced and unreferenced evaluation
+- **Easy Integration**: Simple configuration-based setup
+
+## 📦 Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/MariaJastrzebska/edge-llm-lab.git
+cd edge-llm-lab
+
+# Install in development mode
+pip install -e .
+
+# Or install from PyPI (when published)
+pip install edge-llm-lab
+```
+
+## 🏗️ Quick Start
+
+### Command Line Usage
+
+```bash
+# List all available optimizations
+python examples/desktop/basic_evaluation.py --list-optimizations
+
+# Run with desktop optimizations
+python examples/desktop/basic_evaluation.py \
+  --model llama3:8b \
+  --agent data_collection_agent \
+  --mode desktop
+
+# Run with specific optimization IDs
+python examples/desktop/basic_evaluation.py \
+  --model llama3:8b \
+  --agent data_collection_agent \
+  --mode test \
+  --optimizations 0,2,5
+
+# Run with custom optimization file
+python examples/desktop/basic_evaluation.py \
+  --model llama3:8b \
+  --agent data_collection_agent \
+  --optimizations examples/desktop/config/custom_optimizations.yaml
+
+# Dry run (show config only)
+python examples/desktop/basic_evaluation.py \
+  --model llama3:8b \
+  --agent data_collection_agent \
+  --mode desktop \
+  --dry-run
+```
+
+### 1. Create Configuration
+
+Create a configuration file for your evaluation setup:
+
+```yaml
+# config/my_evaluation.yaml
+source_path: "data"
+inference_params_path: "config/inference_params.yaml"
+evaluator_model: "gpt-4o-mini"
+ollama_host: "http://localhost:11434"
+
+agents:
+  my_agent:
+    name: "My Custom Agent"
+    description: "Collects structured data from user input"
+    prompt_path: "prompts/my_agent.txt"
+    schema_path: "schemas/my_agent.json"
+    tool_name: "send_data"
+```
+
+### 2. Basic Usage
+
+```python
+from edge_llm_lab.core.base_evaluation import BaseEvaluation
+from edge_llm_lab.core.agent_config import ConfigLoader
+
+# Load configuration
+config = ConfigLoader.load_from_yaml("config/my_evaluation.yaml")
+
+# Initialize evaluator
+evaluator = BaseEvaluation(
+    model_name="llama3.1:8b",
+    agent_type="my_agent",
+    config=config
+)
+
+# Evaluate a response
+metrics = evaluator.evaluate_response(
+    response={"name": "Alice", "age": 28},
+    user_input="Hi, I'm Alice, 28 years old",
+    ground_truth={"name": "Alice", "age": 28}
+)
+
+print(metrics)
+```
+
+## 📋 Configuration Guide
+
+### Agent Configuration
+
+Each agent requires:
+- **prompt_path**: Path to the system prompt file
+- **schema_path**: Path to the JSON schema for structured output
+- **tool_name**: Name of the function/tool for the agent
+
+### Inference Parameters
+
+Control model behavior with parameters:
+```yaml
+temperature: 0.7
+top_p: 0.9
+max_tokens: 1000
+context_size: 4000
+```
+
+## 🔧 Advanced Usage
+
+### Custom Evaluation Metrics
+
+```python
+# Extend the base evaluator for custom metrics
+class CustomEvaluator(BaseEvaluation):
+    def evaluate_response(self, response, user_input, ground_truth=None):
+        metrics = super().evaluate_response(response, user_input, ground_truth)
+        
+        # Add custom metrics
+        metrics.additional_metrics["custom_score"] = self.calculate_custom_score(response)
+        
+        return metrics
+```
+
+### llama-server Optimizations
+
+The framework provides pre-configured optimization presets for `llama-server` inference:
+
+```python
+from edge_llm_lab.utils.optimization import (
+    get_optimisations,
+    get_mobile_optimizations,
+    get_desktop_optimizations,
+    get_optimal_kv_cache_type
+)
+
+# Get optimal KV cache type for your model
+kv_cache = get_optimal_kv_cache_type("q8_0")  # For 8-bit quantized models
+
+# Get all available optimizations (test mode vs production mode)
+individual_opts, selected_opts = get_optimisations(kv_cache)
+
+# Use desktop-optimized configurations
+desktop_opts = get_desktop_optimizations(kv_cache)
+evaluator.pipeline_eval_model(mode='logs_and_viz', optimisations=desktop_opts)
+
+# Use mobile-optimized configurations
+mobile_opts = get_mobile_optimizations(kv_cache)
+evaluator.pipeline_eval_model(mode='logs_and_viz', optimisations=mobile_opts)
+
+# Test all optimizations systematically
+evaluator.pipeline_eval_model(mode='logs_only', optimisations=individual_opts)
+```
+
+**Available optimization parameters:**
+- `--n-gpu-layers`: Number of layers to offload to GPU
+- `--cache-type-k`, `--cache-type-v`: KV cache quantization
+- `--flash-attn`: Enable Flash Attention
+- `--cont-batching`: Enable continuous batching
+- `--threads`: Number of threads
+- `--batch-size`, `--ubatch-size`: Batch sizes
+- `--no-mmap`, `--no-kv-offload`: Memory management
+- And many more...
+
+See `src/edge_llm_lab/utils/optimization.py` for the full list of optimizations.
+
+## 📊 Evaluation Results
+
+The framework generates comprehensive evaluation logs including:
+
+- **Performance Metrics**: Latency breakdown, throughput, token statistics
+- **Quality Metrics**: Accuracy, ROUGE scores, format validation
+- **Device Information**: CPU, RAM, OS, architecture, power consumption
+- **Resource Monitoring**: Memory usage, swap, energy deltas
+- **Session Metadata**: Model info, quantization, timestamps
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our contributing guidelines:
+
+1. **Submit Evaluation Results**: Share your model evaluation results
+2. **Add New Agents**: Create new agent types for different domains
+3. **Improve Metrics**: Enhance evaluation algorithms
+4. **Documentation**: Help improve documentation and examples
+
+### How to Contribute Results
+
+1. Fork the repository
+2. Add your evaluation results to `contributions/`
+3. Include:
+   - Model information
+   - Device specifications
+   - Evaluation configuration
+   - Results and metrics
+4. Submit a pull request
+
+### Example Contribution Structure
+
+```
+contributions/
+├── your_username/
+│   ├── model_evaluations/
+│   │   ├── llama3.1_8b_macbook_pro.json
+│   │   └── gpt4_mini_iphone_15.json
+│   ├── device_specs/
+│   │   └── macbook_pro_m3.json
+│   └── README.md
+```
+
+## 📚 Examples
+
+Check the `examples/` directory for:
+- **Desktop Evaluation**: Python-based evaluation scripts
+- **Mobile Integration**: Flutter/Dart integration examples (coming soon)
+- **Custom Agents**: Domain-specific agent implementations
+
+## 🛠️ Development
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Format code
+black src/ tests/
+
+# Type checking
+mypy src/
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- OpenAI for API access
+- Ollama for local model serving
+- The open-source LLM community
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/MariaJastrzebska/edge-llm-lab/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/MariaJastrzebska/edge-llm-lab/discussions)
+- **Email**: maria.jastrzebska@example.com
 
 ---
 
-## 🎯 Motivation
-
-Running LLMs efficiently on local devices (laptops, phones, edge boards) requires a deep understanding of how inference optimizations interact under different hardware constraints.
-
-This project aims to build an **open, extensible benchmarking framework** to analyze latency-vs-quality trade-offs in local inference pipelines.
-
----
-
-## 🧩 Architecture Overview
-
-Two complementary tracks share the same configuration schema and test logic:
-
-| Environment | Backend | Purpose |
-|--------------|----------|----------|
-| **Desktop** | [llama.cpp](https://github.com/ggerganov/llama.cpp) | Python-based experiments for detailed, repeatable measurements. |
-| **Mobile** | [fllama](https://github.com/Telosnex/fllama) | Flutter/Dart integration to validate results directly on phones (iOS/Android). |
-
-Both environments execute **identical rounds of optimizations** — allowing fair comparison between hardware classes.
-
----
-
-## ⚙️ Optimization Techniques
-
-Each experiment round applies a defined combination of flags.  
-The default pipeline includes:
-
-| Category | Example Flags | Description |
-|-----------|----------------|-------------|
-| **Baseline** | `{}` | Unoptimized reference setup |
-| **Caching** | `--kv-cache`, `--cache-type-k`, `--cache-type-v` | Key/Value caching and variants |
-| **Parallelization** | `--flash-attn`, `--cont-batching` | FlashAttention and continuous batching |
-| **Speculative Decoding** | `--prompt-lookup`, `--prompt-lookup-ngram`, `--speculative-decoding` | Prompt lookup and adaptive decoding strategies |
-| **Hybrid Combinations** | multiple flags | Combined setups tuned for edge/mobile constraints |
-
-All configurations can be extended by adding new rounds or custom flags in YAML.
-
-
+**Made with ❤️ for the LLM evaluation community**
