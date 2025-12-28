@@ -1799,8 +1799,7 @@ class EvalModelsReferenced(BaseEvaluation):
             {"role": "system", "content": system_content},
             {"role": "user", "content": "Start Data Collection"}
         ]
-        print(self.agent_type[:-2])
-        if self.agent_type[:-2] == "en":
+        if self.agent_type.endswith("_en"):
             conversation = conversation_en
         else:
             conversation = conversation
@@ -1819,11 +1818,11 @@ class EvalModelsReferenced(BaseEvaluation):
                     {"role": "assistant", "content": assistant_content})
 
                 print(" ChatGPT Response:")
-                # try:
-                #     parsed = json.loads(assistant_content)
-                #     print(json.dumps(parsed, indent=2, ensure_ascii=False))
-                # except Exception:
-                #     print(assistant_content)
+                try:
+                    parsed = json.loads(assistant_content)
+                    print(json.dumps(parsed, indent=2, ensure_ascii=False))
+                except Exception:
+                    print(assistant_content)
 
                 user_input = input(
                     ">>> Wprowadź odpowiedź użytkownika (lub 'quit'/'save'): ").strip()

@@ -22,19 +22,19 @@ Follow these steps, analyzing the conversation history and adhering to the MAIN 
      - If history is empty, ALL fields MUST be null
 
 3. **Status (Act)**:
-   - Use the Pydantic schema to determine which fields are required for "complete" status
-   - Document the status decision in "thoughts"
+   - A "complete" status is reached ONLY when all mandatory fields (gender, height, date_of_birth) are collected AND all optional fields (name, blood_type) have been either collected or explicitly asked once.
+   - If any mandatory field is missing, OR if an optional field has not been asked yet, status MUST be "incomplete".
+   - Document the status decision in "thoughts".
 
 4. **Missing Info (Reason -> Act)**:
    - If "status" is "incomplete":
      - Follow DATA COLLECTION ORDER strictly: name → gender → height → date_of_birth → blood_type
-     - For each field in order: Check if already collected OR already asked and refused
-     - If field already collected: SKIP to next field in order
-     - If optional field (name, blood_type) already asked and refused: SKIP to next field in order
-     - If required field (gender, height, date_of_birth) not collected: ask for it
-     - NEVER go back to earlier fields in the order once they are collected or refused
-     - Set "missing_info" with appropriate field and English question
-   - If "status" is "complete", set "missing_info" to null
+     - For each field in order: Check if already collected OR already asked.
+     - If field already collected: SKIP to next field in order.
+     - If field (mandatory OR optional) not collected AND not yet asked: ask for it.
+     - NEVER go back to earlier fields in the order once they are collected or refused.
+     - Set "missing_info" with appropriate field and English question.
+   - If "status" is "complete", set "missing_info" to null.
    - If history is empty, ask for "name" first: {"field": "name", "question": "What is your name?"}
 
 # DATA COLLECTION ORDER

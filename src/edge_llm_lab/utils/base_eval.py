@@ -61,6 +61,7 @@ class BaseEvaluation:
                
         self.model_name = model_name
         self.model_name_norm = self.model_name.replace(':', '_').replace('/', '_')
+        self.folders_to_cleanup = []
         self.agent_enum = self.ensure_agent_enum(agent)
         self.agent_type = self.agent_enum.value
         self.agent = self.agent_enum
@@ -141,7 +142,7 @@ class BaseEvaluation:
         self.LLAMA_SERVER_PORT = 8080
         self.LLAMA_SERVER_URL = f"http://{self.LLAMA_SERVER_HOST}:{self.LLAMA_SERVER_PORT}"
         # Load timeout from config.yaml agent_config, default to 60s
-        from model_config_loader import get_agent_config
+        from edge_llm_lab.core.model_config_loader import get_agent_config
         agent_config = get_agent_config(self.agent_type)
         self.TIMEOUT = agent_config.get('timeout_sec', 60)
         self.MULTI_TURN_GLOBAL_CONFIG = self._load_referenced_params()
@@ -150,7 +151,7 @@ class BaseEvaluation:
         self.TEMPERATURE = self.MULTI_TURN_GLOBAL_CONFIG.get('temperature')
         self.CONTEXT_SIZE = self.MULTI_TURN_GLOBAL_CONFIG.get('context_size')
         self.SEED = 42
-        self.folders_to_cleanup = []
+        self.SEED = 42
         self.current_model_metadata, self.all_model_metadata = self.save_and_get_current_model_metadata()
 
 
@@ -171,14 +172,21 @@ class BaseEvaluation:
         self._cleanup_empty_folders()
     
     def _cleanup_empty_folders(self):
-        """Czyści puste foldery z listy folders_to_cleanup"""
+        """Czyści puste foldery z listy folders_to_cleanup oraz ich pustych rodziców"""
         for folder_path in self.folders_to_cleanup:
-            try:
-                if os.path.exists(folder_path) and not os.listdir(folder_path):
-                    os.rmdir(folder_path)
-                    print(f"🗑️ Removed empty folder: {folder_path}")
-            except Exception as e:
-                print(f"⚠️ Could not remove folder {folder_path}: {e}")
+            current_path = os.path.abspath(folder_path)
+            # Walk up the tree and remove empty folders
+            while current_path and current_path.startswith(self.SOURCE_PATH) and current_path != self.SOURCE_PATH:
+                try:
+                    if os.path.exists(current_path) and os.path.isdir(current_path) and not os.listdir(current_path):
+                        os.rmdir(current_path)
+                        print(f"🗑️ Removed empty folder: {current_path}")
+                        current_path = os.path.dirname(current_path)
+                    else:
+                        break
+                except Exception as e:
+                    print(f"⚠️ Could not remove folder {current_path}: {e}")
+                    break
         
         
         
@@ -215,6 +223,7 @@ class BaseEvaluation:
         print(f"Timestamp: {timestamp}")
         self.folders_to_cleanup.append(model_run_folder)
         self.folders_to_cleanup.append(all_models_run_folder)
+        self.folders_to_cleanup.append(log_folder)
         return {"model_run":model_run, "all_models_run":all_models_run, "log_folder": log_folder, "model_run_folder": model_run_folder, "all_models_run_folder": all_models_run_folder, "timestamp": timestamp, "current_model_metadata": self.current_model_metadata, "all_model_metadata": self.all_model_metadata}
     
     def get_or_create_file_or_folder(self, file_name:str, type_of_file: Literal["reference", "log", "cache", "metadata"], source_path:str=None)->Tuple[str, bool]:
@@ -251,6 +260,8 @@ class BaseEvaluation:
 
         if type_of_file == "cache":
             folder_existed = os.path.exists(folder) 
+            if not folder_existed:
+                self.folders_to_cleanup.append(folder)
 
             os.makedirs(folder, exist_ok=True)
             return folder, folder_existed
@@ -258,6 +269,9 @@ class BaseEvaluation:
 
         file = os.path.join(folder, file_name + ".json")
         if not os.path.exists(file):
+            folder_existed = os.path.exists(folder)
+            if not folder_existed:
+                self.folders_to_cleanup.append(folder)
             os.makedirs(folder, exist_ok=True)
             with open(file, 'w') as f:
                 # Initialize with empty evaluations list if it's a log file, otherwise empty dict
@@ -631,14 +645,14 @@ class BaseEvaluation:
         >>> import pprint
         >>> pprint.pprint(multi_turn_parameters, width=72, sort_dicts=True)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
         {'context_size': 7000,
-        'cot_prompt_path': '/Users/mariamalycha/Documents/fed-mobile/fed_mobile_chat_flutter/assets/prompts/multi_turn/constant_data_en.txt',
-        'cot_schema_path': '/Users/mariamalycha/Documents/fed-mobile/fed_mobile_chat_flutter/assets/schemas/constantdataanalysiscot_en_schema.json',
-        'display_prompt': '/Users/mariamalycha/Documents/fed-mobile/fed_mobile_chat_flutter/assets/prompts/multi_turn/constant_display_en.txt',
+        'cot_prompt_path': 'examples/desktop/prompts/constant_data_en.txt',
+        'cot_schema_path': 'examples/desktop/schemas-outdated/constantdataanalysiscot_en_schema.json',
+        'display_prompt': 'examples/desktop/prompts/display_prompt.txt',
         'max_tokens': ...,
         'temperature': ...,
         'top_p': ...,
-        'validation_cot_prompt_path': '/Users/mariamalycha/Documents/fed-mobile/fed_mobile_chat_flutter/assets/prompts/multi_turn/validation_en.txt',
-        'validation_schema_path': '/Users/mariamalycha/Documents/fed-mobile/fed_mobile_chat_flutter/assets/schemas/constantdata_en_schema.json'}
+        'validation_cot_prompt_path': 'examples/desktop/prompts/validation.txt',
+        'validation_schema_path': 'examples/desktop/schemas-outdated/constantdata_en_schema.json'}
         """
         path = self.SOURCE_PATH
         params = self.load_yaml_config(self.APP_PARAMS_PATH)
@@ -727,7 +741,7 @@ class BaseEvaluation:
     def check_model_availability(model_name, install_choice=None):
         """Sprawdź dostępność modelu i zainstaluj jeśli potrzeba"""
         import ollama
-        from model_config_loader import delete_all_models, pull_model_with_progress
+        from edge_llm_lab.core.model_config_loader import delete_all_models, pull_model_with_progress
         
         try:
             available_models = ollama.list()
