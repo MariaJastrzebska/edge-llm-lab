@@ -5,7 +5,7 @@ import tempfile
 import os
 from pathlib import Path
 
-from edge_llm_lab.core.agent_config import AgentConfig
+from edge_llm_lab.core.future_agent_config import AgentConfig
 
 
 class TestConfigurationIntegration:

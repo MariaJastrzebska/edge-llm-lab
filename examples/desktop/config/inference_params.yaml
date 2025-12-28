@@ -1,28 +1,153 @@
-# Example inference parameters for LLM evaluation
-# These parameters control how models generate responses
+config_version: "1.2.40" # Bump this version when making structural changes to logs or config
 
-# Core generation parameters
-temperature: 0.7
-top_p: 0.9
-max_tokens: 1000
-context_size: 4000
+model_config:
+  model_gguf_path: "assets/models/granite3.1-dense.gguf"
+  model_identifier: "granite3.1-dense:2b"
+  model_format: "gguf" # Added model format
+  context_window: 131072 # Będzie weryfikowane z faktycznymi wartościami z logów fllama
+  
+  # Parametry poniżej są teraz automatycznie wyciągane z logów fllama
+  # i nie muszą być ręcznie wprowadzane w pliku konfiguracyjnym
+  # - quantization_method
+  # - quantization_bits
+  # - base_name
+  # - logit_scale
+  # - eos_token_id
+  # - n_seq_max
+  # - context_setup_time_ms
+  
+  pruning_method: "N/A"
+  pruning_sparsity: -1.0
+  distillation_source: "N/A"
+  decoding_strategy: "greedy"
+  peft_method: "N/A"
 
-# Advanced parameters
-seed: 42
-frequency_penalty: 0.0
-presence_penalty: 0.0
 
-# Evaluation-specific settings
-evaluation_rounds: 5
-max_conversation_length: 10
+logging_config:
+  mode: debug
+  log_directory_name: "ThesisExperimentLogs"
 
-# Device-specific optimizations
-mobile_optimizations:
-  reduced_context: 2000
-  lower_temperature: 0.5
-  max_tokens: 500
+strategies:
+  - key: "single_turn"
+    class_name: "SingleTurnFCStrategy"
+    selected: false
+  - key: "multi_turn"
+    class_name: "MultiTurnFCStrategy"
+    selected: true
 
-desktop_optimizations:
-  full_context: 4000
-  standard_temperature: 0.7
-  max_tokens: 1000
+# Ścieżka do promptu powitalnego wyświetlanego na początku rozmowy
+welcome_cot_prompt_path: "assets/prompts/welcome.txt"
+
+agents:
+  - key: "symptom_agent"
+    class_name: "SymptomAgent"
+    strategy_name: "multi_turn"
+    cot_prompt_path: "assets/prompts/multi_turn/symptoms.txt"
+    validation_cot_prompt_path: "assets/prompts/multi_turn/validation.txt"
+    display_prompt: "assets/prompts/multi_turn/constant_display.txt"
+    validation_schema_path: "assets/schemas/symptom_agent_validation_schema.json"
+    cot_schema_path: "assets/schemas/symptom_agent_cot_schema.json"
+    strategies:
+      single_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "disabled"
+      multi_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "enabled"
+  
+  - key: "constant_data_agent"
+    class_name: "ConstantDataAgent"
+    strategy_name: "multi_turn"
+    cot_prompt_path: "assets/prompts/multi_turn/constant_data.txt"
+    validation_cot_prompt_path: "assets/prompts/multi_turn/validation.txt"
+    display_prompt: "assets/prompts/multi_turn/constant_display.txt"
+    validation_schema_path: "assets/schemas/constantdata_schema.json"
+    cot_schema_path: "assets/schemas/constantdataanalysiscot_schema.json" 
+    strategies:
+      single_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "disabled"
+      multi_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "enabled"
+  - key: "constant_data_en"
+    class_name: "ConstantDataAgent"
+    strategy_name: "multi_turn"
+    cot_prompt_path: "assets/prompts/multi_turn/constant_data_en.txt"
+    validation_cot_prompt_path: "assets/prompts/multi_turn/validation_en.txt"
+    display_prompt: "assets/prompts/multi_turn/constant_display_en.txt"
+    validation_schema_path: "assets/schemas/constantdata_en_schema.json"
+    cot_schema_path: "assets/schemas/constantdataanalysiscot_en_schema.json" 
+    strategies:
+      single_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "disabled"
+      multi_turn:
+        context_size: 8192
+        max_tokens: 2048  # Zwiększ z 3500 do 8000
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "enabled"
+
+  - key: "symptom_agent"
+    class_name: "SymptomAgent"
+    strategy_name: "single_turn"
+    cot_prompt_path: "assets/prompts/single_turn/symptoms.txt"
+    validation_cot_prompt_path: "assets/prompts/single_turn/validation.txt"
+    display_prompt: "assets/prompts/single_turn/constant_display.txt"
+    validation_schema_path: "assets/schemas/symptom_agent_validation_schema.json"
+    cot_schema_path: "assets/schemas/symptom_agent_cot_schema.json"
+    strategies:
+      single_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "disabled"
+      multi_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "enabled"
+  
+  - key: "constant_data_agent"
+    class_name: "ConstantDataAgent"
+    strategy_name: "single_turn"
+    cot_prompt_path: "assets/prompts/single_turn/constant_data.txt"
+    validation_cot_prompt_path: "assets/prompts/single_turn/validation.txt"
+    display_prompt: "assets/prompts/single_turn/constant_display.txt"
+    validation_schema_path: "assets/schemas/constantdata_schema.json"
+    cot_schema_path: "assets/schemas/constantdataanalysiscot_schema.json" 
+    strategies:
+      single_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "disabled"
+      multi_turn:
+        context_size: 8192
+        max_tokens: 2048
+        temperature: 0.1
+        top_p: 1.0
+        prompt_caching_strategy_for_turns: "enabled"
+
+agent_flow:
+  - constant_data_agent
+  - symptom_agent

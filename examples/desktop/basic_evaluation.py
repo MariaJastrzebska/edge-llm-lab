@@ -21,7 +21,7 @@ from pathlib import Path
 # Add the framework to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from edge_llm_lab.core.agent_config import AgentConfig
+from edge_llm_lab.core.future_agent_config import AgentConfig
 from edge_llm_lab.evaluation.referenced_evaluator import ReferencedEvaluator
 from edge_llm_lab.utils.optimization import (
     get_optimisations, 

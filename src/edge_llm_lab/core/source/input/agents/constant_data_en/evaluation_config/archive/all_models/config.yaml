@@ -1,0 +1,110 @@
+models_to_evaluate:
+# - name: granite4:micro
+#   description: IBM Granite 4.0 Micro (unquantized)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://huggingface.co/ibm-granite/granite-4.0-micro,https://ollama.com/library/granite4:micro
+# - name: nemotron-mini:4b
+#   description: Nemotron Mini 4B Instruct (unquantized)
+#   family: nemotron
+#   quantization: unquantized
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/nemotron-mini:4b
+  
+# - name: dmis/meerkat-7b
+#   description: Meerkat 7B v1.0 (unquantized)
+#   family: meerkat
+#   quantization: unquantized
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://huggingface.co/dmis-lab/meerkat-7b-v1.0, https://ollama.com/dmis/meerkat-7b
+  
+# - name: Intelligent-Internet/II-Medical-8B
+#   description: II Medical 8B (unquantized)
+#   family: ii
+#   quantization: unquantized
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://huggingface.co/Intelligent-Internet/II-Medical-8B
+
+# ===== AKTYWNE MODELE (zainstalowane) =====
+# - name: granite3.1-dense:8b
+#   description: IBM Granite 3.1 Dense 8B (legacy tag)
+#   family: granite
+#   quantization: quantised
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense
+
+- name: granite3.1-dense:8b-instruct-fp16
+  description: IBM Granite 3.1 Dense 8B (unquantized)
+  family: granite
+  quantization: unquantized
+  tested: false
+  notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense/tags
+
+# - name: granite3.1-dense:2b-instruct-fp16
+#   description: IBM Granite 3.1 Dense 2B (unquantized)
+#   family: granite
+#   quantization: unquantized
+#   tested: true
+#   notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense/tags
+# - name: hf.co/Qwen/Qwen2.5-7B-Instruct-GGUF:F16
+#   description: Qwen 2.5 7B Instruct (unquantized)
+#   family: qwen
+#   quantization: unquantized
+#   tested: false
+# - name: hf.co/meta-llama/Llama-3.1-8B-Instruct-GGUF:F16
+#   description: Llama 3.1 8B Instruct (unquantized)
+#   family: llama
+#   quantization: unquantized
+#   tested: false
+# - name: hf.co/microsoft/Phi-3.5-mini-instruct-GGUF:F16
+#   description: Phi-3.5 ~4B Instruct (unquantized)
+#   family: phi
+#   quantization: unquantized
+#   tested: false
+# - name: hf.co/ibm-research/granite-3.2-2b-instruct-GGUF:F16
+#   description: IBM Granite 3.2 2B (unquantized)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: orginal model not quanitized, https://huggingface.co/ibm-granite/granite-3.3-2b-instruct-GGUF/tree/main
+# - name: hf.co/ibm-research/granite-3.2-8b-instruct-GGUF:F16
+#   description: IBM Granite 3.2 8B (unquantized)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: orginal model not quanitized, https://huggingface.co/ibm-research/granite-3.2-8b-instruct-GGUF/tree/main
+# - name: hf.co/ibm-granite/granite-3.3-8b-instruct-GGUF:F16
+#   description: IBM Granite 3.3 8B (unquantized)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: orginal model not quanitized, https://huggingface.co/ibm-granite/granite-3.3-8b-instruct-GGUF/tree/main
+# - name: hf.co/ibm-granite/granite-3.3-2b-instruct-GGUF:F16
+#   description: IBM Granite 3.3 2B (unquantized)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: orginal model not quanitized, https://huggingface.co/ibm-granite/granite-3.3-2b-instruct-GGUF/tree/main
+# - name: granite3.1-dense:2b
+#   description: IBM Granite 3.1 Dense 2B (legacy tag)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense
+# - name: granite3.1-dense:latest
+#   description: IBM Granite 3.1 Dense 2B (latest tag)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense
+# - name: granite3.1-dense:8b
+#   description: IBM Granite 3.1 Dense 8B (legacy tag)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense
+agent_config:
+  agent_type: constant_data_en
+  max_rounds: 10
+  timeout_sec: 300

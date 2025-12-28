@@ -1,0 +1,33 @@
+# Configuration for quantized models testing
+# Only selected winner models from referenced evaluation
+
+models_to_evaluate:
+- name: granite3.1-dense:2b-instruct-q4_0
+  description: IBM Granite 3.1 Dense 2B (Q4 quantized)
+  family: granite
+  quantization: q4_0
+  tested: false
+  notes: Winner model from referenced evaluation - Q4 quantization for mobile
+
+- name: granite3.1-dense:2b-instruct-q8_0
+  description: IBM Granite 3.1 Dense 2B (Q8 quantized)
+  family: granite
+  quantization: q8_0
+  tested: false
+  notes: Winner model from referenced evaluation - Q8 quantization for higher quality
+
+# Add more quantized versions of your selected winner models here
+# Copy the structure above and modify the names/quantization levels
+
+# Example for another winner model:
+# - name: hf.co/ibm-granite/granite-3.3-2b-instruct-GGUF:Q4_0
+#   description: IBM Granite 3.3 2B (Q4 quantized)
+#   family: granite
+#   quantization: q4_0
+#   tested: false
+#   notes: Latest version winner - Q4 quantization
+
+agent_config:
+  agent_type: constant_data_en
+  max_rounds: 10
+  timeout_sec: 3000

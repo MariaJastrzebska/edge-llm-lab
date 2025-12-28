@@ -1,0 +1,157 @@
+models_to_evaluate:
+  # === Phase 2: Quantization Analysis (Q2 - Q8) ===
+
+  # 1. Granite 3.2 2B (IBM)
+  - name: granite3.2:2b-instruct-q2_K
+    description: IBM Granite 3.2 2B (Q2_K)
+    family: granite
+    quantization: quantised
+    tested: false
+  - name: granite3.2:2b-instruct-q4_K_M
+    description: IBM Granite 3.2 2B (Q4_K_M)
+    family: granite
+    quantization: quantised
+    tested: false
+  - name: granite3.2:2b-instruct-q6_K
+    description: IBM Granite 3.2 2B (Q6_K)
+    family: granite
+    quantization: quantised
+    tested: false
+  - name: granite3.2:2b-instruct-q8_0
+    description: IBM Granite 3.2 2B (Q8_0)
+    family: granite
+    quantization: quantised
+    tested: false
+
+  # 2. Granite 4.0 1B (IBM)
+  - name: ibm/granite4:1b-instruct-q2_K
+    description: IBM Granite 4.0 1B (Q2_K)
+    family: granite
+    quantization: quantised
+    tested: false
+  - name: ibm/granite4:1b-instruct-q4_K_M
+    description: IBM Granite 4.0 1B (Q4_K_M)
+    family: granite
+    quantization: quantised
+    tested: false
+  - name: ibm/granite4:1b-instruct-q8_0
+    description: IBM Granite 4.0 1B (Q8_0)
+    family: granite
+    quantization: quantised
+    tested: false
+
+  # 3. Gemma 2 9B (Google)
+  - name: gemma2:9b-instruct-q2_K
+    description: Google Gemma 2 9B (Q2_K)
+    family: gemma
+    quantization: quantised
+    tested: false
+  - name: gemma2:9b-instruct-q4_K_M
+    description: Google Gemma 2 9B (Q4_K_M)
+    family: gemma
+    quantization: quantised
+    tested: false
+  - name: gemma2:9b-instruct-q6_K
+    description: Google Gemma 2 9B (Q6_K)
+    family: gemma
+    quantization: quantised
+    tested: false
+
+  # 4. Llama 3.2 3B (Meta)
+  - name: llama3.2:3b-instruct-q2_K
+    description: Meta Llama 3.2 3B (Q2_K)
+    family: llama
+    quantization: quantised
+    tested: false
+  - name: llama3.2:3b-instruct-q4_K_M
+    description: Meta Llama 3.2 3B (Q4_K_M)
+    family: llama
+    quantization: quantised
+    tested: false
+  - name: llama3.2:3b-instruct-q8_0
+    description: Meta Llama 3.2 3B (Q8_0)
+    family: llama
+    quantization: quantised
+    tested: false
+
+  # 5. Qwen 2.5 3B (Alibaba)
+  - name: qwen2.5:3b-instruct-q2_K
+    description: Qwen 2.5 3B (Q2_K)
+    family: qwen
+    quantization: quantised
+    tested: false
+  - name: qwen2.5:3b-instruct-q4_K_M
+    description: Qwen 2.5 3B (Q4_K_M)
+    family: qwen
+    quantization: quantised
+    tested: false
+  - name: qwen2.5:3b-instruct-q8_0
+    description: Qwen 2.5 3B (Q8_0)
+    family: qwen
+    quantization: quantised
+    tested: false
+
+  # 6. Phi 3 Mini (Microsoft)
+  - name: phi3:3.8b-mini-instruct-q2_K
+    description: Phi 3 Mini 3.8B (Q2_K)
+    family: phi
+    quantization: quantised
+    tested: false
+  - name: phi3:3.8b-mini-instruct-q4_K_M
+    description: Phi 3 Mini 3.8B (Q4_K_M)
+    family: phi
+    quantization: quantised
+    tested: false
+
+  # 7. Qwen 2.5 1.5B (Alibaba)
+  - name: qwen2.5:1.5b-instruct-q2_K
+    description: Qwen 2.5 1.5B (Q2_K)
+    family: qwen
+    quantization: quantised
+    tested: false
+  - name: qwen2.5:1.5b-instruct-q8_0
+    description: Qwen 2.5 1.5B (Q8_0)
+    family: qwen
+    quantization: quantised
+    tested: false
+
+  # 8. MedLlama 2 7B
+  - name: medllama2:7b-q2_K
+    description: MedLlama 2 7B (Q2_K)
+    family: llama
+    quantization: quantised
+    tested: false
+  - name: medllama2:7b-q8_0
+    description: MedLlama 2 7B (Q8_0)
+    family: llama
+    quantization: quantised
+    tested: false
+
+  # 9. BioMistral 7B
+  - name: biomistral:7b-instruct-q2_K
+    description: BioMistral 7B (Q2_K)
+    family: mistral
+    quantization: quantised
+    tested: false
+  - name: biomistral:7b-instruct-q8_0
+    description: BioMistral 7B (Q8_0)
+    family: mistral
+    quantization: quantised
+    tested: false
+
+  # 10. Meditron 7B
+  - name: meditron:7b-instruct-q2_K
+    description: Meditron 7B (Q2_K)
+    family: llama
+    quantization: quantised
+    tested: false
+  - name: meditron:7b-instruct-q8_0
+    description: Meditron 7B (Q8_0)
+    family: llama
+    quantization: quantised
+    tested: false
+
+agent_config:
+  agent_type: constant_data_en
+  max_rounds: 10
+  timeout_sec: 3000

@@ -6,7 +6,7 @@ import os
 import yaml
 from pathlib import Path
 
-from edge_llm_lab.core.agent_config import AgentConfig, AgentType
+from edge_llm_lab.core.future_agent_config import AgentConfig, AgentType
 
 
 class TestAgentType:

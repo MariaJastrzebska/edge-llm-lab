@@ -3,7 +3,8 @@ Configuration system for LLM evaluation agents.
 Allows flexible configuration of agents, prompts, and schemas.
 """
 
-from typing import Dict, Any, Optional, Type
+from enum import Enum
+from typing import Dict, Any, Optional, Type, List
 from pydantic import BaseModel, Field
 from dataclasses import dataclass
 from pathlib import Path
