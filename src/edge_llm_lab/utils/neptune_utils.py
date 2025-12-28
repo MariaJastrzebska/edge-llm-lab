@@ -1,5 +1,6 @@
 import os
 import neptune
+from neptune.types import File
 from typing import Dict, Any, List, Optional
 
 class NeptuneManager:
@@ -68,19 +69,39 @@ class NeptuneManager:
         """Uploads a file artifact to Neptune."""
         if self.run and os.path.exists(local_path):
             try:
-                self.run[neptune_path].upload(local_path)
+                # Use File type for images to enable rich preview in Neptune
+                if local_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                    self.run[neptune_path].upload(File(local_path))
+                else:
+                    self.run[neptune_path].upload(local_path)
             except Exception as e:
                 print(f"⚠️ Failed to upload {local_path} to Neptune: {e}")
 
-    def upload_directory_artifacts(self, local_dir: str, neptune_path_prefix: str, extensions=(".png", ".jpg", ".jpeg", ".json")):
-        """Uploads all matching files from a directory to Neptune."""
+    def upload_images_series(self, image_paths: List[str], neptune_path: str):
+        """Uploads a list of images as a Neptune series (mosaic view)."""
+        if not (self.run and image_paths):
+            return
+        
+        for path in image_paths:
+            if os.path.exists(path):
+                try:
+                    self.run[neptune_path].append(File(path))
+                except Exception as e:
+                    print(f"⚠️ Failed to append {path} to Neptune series {neptune_path}: {e}")
+
+    def upload_directory_artifacts(self, local_dir: str, neptune_path_prefix: str, extensions=(".png", ".jpg", ".jpeg", ".json", ".csv", ".tex")):
+        """Uploads all matching files from a directory and its subdirectories to Neptune."""
         if not (self.run and os.path.exists(local_dir)):
             return
             
-        for f in os.listdir(local_dir):
-            if f.endswith(extensions):
-                full_path = os.path.join(local_dir, f)
-                self.upload_artifact(full_path, f"{neptune_path_prefix}/{f}")
+        for root, dirs, files in os.walk(local_dir):
+            for f in files:
+                if f.lower().endswith(extensions):
+                    full_path = os.path.join(root, f)
+                    # Create a relative path for Neptune based on the provided prefix and folder structure
+                    rel_path = os.path.relpath(full_path, local_dir)
+                    neptune_file_path = f"{neptune_path_prefix}/{rel_path}"
+                    self.upload_artifact(full_path, neptune_file_path)
 
     def recover_log(self, run_id: str, target_path: str) -> bool:
         """Downloads a JSON log from a past Neptune run."""

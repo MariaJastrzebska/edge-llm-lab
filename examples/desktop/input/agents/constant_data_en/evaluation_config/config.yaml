@@ -1,21 +1,113 @@
 models_to_evaluate:
-  # === Phase 1: Baseline study models ===
+  # === Phase 1: Baseline study models (Q8_0 precision) ===
   
-  # 1. Llama 3.2 3B (Meta) - Reliable with large context
+  # --- General Purpose (Q8_0 - best quality/size ratio) ---
+  # # 1. Granite 3.2 2B (IBM)
+  - name: granite3.2:2b-instruct-q8_0
+    description: IBM Granite 3.2 2B (Q8)
+    family: granite
+    quantization: quantised
+    tested: true
+    notes: Q8 quantization, ~3GB, minimal quality loss
+
+  # 1b. Llama 3.2 3B (Meta) - Reliable with large context
   - name: llama3.2:3b-instruct-q4_K_M
     description: Llama 3.2 3B (Q4)
     family: llama
     quantization: quantised
     tested: true
-    notes: 128k context, excellent tool use, confirmed available
+    notes: 128k context, excellent tool use
 
-  # # 2. Granite 4.0 Micro 3B (IBM)
-  # - name: hf.co/ibm-granite/granite-4.0-micro-GGUF:Q5_K_M
-  #   description: IBM Granite 4.0 Micro 3B (Q5)
+  # 2. Granite 4.0 Micro 3B (IBM)
+  - name: granite4:micro
+    description: IBM Granite 4.0 Micro 3B (Q8)
+    family: granite
+    quantization: quantised
+    tested: false
+    notes: Q8 quantization, ~2.1GB
+  
+  # 2b. Granite 4.0 Micro 3B (IBM) - Faster Q5
+  - name: hf.co/ibm-granite/granite-4.0-micro-GGUF:Q5_K_M
+    description: IBM Granite 4.0 Micro 3B (Q5)
+    family: granite
+    quantization: quantised
+    tested: false
+    notes: Q5 quantization (~2GB) for speed
 
-  # # 3. Nemotron Mini 4B (NVIDIA)
-  # - name: nemotron-mini:4b-instruct-q5_K_M
-  #   description: NVIDIA Nemotron Mini 4B (Q5)
+  # 3. Nemotron Mini 4B (NVIDIA) - Function calling optimized (Q8)
+  - name: nemotron-mini:4b-instruct-q8_0
+    description: NVIDIA Nemotron Mini 4B (Q8)
+    family: nemotron
+    quantization: quantised
+    tested: false
+    notes: Commercial-friendly, optimized for function calling, ~4GB
+
+  # 4. Granite 3-moe 3B (IBM) - Mixture of Experts - nie dziala
+  - name: granite3-moe:3b-instruct-q8_0 
+    description: IBM Granite 3 MoE 3B (Q8)
+    family: granite
+    quantization: quantised
+    tested: false
+    notes: Mixture of Experts architecture, ~3.5GB
+
+  --- Smaller & Faster Variants (Q4/Q5) ---
+
+  3b. Nemotron Mini 4B (NVIDIA) - Faster Q5
+  - name: nemotron-mini:4b-instruct-q5_K_M
+    description: NVIDIA Nemotron Mini 4B (Q5)
+    family: nemotron
+    quantization: quantised
+    tested: false
+    notes: Q5 quantization (~3GB) for speed
+
+  # 4b. Granite 3-moe 3B (IBM) - Faster Q5
+  - name: granite3-moe:3b-instruct-q5_K_M
+    description: IBM Granite 3 MoE 3B (Q5)
+    family: granite
+    quantization: quantised
+    tested: false
+    notes: Q5 quantization (~2.5GB) for speed
+
+  # 2b. Granite 4.0 Micro 3B (IBM) - Faster Q5
+  - name: hf.co/ibm-granite/granite-4.0-micro-GGUF:Q5_K_M
+    description: IBM Granite 4.0 Micro 3B (Q5)
+    family: granite
+    quantization: quantised
+    tested: false
+    notes: Q5 quantization (~2GB) for speed
+
+  # 5. Llama 3.2 3B (Meta) - Faster Q4
+  - name: llama3.2:3b-instruct-q4_K_M
+    description: Llama 3.2 3B (Q4)
+    family: llama
+    quantization: quantised
+    tested: false
+    notes: Optimized for tool use, Q4 fits in memory
+
+  # 6. Qwen 2.5 3B (Alibaba) - Faster Q4
+  - name: qwen2.5:3b-instruct-q4_K_M
+    description: Qwen 2.5 3B (Q4)
+    family: qwen
+    quantization: quantised
+    tested: false
+    notes: Strong coding/logic, Q4 version
+
+  # --- Medical Specialized (Q8_0 for baseline, can be reduced to Q2_K) ---
+  # 5. OpenBioLLM 8B (Medical)
+  - name: openbiollm:8b-q8_0
+    description: OpenBioLLM 8B (Q8, ~8GB)
+    family: llama
+    quantization: quantised
+    tested: false
+    notes: Medical domain, can be reduced to Q2_K (~2GB) in Phase 2
+
+  # 6. MedLlama3 8B (Medical)
+  - name: medllama3:8b-q8_0
+    description: MedLlama3 8B (Q8, ~8GB)
+    family: llama
+    quantization: quantised
+    tested: false
+    notes: Medical Llama 3, can be reduced to Q2_K (~2GB) in Phase 2
 
 agent_config:
   agent_type: constant_data_en

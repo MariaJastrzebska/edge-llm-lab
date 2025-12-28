@@ -172,6 +172,22 @@ print(metrics)
 
 ## 📈 New Metrics & Features
 
+### Experiment Tracking with Neptune
+The framework integrates with Neptune.ai for real-time tracking of evaluation metrics, hardware usage, and visualizations.
+
+1. Ensure your `.env` file has:
+```bash
+NEPTUNE_API_TOKEN=your_token
+NEPTUNE_PROJECT=workspace/project
+```
+2. Run with plotting enabled:
+```bash
+poetry run python examples/desktop/run_evaluation_pipeline.py --agent constant_data_en
+```
+3. View results at `app.neptune.ai`.
+
+---
+
 ### BERTScore (Hallucination & Completeness)
 We use `bert-score` to provide semantic evaluation:
 - **P-BERT (Precision)**: Measures how much of the model's response is supported by the reference (Hallucination detection).
