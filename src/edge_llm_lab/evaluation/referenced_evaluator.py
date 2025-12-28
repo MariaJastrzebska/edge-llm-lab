@@ -2969,7 +2969,7 @@ class EvalModelsReferenced(BaseEvaluation):
         # 1. Bar chart: Latency Comparison
         fig1 = plt.figure(figsize=(12, 8))
         ax1 = fig1.add_subplot(111)
-        self._create_latency_bars(ax1, model_names, avg_latencies, model_sizes)
+        self._create_latency_bars(ax1, model_names, avg_latencies, model_sizes, model_name=model_name_prefix)
         # Add model_name_prefix to title if provided
         title_suffix = f" - {model_name_prefix}" if model_name_prefix else ""
         
@@ -3349,7 +3349,7 @@ class EvalModelsReferenced(BaseEvaluation):
             # Models have different prefixes, return original names
             return model_names, None
 
-    def _create_latency_bars(self, ax, model_names, avg_latencies, model_sizes):
+    def _create_latency_bars(self, ax, model_names, avg_latencies, model_sizes, model_name=None):
         """Create a bar chart of average latencies sorted by model size."""
         # Sort by model size for better visualization
         sorted_indices = sorted(range(len(model_names)), key=lambda i: model_sizes[i])
@@ -5180,7 +5180,7 @@ class EvalModelsReferenced(BaseEvaluation):
             
             # Find best GPT Judge score (HIGHER is better)
             if best_gpt is None or gpt_score > best_gpt[1].get('gpt_judge_score', 0):
-                best_gpt = (model_name, {
+                best_gpt = (mdl_name, {
                     'gpt_judge_score': gpt_score,
                     'avg_latency_ms': avg_latency,
                     'model_size_gb': model_size,
@@ -5194,7 +5194,7 @@ class EvalModelsReferenced(BaseEvaluation):
             
             # Find best latency (LOWER is better)
             if best_latency is None or avg_latency < best_latency[1].get('avg_latency_ms', float('inf')):
-                best_latency = (model_name, {
+                best_latency = (mdl_name, {
                     'gpt_judge_score': gpt_score,
                     'avg_latency_ms': avg_latency,
                     'model_size_gb': model_size,
@@ -5208,7 +5208,7 @@ class EvalModelsReferenced(BaseEvaluation):
             
 
             if best_size is None or (model_size is not None and model_size < best_size[1].get('model_size_gb', float('inf'))):
-                best_size = (model_name, {
+                best_size = (mdl_name, {
                     'gpt_judge_score': gpt_score,
                     'avg_latency_ms': avg_latency,
                     'model_size_gb': model_size,
@@ -5222,7 +5222,7 @@ class EvalModelsReferenced(BaseEvaluation):
             
             # Find best mobile score (HIGHER is better)
             if best_mobile is None or mobile_score > best_mobile[1].get('mobile_score', 0):
-                best_mobile = (model_name, {
+                best_mobile = (mdl_name, {
                     'gpt_judge_score': gpt_score,
                     'avg_latency_ms': avg_latency,
                     'model_size_gb': model_size,

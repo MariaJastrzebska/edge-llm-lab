@@ -12,7 +12,23 @@ A comprehensive framework for evaluating Large Language Models (LLMs) on edge de
 - **Flexible Evaluation Strategies**: Support for referenced and unreferenced evaluation
 - **Easy Integration**: Simple configuration-based setup
 
-## 📦 Installation
+## 🏃 Running the Evaluation Pipeline
+
+### Main Pipeline
+The primary script for running the multi-stage evaluation pipeline (Model Selection -> Quantization -> Optimization):
+
+```bash
+# Run the pipeline for a specific agent (e.g., constant_data_en)
+poetry run python examples/desktop/run_evaluation_pipeline.py --agent constant_data_en
+```
+
+### Modes
+The pipeline supports different modes in `run_evaluation_pipeline.py`:
+- `logs_only`: Perform evaluation and metrics collection.
+- `logs_and_viz`: (Default) Evaluation + generate comparison plots + upload to Neptune.
+- `viz_only`: Re-generate plots from existing local or Neptune logs.
+
+---
 
 ### Method 1: Poetry (Recommended)
 

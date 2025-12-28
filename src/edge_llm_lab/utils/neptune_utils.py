@@ -6,6 +6,11 @@ class NeptuneManager:
     """Manages Neptune AI integration for LLM evaluation."""
     
     def __init__(self, api_token: Optional[str] = None, project: Optional[str] = None):
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+        except ImportError:
+            pass
         self.api_token = api_token or os.getenv("NEPTUNE_API_TOKEN")
         self.project = project or os.getenv("NEPTUNE_PROJECT")
         self.run = None

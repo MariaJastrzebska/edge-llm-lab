@@ -170,6 +170,7 @@ class BaseEvaluation:
 
         # Pluggable Tracking (Default to Neptune if available, else Mock/Console)
         self.neptune: Optional[RunTracker] = NeptuneManager()
+        self.inference_engine = "llama-server"
     def _finalize_init(self, model_name, agent, eval_type):
         # check if model metadata cashed
         if self.eval_type in ("referenced", "unreferenced"):
@@ -1077,40 +1078,53 @@ class BaseEvaluation:
         import time
 
         # Check if llama-server is running and supports tools
+        self.inference_engine = "llama-server" # Primary engine
         try:
+            model_path = self.get_model_path_from_ollama(self.model_name)
             response = requests.get(f"{self.LLAMA_SERVER_URL}/v1/models", timeout=self.TIMEOUT)
             if response.status_code == 200:
                 server_models = response.json().get("data", [])
-                loaded_model = server_models[0].get("id") if server_models else None
+                loaded_model_path = server_models[0].get("id") if server_models else None
                 
-                # Verify loaded model matches self.model_name
-                is_correct = loaded_model and (self.model_name in loaded_model or os.path.basename(loaded_model) in self.model_name)
+                # Verify loaded model matches self.model_name or its path
+                is_correct = False
+                if loaded_model_path and model_path:
+                    # Normalize paths for absolute comparison
+                    norm_loaded = os.path.abspath(os.path.expanduser(loaded_model_path))
+                    norm_target = os.path.abspath(os.path.expanduser(model_path))
+                    is_correct = (norm_loaded == norm_target)
                 
+                if not is_correct and loaded_model_path:
+                    # Fallback check: maybe it's just the name or basename
+                    is_correct = (self.model_name in loaded_model_path or os.path.basename(loaded_model_path) in self.model_name)
+
                 if is_correct:
-                    print(f"✅ Reusing existing llama-server with correct model: {loaded_model}")
+                    print(f"✅ Reusing existing llama-server with correct model: {loaded_model_path}")
                     return self.get_llama_response(tools_schema, context, optimisations=optimisations)
                 else:
-                    print(f"⚠️ Existing llama-server has different model loaded: {loaded_model}. Restarting...")
+                    print(f"⚠️ Existing llama-server has different model loaded: {loaded_model_path}. Target: {model_path}. Restarting...")
                     self._kill_llama_server_processes()
         except requests.exceptions.RequestException as e:
             print(f"❌ Error checking llama-server: {e}")
 
         # Start a new llama-server
-        model_path = self.get_model_path_from_ollama(self.model_name)
         if model_path and self.start_local_llama_server(model_path, optimisations=optimisations):
-            print("✅ Started new llama-server")
+            print("✅ Started new llama-server. Waiting 5s for stability...")
+            time.sleep(5)  # Add stability buffer
             try:
-                return self.get_llama_response(tools_schema, context)
+                return self.get_llama_response(tools_schema, context, optimisations=optimisations)
             except Exception as e:
-                print(f"❌ llama-server call failed after start, falling back to Ollama: {e}")
+                print(f"❌ llama-server call failed after start: {e}")
         else:
-            print("❌ Could not start llama-server, falling back to Ollama API")
-        self.inference_engine = "llama-server"
-        # Fallback to Ollama API
-        print("✅ Using Ollama API fallback")
-        if fallback:
-            self.inference_engine = "ollama"
-            return self.get_ollama_response(tools_schema, context)
+            print("❌ Could not start llama-server")
+        
+        # Fallback to Ollama API is commented out per user request
+        # print("🔄 Fallback to Ollama API is disabled")
+        # if fallback:
+        #     self.inference_engine = "ollama"
+        #     return self.get_ollama_response(tools_schema, context)
+        
+        return None, {}
 
     # def start_local_llama_server(self, model_path, optimisations={}):
     #     """Start local llama-server with the specified model."""
