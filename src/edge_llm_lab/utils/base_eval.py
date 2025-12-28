@@ -1442,8 +1442,13 @@ class BaseEvaluation:
         model_folder = os.path.join(base_path, path_map["model"])
         all_models_folder = os.path.join(base_path,path_map["all_models"])
 
-        model_run      = f"run_{BaseEvaluation.get_next_run_number_for_path(model_folder):03d}"
-        all_models_run = f"run_{BaseEvaluation.get_next_run_number_for_path(all_models_folder):03d}"
+        # Calculate max run number from both folders to keep them in sync
+        model_run_num = BaseEvaluation.get_next_run_number_for_path(model_folder)
+        all_models_run_num = BaseEvaluation.get_next_run_number_for_path(all_models_folder)
+        next_run_num = max(model_run_num, all_models_run_num)
+
+        model_run      = f"run_{next_run_num:03d}"
+        all_models_run = f"run_{next_run_num:03d}"
         
 
         model_folder = os.path.join( model_folder, model_run)

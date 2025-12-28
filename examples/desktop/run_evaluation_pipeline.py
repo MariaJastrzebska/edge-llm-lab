@@ -16,7 +16,7 @@ except Exception:
     pass
 
 from edge_llm_lab.evaluation.referenced_evaluator import EvalModelsReferenced
-from edge_llm_lab.core.model_config_loader import load_stage_config
+from edge_llm_lab.core.model_config_loader import load_stage_config, delete_model
 from edge_llm_lab.utils.base_eval import Agent, BaseEvaluation
 from edge_llm_lab.evaluation.optimization.optimization_engine import OptimizationEngine
 
@@ -28,40 +28,75 @@ def run_pipeline(agent_type: str = "constant_data_en"):
     stage1_config = load_stage_config(1, agent_type)
     models = [m["name"] for m in stage1_config.get("models_to_evaluate", [])]
     
+    last_successful_model = None
     golden_model = None
     best_score = -1
     
-    for model_name in models:
-        print(f"🧐 Evaluating {model_name}...")
-        evaluator = EvalModelsReferenced(model_name=model_name, agent=Agent(agent_type))
-        # Logic to extract score after eval...
-        # For demonstration, simplify:
-        # Pipeline evaluation with logs and visualization enabled
-        evaluator.pipeline_eval_model(mode="logs_and_viz")
-        # golden_model logic here...
+    for i, model_name in enumerate(models):
+        print(f"\n🧐 Evaluating {model_name} ({i+1}/{len(models)})...")
         
+        try:
+            evaluator = EvalModelsReferenced(model_name=model_name, agent=Agent(agent_type))
+            # Pipeline evaluation with logs and visualization enabled
+            evaluator.pipeline_eval_model(mode="logs_and_viz", stage_name="stage_1_selection")
+            
+            # Simple logic to track the best model (Golden Model)
+            # In a real scenario, we'd extract the actual score from the logs
+            # For now, we'll use the last successful model as a candidate
+            golden_model = model_name 
+            
+            # Sequential Cleanup: Delete the PREVIOUS successful model
+            if last_successful_model and last_successful_model != model_name:
+                print(f"🧹 Sequential Cleanup: Removing previous successful model {last_successful_model}")
+                delete_model(last_successful_model)
+            
+            last_successful_model = model_name
+            
+        except Exception as e:
+            print(f"❌ Error evaluating {model_name}: {e}")
+            # If current model failed, we DON'T delete the previous one yet 
+            # as it might still be needed for comparison or fallback.
+            continue
+            
     # STAGE 2: Quantization Analysis
     print("\n--- STAGE 2: Quantization Analysis ---")
-    # Using a placeholder for golden_model if not determined above
-    golden_model = golden_model or models[0] 
+    # Using the best determined model from Stage 1
+    if not golden_model and models:
+        golden_model = models[0]
+        
+    print(f"🏆 Golden Model for Quantization: {golden_model}")
     stage2_config = load_stage_config(2, agent_type)
-    # Filter stage2_config for golden_model if necessary
+    # logic for quantization comparison...
+    if stage2_config and "models_to_evaluate" in stage2_config:
+         q_models = [m["name"] for m in stage2_config["models_to_evaluate"]]
+         for q_model_name in q_models:
+             print(f"\n📏 Evaluating Quantized Model: {q_model_name}")
+             try:
+                 evaluator = EvalModelsReferenced(model_name=q_model_name, agent=Agent(agent_type))
+                 evaluator.pipeline_eval_model(mode="logs_and_viz", stage_name="stage_2_quantization", optimisations_choice="test")
+             except Exception as e:
+                 print(f"❌ Error evaluating {q_model_name}: {e}")
     
     # STAGE 3: Optuna Optimization
     print("\n--- STAGE 3: Optuna Optimization ---")
     opt_engine = OptimizationEngine(study_name=f"opt_{golden_model}")
     
     def objective(trial):
-        # Sample parameters from trial based on custom_optimizations.yaml
+        # Sample parameters from trial
         params = {
             "temperature": trial.suggest_float("temperature", 0.0, 1.0),
             "top_p": trial.suggest_float("top_p", 0.0, 1.0)
         }
-        # Run one evaluation session with these params
+        # In a real run, this would call evaluator.run_inference with these params
         return 0.8 # Mock score
         
     best_params = opt_engine.run_optimization(objective, n_trials=5)
-    print(f"🎯 Best inference parameters: {best_params}")
+    print(f"🎯 Best inference parameters for {golden_model}: {best_params}")
+
+    # Final Cleanup
+    if last_successful_model:
+        print(f"🧹 Final Cleanup: Removing last model {last_successful_model}")
+        delete_model(last_successful_model)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

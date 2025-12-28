@@ -43,6 +43,17 @@ def delete_all_models():
     except Exception as e:
         print(f"Error deleting models: {e}")
 
+def delete_model(model_name):
+    """Delete a specific model from Ollama."""
+    try:
+        print(f"🗑️ Deleting model: {model_name}")
+        client.delete(model_name)
+        print(f"✅ Deleted {model_name}")
+        return True
+    except Exception as e:
+        print(f"⚠️ Error deleting model {model_name}: {e}")
+        return False
+
 def pull_model_with_progress(model_name):
     """Pull a model with progress display using streaming."""
     try:

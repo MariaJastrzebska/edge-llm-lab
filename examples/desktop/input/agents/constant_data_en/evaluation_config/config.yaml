@@ -50,9 +50,9 @@ models_to_evaluate:
     tested: false
     notes: Mixture of Experts architecture, ~3.5GB
 
-  --- Smaller & Faster Variants (Q4/Q5) ---
+  # --- Smaller & Faster Variants (Q4/Q5) ---
 
-  3b. Nemotron Mini 4B (NVIDIA) - Faster Q5
+  #3b. Nemotron Mini 4B (NVIDIA) - Faster Q5
   - name: nemotron-mini:4b-instruct-q5_K_M
     description: NVIDIA Nemotron Mini 4B (Q5)
     family: nemotron

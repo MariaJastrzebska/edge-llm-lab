@@ -76,8 +76,10 @@ class EvalModelsReferenced(BaseEvaluation):
                 group_by_keys=group_by_keys
             )
             
-            user_input = input(f"Czy chcesz wygenerować wykres plot_per_round_with_referenc? (y/n): ").lower().strip()
-            if user_input == 'y' or user_input == 'yes':
+            # Automatically generate per-round plots without user input
+            # user_input = input(f"Czy chcesz wygenerować wykres plot_per_round_with_referenc? (y/n): ").lower().strip()
+            # if user_input == 'y' or user_input == 'yes':
+            if True: # Always generate per-round plots
 
                 for optimisation, session_data in valid_session_data.items():    
                     
@@ -592,6 +594,7 @@ class EvalModelsReferenced(BaseEvaluation):
             output_dir=output_dir,
             output_file_name=f"all_models_latency_timeline_{timestamp}",
             model_name_prefix = model_name,
+            use_polish=use_polish,
         )
         print(f"📈 Timeline chart saved to: {timeline_chart_path}")
         
@@ -3537,7 +3540,7 @@ class EvalModelsReferenced(BaseEvaluation):
         return efficiency_data
     
     @staticmethod
-    def plot_per_round_with_reference(round_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name):
+    def plot_per_round_with_reference(round_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True):
         """
         Wizualizuje wyniki pojedynczej rundy ewaluacji LLM.
 
@@ -3617,9 +3620,20 @@ class EvalModelsReferenced(BaseEvaluation):
         ax5 = fig.add_subplot(gs[1, 2])
 
         # === PANEL 1: Wykres metryk ===
-        bars = ax1.bar(names, values, color=colors)
-        ax1.set_xlabel('Metryki')
-        ax1.set_ylabel('Wynik')
+        if not names or not values:
+             print("[WARN] No valid metrics to plot in per-round analysis")
+             # Plot empty placeholder
+             ax1.text(0.5, 0.5, "Brak danych metryk", ha='center', va='center')
+             bars = []
+        else:
+             bars = ax1.bar(names, values, color=colors)
+             
+        if use_polish:
+            ax1.set_xlabel('Metryki')
+            ax1.set_ylabel('Wynik (0-1)')
+        else:
+            ax1.set_xlabel('Metrics')
+            ax1.set_ylabel('Score (0-1)')
 
         # Tytuł z informacjami o modelu, agencie i rundzie
         title_parts = []
@@ -3632,13 +3646,23 @@ class EvalModelsReferenced(BaseEvaluation):
         if round_number is not None:
             round_val = round_number.value if hasattr(
                 round_number, 'value') else round_number
-            title_parts.append(f"Runda: {round_val}")
+            if use_polish:
+                title_parts.append(f"Runda: {round_val}")
+            else:
+                title_parts.append(f"Round: {round_val}")
 
         if title_parts:
-            ax1.set_title(
-                f"LLM Evaluation Metrics - Single Round Analysis\n{' | '.join(title_parts)}")
+            if use_polish:
+                ax1.set_title(
+                    f"Analiza Metryk LLM - Pojedyncza Runda\n{' | '.join(title_parts)}")
+            else:
+                ax1.set_title(
+                    f"LLM Evaluation Metrics - Single Round Analysis\n{' | '.join(title_parts)}")
         else:
-            ax1.set_title("LLM Evaluation Metrics - Single Round Analysis")
+            if use_polish:
+                ax1.set_title("Analiza Metryk LLM - Pojedyncza Runda")
+            else:
+                ax1.set_title("LLM Evaluation Metrics - Single Round Analysis")
 
         # Dodanie wartości na słupkach
         for bar, value in zip(bars, values):
@@ -3646,7 +3670,10 @@ class EvalModelsReferenced(BaseEvaluation):
             ax1.text(bar.get_x() + bar.get_width()/2., height + 0.01,
                      f'{value:.3f}', ha='center', va='bottom', fontsize=8)
 
-        ax1.set_ylim(0, 1.1)
+        if not bars:
+            ax1.set_ylim(0, 1)
+        else:
+            ax1.set_ylim(0, 1.1)
         ax1.tick_params(axis='x', rotation=90, labelsize=8)
         ax1.grid(axis='y', alpha=0.3)
 
@@ -3714,7 +3741,36 @@ class EvalModelsReferenced(BaseEvaluation):
 
         for metric_name in names:
             if metric_name in metric_descriptions:
-                info_text += f"• {metric_name}: {metric_descriptions[metric_name]}\n"
+                desc = metric_descriptions[metric_name]
+                if not use_polish:
+                    # Simple mapping for common Polish descriptions to English
+                    eng_desc = {
+                        'json_validity': 'Checks if response has valid JSON syntax without parsing errors',
+                        'required_fields': 'Verifies presence of all required fields in response structure',
+                        'tool_calls_format': 'Evaluates tool call format correctness according to spec',
+                        'tool_calls_count_match': 'Compares tool call count with reference',
+                        'tool_calls_names_match': 'Checks tool function name matches',
+                        'tool_calls_args_structure': 'Analyzes tool argument structure',
+                        'exact_match': 'Exact text match between response and reference',
+                        'jaccard_similarity': 'Jaccard similarity based on shared tokens',
+                        'levenshtein_similarity': 'Edit distance similarity between texts',
+                        'tool_args_values': 'Direct argument value comparison (case-insensitive)',
+                        'p_bert': 'BERTScore Precision - hallucination measure (semantic similarity)',
+                        'r_bert': 'BERTScore Recall - completeness measure vs reference',
+                        'bleu': 'BLEU metric used in machine translation quality',
+                        'rougeL': 'ROUGE-L measures longest common subsequence for summarization',
+                        'meteor': 'METEOR considers synonyms and stemming in text comparison',
+                        'gpt_json_correctness': 'GPT Judge score for JSON structure correctness',
+                        'gpt_tool_calls_correctness': 'GPT Judge score for tool call quality',
+                        'gpt_reasoning_logic': 'GPT Judge score for reasoning logic',
+                        'gpt_question_naturalness': 'GPT Judge score for question naturalness',
+                        'gpt_context_relevance': 'GPT Judge score for context relevance',
+                        'gpt_judge': 'Average score from all GPT Judge criteria'
+                    }
+                    if metric_name in eng_desc:
+                        desc = eng_desc[metric_name]
+                
+                info_text += f"• {metric_name}: {desc}\n"
 
         ax2.text(0.1, 0.95, info_text, transform=ax2.transAxes, fontsize=6,
                  verticalalignment='top', fontfamily='monospace',
@@ -3796,8 +3852,11 @@ class EvalModelsReferenced(BaseEvaluation):
         print(f"✅ Single round plot saved: {plot_path}")
         return plot_path
 
-    def plot_latency_performance(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
-        """Create comprehensive latency breakdown analysis for referenced evaluation"""
+    def plot_latency_breakdown_timeline(self, session_data, agent_type, plotting_session_timestamp, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
+        """
+        Creates a timeline visualization of latency breakdown and trends for referenced evaluation.
+        Can handle both single session (dict) and multi-model sessions (list).
+        """
         import matplotlib.pyplot as plt
         import numpy as np
         import os
@@ -4343,8 +4402,9 @@ class EvalModelsReferenced(BaseEvaluation):
         return plot_path
 
 
-    def plot_latency_breakdown_timeline(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, model_name_prefix=None):
-        """Create latency timeline analysis for referenced evaluation
+    def plot_aggr_all_models_with_reference(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
+        """
+        Tworzy zbiorczy wykres porównujący postęp latencji w kolejnych rundach dla wszystkich modeli.
         
         Args:
             results_data: Dictionary containing evaluation results data with 'rounds' key
@@ -4441,8 +4501,8 @@ class EvalModelsReferenced(BaseEvaluation):
                     ax1.set_title('Postęp latencji przez rundy', fontweight='bold')
                 else:
                     ax1.set_xlabel('Round Number', fontweight='bold')
-                ax1.set_ylabel('Average Latency (ms)', fontweight='bold')
-                ax1.set_title('Latency Progression Through Rounds', fontweight='bold')
+                    ax1.set_ylabel('Average Latency (ms)', fontweight='bold')
+                    ax1.set_title('Latency Progression Through Rounds', fontweight='bold')
                 ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
                 ax1.grid(True, alpha=0.3)
                 
@@ -4471,11 +4531,10 @@ class EvalModelsReferenced(BaseEvaluation):
 
                 if use_polish:
                     ax2.set_title('Mapa czasu wykonania przez model & rundę (ms)', fontweight='bold')
+                    cbar.set_label('Latencja (ms)', fontweight='bold')
                 else:
                     ax2.set_title('Latency Heatmap by Model & Round (ms)', fontweight='bold')
-                ax2.set_title('Latency Heatmap by Model & Round (ms)', fontweight='bold')
-                cbar = plt.colorbar(im, ax=ax2)
-                cbar.set_label('Latency (ms)', fontweight='bold')
+                    cbar.set_label('Latency (ms)', fontweight='bold')
                 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
                 plot_filename = f"{output_file_name}.png"
                 plot_path = os.path.join(output_dir, plot_filename)
@@ -4649,25 +4708,28 @@ class EvalModelsReferenced(BaseEvaluation):
         ram_used = []
         swap_used = []
         cpu_freq = []
-        cpu_freq_max = 0
+        gpu_util = []
 
         for r in session['rounds']:
             lb = r.get('latency_breakdown', {})
             start_res = lb.get('start_resources', {})
             mem = start_res.get('memory', {})
             cpu = start_res.get('device', {}).get('cpu_freq', {})
+            gpu = start_res.get('device', {}).get('gpu_util', 0)
             
             rounds_idx.append(r.get('round'))
             ram_used.append(mem.get('ram_used_gb', 0))
             swap_used.append(mem.get('swap_used_gb', 0))
             cpu_freq.append(cpu.get('current', 0))
+            gpu_util.append(gpu if gpu is not None else 0)
+            
             if cpu.get('max', 0) > cpu_freq_max:
                 cpu_freq_max = cpu.get('max', 0)
 
         if not rounds_idx:
             return
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 12), sharex=True)
 
         # Plot 1: Memory Pressure
         ax1.plot(rounds_idx, ram_used, 'o-', color='#2ecc71', label='RAM (GB)', linewidth=2)
@@ -4683,14 +4745,23 @@ class EvalModelsReferenced(BaseEvaluation):
             ax2.plot(rounds_idx, cpu_freq_pct, '^-', color='#f1c40f', label='CPU Freq (%)', linewidth=2)
             ax2.axhline(y=100, color='gray', linestyle=':', alpha=0.5)
             ax2.set_ylim(0, 110)
-            ax2.set_ylabel('% Maksymalnej Częstotliwości')
+            ax2.set_ylabel('% Maks. Częstotliwości')
             ax2.set_title('🔥 Stabilność CPU (Thermal Throttling)', fontsize=10)
         else:
             ax2.text(0.5, 0.5, "Brak danych o CPU", ha='center')
 
-        ax2.set_xlabel('Numer Rundy')
         ax2.grid(True, alpha=0.3)
         ax2.legend()
+        
+        # Plot 3: GPU Utilization
+        ax3.plot(rounds_idx, gpu_util, 'd-', color='#9b59b6', label='GPU Util (%)', linewidth=2)
+        ax3.set_ylabel('GPU %')
+        ax3.set_ylim(0, 105)
+        ax3.set_title('⚡ Użycie GPU', fontsize=10)
+        ax3.grid(True, alpha=0.3)
+        ax3.legend()
+
+        ax3.set_xlabel('Numer Rundy')
 
         plt.tight_layout()
         plot_path = os.path.join(output_dir, f"throttling_timeline_{self.model_name_norm}_{timestamp}.png")
@@ -5036,11 +5107,14 @@ class EvalModelsReferenced(BaseEvaluation):
             # Use consistent colors for models
             scatter_colors = [model_color_map[name] for name in model_names]
             
-            scatter = ax2.scatter(avg_latencies, throughputs,
-                                s=bubble_sizes, 
-                                c=scatter_colors,
-                                alpha=0.6)
-                                
+            if len(avg_latencies) > 0 and len(throughputs) > 0:
+                 scatter = ax2.scatter(avg_latencies, throughputs,
+                                     s=bubble_sizes, 
+                                     c=scatter_colors,
+                                     alpha=0.6)
+            else:
+                 print("⚠️ Skipping scatter plot in mobile analysis: empty data arrays")
+                 
             if model_name_prefix is not None:
                 # Add labels for each point
                 for i, (lat, thr) in enumerate(zip(avg_latencies, throughputs)):
@@ -5385,10 +5459,10 @@ class EvalModelsReferenced(BaseEvaluation):
             print(f"⚠️ Error reading logs: {e}")
             return set()
 
-    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True):
+    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation"):
         """
         Pipeline evaluation with 3 modes:
-        
+        """
         Args:
             mode: Evaluation mode
                 - "logs_only": Only perform evaluation and logging, no visualizations
@@ -5399,9 +5473,8 @@ class EvalModelsReferenced(BaseEvaluation):
             inference_params: List of inference parameter combinations to test (optional)
                 - If provided: Test these specific parameter combinations
                 - If None: Use standard parameters from config
+            stage_name: Name of the current evaluation stage (e.g. "stage_1_selection")
         """
-        test, selected = self.get_optimisations() 
-    
         if optimisations_choice == "selected":
             optimisations = selected
         if optimisations_choice == "test":
@@ -5509,18 +5582,11 @@ class EvalModelsReferenced(BaseEvaluation):
                 print("❌ No models found in logs for visualization")
                 list_of_models = [self.model_name]  # Fallback to current model
             
-            # Oddzielne pytania o generowanie wykresów
-            generate_per_round = input("\n🎨 Generować wykresy per-round (round_0, round_1, etc.)? [y/n]: ").lower().strip()
-            generate_per_round = generate_per_round in ["y", "yes", "tak"]
-            
-            generate_aggr_over_rounds = input("🎨 Generować wykresy aggr_over_rounds (agregowane po rundach - jeden wykres per optymalizacja)? [y/n]: ").lower().strip()
-            generate_aggr_over_rounds = generate_aggr_over_rounds in ["y", "yes", "tak"]
-            
-            generate_per_model = input("🎨 Generować wykresy per-model (grupowe porównania)? [y/n]: ").lower().strip()
-            generate_per_model = generate_per_model in ["y", "yes", "tak"]
-            
-            generate_all_models = input("🎨 Generować wykresy all-models? [y/n]: ").lower().strip()
-            generate_all_models = generate_all_models in ["y", "yes", "tak"]
+            # Automatically generate all plots without user input
+            generate_per_round = True
+            generate_aggr_over_rounds = True
+            generate_per_model = True
+            generate_all_models = True
             
             if generate_per_round:
                 print("\n📊 Generating per-round plots...")
@@ -5584,11 +5650,11 @@ class EvalModelsReferenced(BaseEvaluation):
         neptune_initialized = False
         if mode in ["logs_only", "logs_and_viz"]:
              # Prepare tags based on scenario
-             neptune_tags = [self.agent_type, self.eval_type]
-             if inference_params:
-                 neptune_tags.append("inference_test")
-             if optimisations_choice == "test":
-                 neptune_tags.append("quantization_test")
+              neptune_tags = [self.agent_type, self.eval_type, stage_name]
+              if inference_params:
+                  neptune_tags.append("inference_test")
+              if optimisations_choice == "test":
+                  neptune_tags.append("quantization_test")
              
              # Prepare core parameters
              params = {
@@ -5628,6 +5694,26 @@ class EvalModelsReferenced(BaseEvaluation):
                  prompt_path = self.MULTI_TURN_GLOBAL_CONFIG.get('cot_prompt_path')
                  if prompt_path and os.path.exists(prompt_path):
                      self.neptune.upload_artifact(prompt_path, "system_prompt")
+                     
+                 # Upload Source Code (referenced_evaluator.py)
+                 current_file_path = os.path.abspath(__file__)
+                 self.neptune.upload_artifact(current_file_path, "source_code/evaluator.py")
+                 
+                 # Upload Config Files
+                 # Try to locate config files relative to the script execution or known paths
+                 possible_config_paths = [
+                     "examples/desktop/input/agents/constant_data_en/evaluation_config/config.yaml",
+                     "examples/desktop/input/agents/constant_data_en/evaluation_config/config_quantized.yaml",
+                     "examples/desktop/input/agents/constant_data_en/evaluation_config/custom_optimizations.yaml"
+                 ]
+                 for config_path in possible_config_paths:
+                     if os.path.exists(config_path):
+                         self.neptune.upload_artifact(config_path, f"config/{os.path.basename(config_path)}")
+                         
+                 # Dump and upload active configuration as JSON
+                 active_config_dump_path = os.path.join(log_folder, "active_config_dump.json")
+                 self.save_json_file(self.MULTI_TURN_GLOBAL_CONFIG, active_config_dump_path, evaluations=False)
+                 self.neptune.upload_artifact(active_config_dump_path, "config/active_config_dump.json")
         
         # Handle 3 modes: "logs_only", "logs_and_viz", "viz_only"
         if mode == "viz_only":
@@ -5648,14 +5734,104 @@ class EvalModelsReferenced(BaseEvaluation):
                 self.neptune.upload_artifact(log_file, "final_logs/main_log")
             
             # Upload results from BOTH folders
-            self.neptune.upload_directory_artifacts(model_run_folder, "model_artifacts")
-            self.neptune.upload_directory_artifacts(all_models_run_folder, "comparison_artifacts")
+            self.neptune.upload_directory_artifacts(model_run_folder, "model_artifacts", gallery_path="visualizations/mosaic")
+            self.neptune.upload_directory_artifacts(all_models_run_folder, "comparison_artifacts", gallery_path="visualizations/mosaic")
             
             # Log successful count
             self.neptune.run["successful_evaluations"] = successful_evaluations
                          
             self.neptune.stop()
             print("✅ Neptune upload completed")
+            
+            # Generate Best Models Summary if we have multiple models
+            if mode == "logs_and_viz" and generate_all_models:
+                 self.generate_best_models_summary(session_locations, timestamp, use_polish)
+
+
+    def generate_best_models_summary(self, session_locations, timestamp, use_polish=True):
+        """Generates a summary of best performing models and uploads to Neptune."""
+        print("\n🏆 Generating Best Models Summary...")
+        log_file = session_locations["log_file"]
+        all_models_log_file = log_file.replace(f"{self.agent_type}_evaluation_results", f"all_models_{self.agent_type}_evaluation_results")
+        
+        # Prefer the all_models log file if it exists and has content
+        target_log_file = all_models_log_file if os.path.exists(all_models_log_file) else log_file
+        
+        models_data = self.get_last_sessions(
+             key_dict={"parameters": self.MULTI_TURN_GLOBAL_CONFIG},
+             log_file=target_log_file,
+             group_by_keys=['model_name']
+        )
+        
+        if not models_data:
+             print("⚠️ No model data found for summary.")
+             return
+
+        summary_data = []
+        for model_name, sessions in models_data.items():
+            # Handle both list of sessions and single session dict
+            if isinstance(sessions, list):
+                # Use the last session
+                session = sessions[-1]
+            else:
+                 session = sessions
+                 
+            rounds = session.get('rounds', [])
+            if not rounds:
+                continue
+                
+            # Aggregate metrics
+            latencies = []
+            gpt_scores = []
+            
+            for r in rounds:
+                metrics = r.get('metrics', {})
+                breakdown = r.get('latency_breakdown', {})
+                
+                # GPT Score
+                gpt_score = metrics.get('gpt_judge', {}).get('score', 0)
+                gpt_scores.append(gpt_score)
+                
+                # Latency
+                total_ms = breakdown.get('total_ms', 0)
+                if total_ms:
+                    latencies.append(total_ms)
+
+            avg_score = sum(gpt_scores) / len(gpt_scores) if gpt_scores else 0
+            avg_latency = sum(latencies) / len(latencies) if latencies else 0
+            
+            model_info = self.all_model_metadata.get("model", {}).get(model_name.replace(":", "_"), {})
+            model_size = model_info.get('model_size_gb', 0)
+            
+            summary_data.append({
+                "Model": model_name,
+                "Avg GPT Score (0-1)": round(avg_score, 3),
+                "Avg Latency (ms)": round(avg_latency, 1),
+                "Size (GB)": model_size
+            })
+            
+        if not summary_data:
+             print("⚠️ No valid metrics found for summary.")
+             return
+             
+        # Sort by Score (descending)
+        summary_data.sort(key=lambda x: x["Avg GPT Score (0-1)"], reverse=True)
+        
+        # Create Markdown Table
+        import pandas as pd
+        df = pd.DataFrame(summary_data)
+        md_table = df.to_markdown(index=False)
+        
+        leaderboard_path = os.path.join(session_locations["all_models_run_folder"], f"leaderboard_{timestamp}.md")
+        with open(leaderboard_path, "w") as f:
+            f.write(f"# 🏆 Model Leaderboard - {timestamp}\n\n")
+            f.write(md_table)
+            
+        print(f"✅ Leaderboard saved to: {leaderboard_path}")
+        
+        # Upload to Neptune
+        if self.neptune.run:
+             self.neptune.upload_artifact(leaderboard_path, "leaderboard_summary")
 
 
     

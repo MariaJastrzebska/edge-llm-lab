@@ -89,8 +89,15 @@ class NeptuneManager:
                 except Exception as e:
                     print(f"⚠️ Failed to append {path} to Neptune series {neptune_path}: {e}")
 
-    def upload_directory_artifacts(self, local_dir: str, neptune_path_prefix: str, extensions=(".png", ".jpg", ".jpeg", ".json", ".csv", ".tex")):
-        """Uploads all matching files from a directory and its subdirectories to Neptune."""
+    def upload_directory_artifacts(self, local_dir: str, neptune_path_prefix: str, extensions=(".png", ".jpg", ".jpeg", ".json", ".csv", ".tex"), gallery_path: Optional[str] = None):
+        """Uploads all matching files from a directory and its subdirectories to Neptune.
+        
+        Args:
+            local_dir: Local directory to scan
+            neptune_path_prefix: Prefix for Neptune artifact paths
+            extensions: Tuple of allowed file extensions
+            gallery_path: Optional Neptune path to append all images to (for mosaic view)
+        """
         if not (self.run and os.path.exists(local_dir)):
             return
             
@@ -102,6 +109,13 @@ class NeptuneManager:
                     rel_path = os.path.relpath(full_path, local_dir)
                     neptune_file_path = f"{neptune_path_prefix}/{rel_path}"
                     self.upload_artifact(full_path, neptune_file_path)
+                    
+                    # Also append images to gallery if requested
+                    if gallery_path and f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        try:
+                            self.run[gallery_path].append(File(full_path))
+                        except Exception as e:
+                            print(f"⚠️ Failed to append {full_path} to Neptune gallery {gallery_path}: {e}")
 
     def recover_log(self, run_id: str, target_path: str) -> bool:
         """Downloads a JSON log from a past Neptune run."""
