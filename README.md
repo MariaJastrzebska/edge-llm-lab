@@ -6,8 +6,9 @@ A comprehensive framework for evaluating Large Language Models (LLMs) on edge de
 
 - **Configurable Agent System**: Define custom agents with their own prompts and schemas
 - **Multi-Platform Support**: Evaluate models on desktop and mobile devices
-- **Comprehensive Metrics**: ROUGE scores, factual accuracy, hallucination detection, and more
-- **Device Monitoring**: Track CPU, memory, and energy usage during evaluation
+- **Comprehensive Metrics**: BERTScore (P-BERT/R-BERT) for semantics, Levenshtein for structure, exact tool argument value matching, ROUGE scores, and more.
+- **Advanced Visualizations**: Detailed resource health checks and round-by-round throttling timelines (RAM/SWAP/CPU).
+- **Efficient Reference Caching**: Global session caching and model-independent API cache for faster repeated evaluations.
 - **Flexible Evaluation Strategies**: Support for referenced and unreferenced evaluation
 - **Easy Integration**: Simple configuration-based setup
 
@@ -45,7 +46,20 @@ To use advanced optimizations, you need a local `llama-server` binary built with
 cd examples/desktop
 git clone https://github.com/ggerganov/llama.cpp
 cd llama.cpp
-make -j  # Builds the llama-server binary
+mkdir build && cd build
+cmake .. -DGGML_METAL=ON  # Use -DGGML_CUDA=ON for NVIDIA GPUs
+cmake --build . --config Release -j
+```
+
+### 1a. Updating llama.cpp
+If you need to update to the latest version of `llama.cpp`:
+```bash
+cd examples/desktop/llama.cpp
+git pull
+rm -rf build
+mkdir build && cd build
+cmake .. -DGGML_METAL=ON
+cmake --build . --config Release -j
 ```
 
 ### 2. Environment Variables
@@ -139,6 +153,29 @@ metrics = evaluator.evaluate_response(
 
 print(metrics)
 ```
+
+## 📈 New Metrics & Features
+
+### BERTScore (Hallucination & Completeness)
+We use `bert-score` to provide semantic evaluation:
+- **P-BERT (Precision)**: Measures how much of the model's response is supported by the reference (Hallucination detection).
+- **R-BERT (Recall)**: Measures how much of the reference information was captured by the model (Completeness).
+
+### Tool Argument Value Matching
+Beyond structure, we now perform exact value matching for tool arguments (`tool_args_values`). This is case-insensitive and ignores minor formatting differences to ensure the data itself is correct.
+
+### Throttling Visualizations
+The system now generates a `throttling_timeline_*.png` for each optimization. It plots:
+- **RAM vs SWAP**: See exactly when the system starts swapping.
+- **CPU Frequency**: Monitor thermal throttling and performance drops round-by-round.
+
+### Smart Caching
+- **API Cache**: Reference generation is now model-independent, meaning once you generate a gold response for an agent, it is cached for all subsequent models tested.
+    ```bash
+    OPENAI_API_KEY="your_openai_key"
+    NEPTUNE_API_TOKEN="your_neptune_token"
+    NEPTUNE_PROJECT="maria.jastrzebska.ai/edge-llm-lab"
+    ```
 
 ## 📋 Configuration Guide
 

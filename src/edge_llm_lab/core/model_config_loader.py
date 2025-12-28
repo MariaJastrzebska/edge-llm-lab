@@ -145,6 +145,24 @@ def get_agent_config(agent_type: str, base_path: str = None) -> Dict[str, Any]:
         print(f"❌ Error loading agent config for {agent_type}: {e}")
         return {}
 
+def load_stage_config(stage_id: int, agent_type: str = "constant_data_en") -> Dict[str, Any]:
+    """Loads configuration for a specific evaluation stage."""
+    from edge_llm_lab.core.config.unified_config import UnifiedConfig
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+    u_config = UnifiedConfig(root)
+    pipeline = u_config.load_pipeline_config()
+    
+    stage = next((s for s in pipeline["stages"] if s["id"] == stage_id), None)
+    if not stage:
+        return {}
+        
+    # Handle path override for different agents if necessary
+    path = stage["config_path"]
+    if agent_type != "constant_data_en" and "constant_data_en" in path:
+         path = path.replace("constant_data_en", agent_type)
+         
+    return u_config.load_yaml(path)
+
 def list_available_models_for_agent(agent_type: str, base_path: str = None) -> Dict[str, Any]:
     """
     Ładuje wszystkie modele (aktywne i nieaktywne) dla danego agenta

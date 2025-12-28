@@ -1,33 +1,27 @@
-"""
-Base class for model evaluation with common functionality shared between referenced and unreferenced evaluations.
-"""
-from typing import Optional, Union, Tuple
-import ollama
-import subprocess
-import json
-import os
-import hashlib
-from typing import List, Dict, Any, Union, Optional, Literal
-from joblib import Memory
-
-try:
-    import openai
-except ImportError:
-    openai = None
 import pandas as pd
 import time
 import csv
-import yaml
-import matplotlib.pyplot as plt
-from enum import Enum
 import sys
-from datetime import datetime
-import os
 import yaml
 import requests
 import atexit
-import instructor
-from pydantic import BaseModel
+import hashlib
+import json
+import subprocess
+from enum import Enum
+from typing import List, Dict, Any, Union, Optional, Literal, Tuple
+from joblib import Memory
+from edge_llm_lab.utils.neptune_utils import NeptuneManager
+from datetime import datetime
+from typing import Protocol, runtime_checkable
+
+@runtime_checkable
+class RunTracker(Protocol):
+    def init_run(self, name: str, tags: List[str] = None, params: Dict[str, Any] = None, metadata: Dict[str, Any] = None) -> bool: ...
+    def log_round_metrics(self, round_num: int, metrics: Dict[str, Any], latency: Dict[str, Any] = None): ...
+    def upload_artifact(self, local_path: str, neptune_path: str): ...
+    def upload_directory_artifacts(self, local_dir: str, neptune_path_prefix: str, extensions=(".png", ".jpg", ".jpeg", ".json")): ...
+    def stop(self): ...
 
 
 
@@ -154,9 +148,8 @@ class BaseEvaluation:
         self.SEED = 42
         self.current_model_metadata, self.all_model_metadata = self.save_and_get_current_model_metadata()
 
-
-
-        
+        # Pluggable Tracking (Default to Neptune if available, else Mock/Console)
+        self.tracker: Optional[RunTracker] = NeptuneManager()
     def _finalize_init(self, model_name, agent, eval_type):
         # check if model metadata cashed
         if self.eval_type in ("referenced", "unreferenced"):
@@ -531,11 +524,11 @@ class BaseEvaluation:
         # Generowanie klucza cache (tylko dane JSON-serializowalne)
         cache_key_data = {
             "model_name": self.evaluator_model_name,
-            "model_tested": self.model_name,
-            "messages": messages if messages else None,
+            "model_tested": self.model_name if custom_catch_type != "reference_conversation" else "reference",
             "tryb": custom_catch_type if custom_catch_type else None,
+            "messages": messages if messages else None,
             "tools_schema": tools_schema if tools_schema else None,
-            "response_model_name": response_model.__name__ if response_model else None,  # Tylko nazwa, nie obiekt
+            "response_model_name": response_model.__name__ if response_model else None,
             "temperature": self.TEMPERATURE,
             "top_p": self.TOP_P,
             "max_tokens": self.MAX_TOKENS,

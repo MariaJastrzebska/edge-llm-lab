@@ -29,6 +29,8 @@ class EvalModelsReferenced(BaseEvaluation):
         THREE = 3
         FOUR = 4
         FIVE = 5
+    
+    _cached_references = {}  # agent_type -> reference_file_path
 
     def __init__(self, model_name, agent, eval_type="referenced"):
         """Initialize EvalModelsReferenced with model name, agent, and optional source path.
@@ -132,6 +134,12 @@ class EvalModelsReferenced(BaseEvaluation):
                     output_dir=output_dir,
                     output_file_name=f"{optimisation}_aggr_over_rounds_{timestamp}",)
                 print(f"Summary plot saved to: {summary_plot_path}")
+                
+                # --- NEW: Throttling Timeline Plot (per optimization) ---
+                if isinstance(session_data, list) and session_data:
+                    self.plot_throttling_timeline(session_data[-1], output_dir, timestamp)
+                elif isinstance(session_data, dict):
+                    self.plot_throttling_timeline(session_data, output_dir, timestamp)
             
             # --- NEW: Resource Health Check Plot ---
             all_sessions_list = list(valid_session_data.values())
@@ -2070,6 +2078,11 @@ class EvalModelsReferenced(BaseEvaluation):
             from nltk.tokenize import word_tokenize
             from rouge_score import rouge_scorer
             from Levenshtein import distance as levenshtein_distance
+            try:
+                from bert_score import score as bert_score
+                BERT_SCORE_AVAILABLE = True
+            except ImportError:
+                BERT_SCORE_AVAILABLE = False
             NLTK_AVAILABLE = True
         except ImportError as e:
             NLTK_AVAILABLE = False
@@ -2178,40 +2191,43 @@ class EvalModelsReferenced(BaseEvaluation):
                 'details': f'Tool name matches: {name_matches if llm_tools and ref_tools else "N/A"} (LLM: {len(llm_tools) if llm_tools else 0}, Ref: {len(ref_tools) if ref_tools else 0})'
             }
 
-            # Arguments Structure Match
+            # Arguments Structure & Value Match
             if llm_tools and ref_tools:
-                arg_matches = 0
+                arg_struct_matches = 0
+                arg_value_matches = 0
                 total_comparisons = min(len(llm_tools), len(ref_tools))
-                print(f"DEBUG: Comparing {total_comparisons} tool arguments")
                 
                 for i in range(total_comparisons):
                     llm_args = llm_tools[i].get('arguments', {})
                     ref_args = ref_tools[i].get('arguments', {})
-                    print(f"DEBUG: Tool {i} - LLM args: {llm_args}")
-                    print(f"DEBUG: Tool {i} - Ref args: {ref_args}")
                     
                     if isinstance(llm_args, dict) and isinstance(ref_args, dict):
-                        # Check if same keys exist
                         llm_keys = set(llm_args.keys())
                         ref_keys = set(ref_args.keys())
-                        print(f"DEBUG: Tool {i} - LLM keys: {llm_keys}")
-                        print(f"DEBUG: Tool {i} - Ref keys: {ref_keys}")
                         
                         if llm_keys == ref_keys:
-                            arg_matches += 1
-                            print(f"DEBUG: Tool {i} - Keys match!")
-                        else:
-                            print(f"DEBUG: Tool {i} - Keys don't match")
+                            arg_struct_matches += 1
+                            # Check values
+                            correct_values = 0
+                            for k in llm_keys:
+                                if str(llm_args[k]).lower().strip() == str(ref_args[k]).lower().strip():
+                                    correct_values += 1
+                            if correct_values == len(llm_keys) and len(llm_keys) > 0:
+                                arg_value_matches += 1
                             
-                args_score = arg_matches / total_comparisons if total_comparisons > 0 else 0.0
-                print(f"DEBUG: Args matches: {arg_matches}/{total_comparisons}, Score: {args_score}")
+                args_struct_score = arg_struct_matches / total_comparisons if total_comparisons > 0 else 0.0
+                args_value_score = arg_value_matches / total_comparisons if total_comparisons > 0 else 0.0
             else:
-                args_score = 1.0 if not llm_tools and not ref_tools else 0.0
-                print(f"DEBUG: No tools to compare args, score: {args_score}")
+                args_struct_score = 1.0 if not llm_tools and not ref_tools else 0.0
+                args_value_score = 1.0 if not llm_tools and not ref_tools else 0.0
 
             results['tool_args_structure'] = {
-                'score': args_score,
-                'details': f'Argument structure matches: {arg_matches if llm_tools and ref_tools else "N/A"}/{total_comparisons if llm_tools and ref_tools else "N/A"}'
+                'score': args_struct_score,
+                'details': f'Argument keys match: {arg_struct_matches if llm_tools and ref_tools else "N/A"}/{total_comparisons if llm_tools and ref_tools else "N/A"}'
+            }
+            results['tool_args_values'] = {
+                'score': args_value_score,
+                'details': f'Exact argument value match: {arg_value_matches if llm_tools and ref_tools else "N/A"}/{total_comparisons if llm_tools and ref_tools else "N/A"}'
             }
         else:
             # No valid tool calls to compare
@@ -2259,8 +2275,18 @@ class EvalModelsReferenced(BaseEvaluation):
                                  smoothing_function=SmoothingFunction().method1)
             results['bleu'] = {
                 'score': bleu,
-                'details': 'BLEU score for machine translation quality (normalized JSON).'
+                'details': 'BLEU score (normalized JSON tokens).'
             }
+
+            # BERTScore
+            if BERT_SCORE_AVAILABLE:
+                try:
+                    # bert_score returns (P, R, F1)
+                    P, R, F1 = bert_score([llm_normalized], [ref_normalized], lang='en' if self.agent_type.endswith('_en') else 'pl', verbose=False)
+                    results['p_bert'] = {'score': float(P[0]), 'details': 'BERTScore Precision (hallucination detection)'}
+                    results['r_bert'] = {'score': float(R[0]), 'details': 'BERTScore Recall (completeness)'}
+                except Exception as e:
+                    print(f"BERTScore evaluation failed: {e}")
 
             # ROUGE-L Score
             scorer = rouge_scorer.RougeScorer(['rougeL'], use_stemmer=True)
@@ -2433,6 +2459,13 @@ class EvalModelsReferenced(BaseEvaluation):
                     # print(f"======round_results======: {round_results}")
                     print(
                         f" Round {round_num.value} completed ({i+1}/{len(rounds)})")
+                    
+                    # Log to Neptune in real-time using NeptuneManager
+                    self.neptune.log_round_metrics(
+                        round_num=round_num.value,
+                        metrics=round_data['metrics'],
+                        latency=round_data.get('latency_breakdown')
+                    )
                 else:
                     print(f" Round {round_num.value} failed")
             except Exception as e:
@@ -2565,9 +2598,20 @@ class EvalModelsReferenced(BaseEvaluation):
         fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(20, 7))
 
         # === PANEL 1: Wykres metryk (kolumna 1, zajmuje oba wiersze)
-        names = list(avg_metrics.keys())
-        values = [v['mean'] for v in avg_metrics.values()]
-        stds = [v['std'] for v in avg_metrics.values()]
+        # Ensure a logical order for the bar chart
+        preferred_order = [
+            'json_validity', 'tool_names_match', 'tool_args_structure', 'tool_args_values',
+            'levenshtein_similarity', 'p_bert', 'r_bert', 'bleu', 'rougeL', 'meteor',
+            'gpt_judge'
+        ]
+        
+        # Filter and sort based on preferred order, followed by remaining metrics
+        sorted_names = [m for m in preferred_order if m in avg_metrics]
+        remaining_names = [m for m in avg_metrics if m not in preferred_order]
+        names = sorted_names + remaining_names
+        
+        values = [avg_metrics[m]['mean'] for m in names]
+        stds = [avg_metrics[m]['std'] for m in names]
         colors = ['green' if v >= 0.7 else 'orange' if v >=
                   0.4 else 'red' for v in values]
 
@@ -3525,8 +3569,20 @@ class EvalModelsReferenced(BaseEvaluation):
         
         valid_metrics = {k: v for k, v in metrics_dict.items() 
                         if isinstance(v, dict) and 'score' in v}
-        names = list(valid_metrics.keys())
-        values = [v['score'] for v in valid_metrics.values()]
+        
+        # Ensure a logical order for the bar chart
+        preferred_order = [
+            'json_validity', 'tool_names_match', 'tool_args_structure', 'tool_args_values',
+            'levenshtein_similarity', 'p_bert', 'r_bert', 'bleu', 'rougeL', 'meteor',
+            'gpt_judge'
+        ]
+        
+        # Filter and sort based on preferred order, followed by remaining metrics
+        sorted_names = [m for m in preferred_order if m in valid_metrics]
+        remaining_names = [m for m in valid_metrics if m not in preferred_order]
+        names = sorted_names + remaining_names
+        
+        values = [valid_metrics[m]['score'] for m in names]
         colors = ['green' if v >= 0.7 else 'orange' if v >=
                   0.4 else 'red' for v in values]
 
@@ -3632,6 +3688,9 @@ class EvalModelsReferenced(BaseEvaluation):
             'exact_match': 'Dokładne dopasowanie tekstowe odpowiedzi z referencją',
             'jaccard_similarity': 'Podobieństwo Jaccard oparte na wspólnych tokenach',
             'levenshtein_similarity': 'Odległość edycyjna między tekstami odpowiedzi',
+            'tool_args_values': 'Bezpośrednie porównanie wartości argumentów (case-insensitive)',
+            'p_bert': 'BERTScore Precision - miara halucynacji (podobieństwo semantyczne)',
+            'r_bert': 'BERTScore Recall - miara kompletności przekazu względem referencji',
             'bleu': 'Metryka BLEU używana w ocenie jakości tłumaczeń maszynowych',
             'rougeL': 'ROUGE-L mierzy najdłuższy wspólny podciąg dla oceny podsumowań',
             'meteor': 'METEOR uwzględnia synonimy i stemming w porównaniu tekstów',
@@ -4567,6 +4626,68 @@ class EvalModelsReferenced(BaseEvaluation):
 
     
 
+    def plot_throttling_timeline(self, session, output_dir, timestamp):
+        """
+        Generuje liniowy wykres zasobów w czasie (rundach) dla konkretnego modelu.
+        Pozwala zaobserwować narastanie użycia SWAP i spadek częstotliwości (throttling).
+        """
+        if not session or 'rounds' not in session or not session['rounds']:
+            return
+
+        model_name = session.get('model_name', 'model')
+        rounds_idx = []
+        ram_used = []
+        swap_used = []
+        cpu_freq = []
+        cpu_freq_max = 0
+
+        for r in session['rounds']:
+            lb = r.get('latency_breakdown', {})
+            start_res = lb.get('start_resources', {})
+            mem = start_res.get('memory', {})
+            cpu = start_res.get('device', {}).get('cpu_freq', {})
+            
+            rounds_idx.append(r.get('round'))
+            ram_used.append(mem.get('ram_used_gb', 0))
+            swap_used.append(mem.get('swap_used_gb', 0))
+            cpu_freq.append(cpu.get('current', 0))
+            if cpu.get('max', 0) > cpu_freq_max:
+                cpu_freq_max = cpu.get('max', 0)
+
+        if not rounds_idx:
+            return
+
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+
+        # Plot 1: Memory Pressure
+        ax1.plot(rounds_idx, ram_used, 'o-', color='#2ecc71', label='RAM (GB)', linewidth=2)
+        ax1.plot(rounds_idx, swap_used, 's--', color='#e74c3c', label='SWAP (GB)', linewidth=2)
+        ax1.set_ylabel('Użycie Pamięci (GB)')
+        ax1.set_title(f'📈 Oś czasu zasobów: {model_name}\nRAM & Memory Pressure', fontsize=12, fontweight='bold')
+        ax1.grid(True, alpha=0.3)
+        ax1.legend()
+
+        # Plot 2: CPU Frequency (Throttling)
+        if cpu_freq_max:
+            cpu_freq_pct = [f/cpu_freq_max*100 for f in cpu_freq]
+            ax2.plot(rounds_idx, cpu_freq_pct, '^-', color='#f1c40f', label='CPU Freq (%)', linewidth=2)
+            ax2.axhline(y=100, color='gray', linestyle=':', alpha=0.5)
+            ax2.set_ylim(0, 110)
+            ax2.set_ylabel('% Maksymalnej Częstotliwości')
+            ax2.set_title('🔥 Stabilność CPU (Thermal Throttling)', fontsize=10)
+        else:
+            ax2.text(0.5, 0.5, "Brak danych o CPU", ha='center')
+
+        ax2.set_xlabel('Numer Rundy')
+        ax2.grid(True, alpha=0.3)
+        ax2.legend()
+
+        plt.tight_layout()
+        plot_path = os.path.join(output_dir, f"throttling_timeline_{self.model_name_norm}_{timestamp}.png")
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"📈 Throttling timeline plot saved: {plot_path}")
+
     def plot_resource_health_check(self, session_data, output_dir, timestamp):
         """
         Generuje wykres diagnostyczny pod kątem throttlingu (RAM Swap + CPU Frequency).
@@ -5290,8 +5411,27 @@ class EvalModelsReferenced(BaseEvaluation):
         tool = self.create_tool_for_agent()
         log_file, _ = self.get_or_create_file_or_folder(f"{self.agent_type}_evaluation_results", type_of_file="log")
         all_models_log_file, _ = self.get_or_create_file_or_folder(f"all_models_{self.agent_type}_evaluation_results", type_of_file="log")
+        
+        # Log Recovery Logic for Viz Mode
+        if mode == "viz_only" and not os.path.exists(log_file):
+            print(f"⚠️ Local log file not found: {log_file}")
+            recover_choice = input("🔎 Would you like to recover this log from Neptune? [y/n]: ").lower().strip()
+            if recover_choice in ["y", "yes", "tak"]:
+                run_id = input("🆔 Enter Neptune Run ID (e.g., EDGE-123): ").strip()
+                if run_id:
+                    success = self.neptune.recover_log(run_id, log_file)
+                    if not success:
+                        print("❌ Failed to recover log. Visualization might fail or represent empty data.")
+                else:
+                    print("⏭️ No Run ID provided, skipping recovery.")
+        
         print(f" All models run number: {run_number}")
-        reference_file = self.create_reference_response( tools_schema=tool, max_rounds=10)
+        if self.agent_type in EvalModelsReferenced._cached_references:
+            reference_file = EvalModelsReferenced._cached_references[self.agent_type]
+            print(f" Using cached reference for {self.agent_type}: {reference_file}")
+        else:
+            reference_file = self.create_reference_response(tools_schema=tool, max_rounds=10)
+            EvalModelsReferenced._cached_references[self.agent_type] = reference_file
         self.tools = tool
         self.cot_prompt = self.read_txt(self.MULTI_TURN_GLOBAL_CONFIG.get('cot_prompt_path'))
 
@@ -5430,16 +5570,82 @@ class EvalModelsReferenced(BaseEvaluation):
                 print("  ℹ️ No inference parameters test file found")
 
         # Handle 3 modes: "logs_only", "logs_and_viz", "viz_only"
+        # Initialize Neptune Run using NeptuneManager
+        neptune_initialized = False
+        if mode in ["logs_only", "logs_and_viz"]:
+             # Prepare tags based on scenario
+             neptune_tags = [self.agent_type, self.eval_type]
+             if inference_params:
+                 neptune_tags.append("inference_test")
+             if optimisations_choice == "test":
+                 neptune_tags.append("quantization_test")
+             
+             # Prepare core parameters
+             params = {
+                 "model_name": self.model_name,
+                 "agent_type": self.agent_type,
+                 "eval_type": self.eval_type,
+                 "temperature": self.TEMPERATURE,
+                 "context_size": self.CONTEXT_SIZE,
+                 "max_tokens": self.MAX_TOKENS,
+                 "seed": self.SEED
+             }
+             
+             # Prepare metadata
+             metadata = None
+             if self.current_model_metadata:
+                 metadata = {
+                     "architecture": self.current_model_metadata.get('architecture'),
+                     "parameter_size": self.current_model_metadata.get('parameter_size_display'),
+                     "quantization": self.current_model_metadata.get('quantization_level'),
+                     "format": self.current_model_metadata.get('model_format'),
+                     "model_size_gb": self.current_model_metadata.get('model_size_gb')
+                 }
+
+             neptune_initialized = self.neptune.init_run(
+                 name=f"EVAL_{self.model_name_norm}_{timestamp}",
+                 tags=neptune_tags,
+                 params=params,
+                 metadata=metadata
+             )
+             
+             if neptune_initialized:
+                 if os.path.exists(reference_file):
+                     self.neptune.upload_artifact(reference_file, "reference_file")
+                 if self.cot_prompt:
+                     self.neptune.run["cot_prompt"] = self.cot_prompt
+                 # Log prompt file if exists
+                 prompt_path = self.MULTI_TURN_GLOBAL_CONFIG.get('cot_prompt_path')
+                 if prompt_path and os.path.exists(prompt_path):
+                     self.neptune.upload_artifact(prompt_path, "system_prompt")
+        
+        # Handle 3 modes: "logs_only", "logs_and_viz", "viz_only"
         if mode == "viz_only":
             plot_results()
             
         elif mode == "logs_only":
             log_results()
     
-            
         elif mode == "logs_and_viz":
             log_results()
             plot_results()
+
+        # Upload final logs and artifacts to Neptune
+        if neptune_initialized:
+            print("📤 Uploading results and visualizations to Neptune...")
+            # Upload main log file
+            if os.path.exists(log_file):
+                self.neptune.upload_artifact(log_file, "final_logs/main_log")
+            
+            # Upload results from BOTH folders
+            self.neptune.upload_directory_artifacts(model_run_folder, "model_artifacts")
+            self.neptune.upload_directory_artifacts(all_models_run_folder, "comparison_artifacts")
+            
+            # Log successful count
+            self.neptune.run["successful_evaluations"] = successful_evaluations
+                         
+            self.neptune.stop()
+            print("✅ Neptune upload completed")
 
 
     

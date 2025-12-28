@@ -51,6 +51,8 @@ pyyaml = "^6.0.2"
 python-levenshtein = "^0.27.1"
 llama-cpp-python = "^0.3.16"
 optuna-integration = {extras = ["mlflow"], version = "^4.5.0"}
+bert-score = "^0.3.13"
+neptune = "^1.14.0"
 
 
 [tool.poetry.group.dev.dependencies]
