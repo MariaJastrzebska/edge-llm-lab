@@ -68,7 +68,7 @@ class BaseEvaluation:
         
 
         self.BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-        self.SOURCE_PATH = os.path.join(self.BASE_PATH, "source")
+        self.SOURCE_PATH = os.path.abspath(os.path.join(self.BASE_PATH, "../../../examples/desktop"))
         if not os.path.exists(self.SOURCE_PATH):
             os.makedirs(self.SOURCE_PATH, exist_ok=True)
 
@@ -77,15 +77,20 @@ class BaseEvaluation:
 
         
 
+        # Add examples/desktop to sys.path to allow importing pydantic_models
+        desktop_path = os.path.abspath(os.path.join(self.BASE_PATH, "../../../examples/desktop"))
+        if desktop_path not in sys.path:
+            sys.path.append(desktop_path)
+
         if self.agent_type[:-2] == 'en':
-            from model_preparation.pydantic_models.pydantic_models_en import (
+            from pydantic_models.pydantic_models_en import (
                 ConstantDataAnalysisCOT,
                 FluctuatingDataAnalysisCOT,
                 PeriodicDataAnalysisCOT,
                 SymptomAnalysisCOT,
             )
         else:
-            from model_preparation.pydantic_models.pydantic_models import (
+            from pydantic_models.pydantic_models import (
                 ConstantDataAnalysisCOT,
                 FluctuatingDataAnalysisCOT,
                 PeriodicDataAnalysisCOT,
@@ -161,9 +166,6 @@ class BaseEvaluation:
             
             
             
-  
-            
-            
     def __del__(self):
         """Destruktor - czyści puste foldery na koniec, niezależnie od błędów"""
         self._cleanup_empty_folders()
@@ -198,7 +200,7 @@ class BaseEvaluation:
         else:
             model_name_norm = model_name.replace(":", "_").replace("/", "_")
         main_path_map = self.construct_main_paths_for_eval(model_name_norm)
-        run_path_map = self._create_session_folders_and_log_file(main_path_map, self.BASE_PATH)
+        run_path_map = self._create_session_folders_and_log_file(main_path_map, self.SOURCE_PATH)
         print("run_path_map: ", run_path_map)
         
         log_folder = run_path_map["log_folder"]
@@ -239,7 +241,7 @@ class BaseEvaluation:
         else:
             source_path = source_path
         if type_of_file == "cache":
-            folder = os.path.join(source_path, "output","agents", self.agent_type, self.eval_type,"prompt_cashe", self.evaluator_model_name)
+            folder = os.path.join(source_path, "output","agents", self.agent_type, self.eval_type,"prompt_cache", self.evaluator_model_name)
         elif type_of_file== "reference":
             folder = os.path.join(source_path, "output","agents", self.agent_type, self.eval_type,"reference")
         elif type_of_file== "log":
@@ -492,7 +494,7 @@ class BaseEvaluation:
         ...         response_model=CoTReasoning,
         ...         response_format='str', 
         ...         use_cache=True)
-        💰 Używam cache w '/Users/mariamalycha/Documents/fed-mobile/thesis_generators/source/output/agents/constant_data_en/default/prompt_cashe/gpt-4o-mini'
+        💰 Używam cache w 'examples/desktop/output/agents/constant_data_en/default/prompt_cache/gpt-4o-mini'
         >>> print(response) # doctest: +NORMALIZE_WHITESPACE
         {
           "arguments": {
@@ -638,7 +640,7 @@ class BaseEvaluation:
         'validation_cot_prompt_path': '/Users/mariamalycha/Documents/fed-mobile/fed_mobile_chat_flutter/assets/prompts/multi_turn/validation_en.txt',
         'validation_schema_path': '/Users/mariamalycha/Documents/fed-mobile/fed_mobile_chat_flutter/assets/schemas/constantdata_en_schema.json'}
         """
-        path = "/Users/mariamalycha/Documents/fed-mobile/fed_mobile_chat_flutter"
+        path = self.SOURCE_PATH
         params = self.load_yaml_config(self.APP_PARAMS_PATH)
         agents_section = params.get('agents', []) or []
 
@@ -1379,9 +1381,9 @@ class BaseEvaluation:
         """
         if model_name_norm is None:
             model_name_norm = self.model_name_norm
-        return {"model": os.path.join("source","output", "agents", self.agent_type, self.eval_type, "model", model_name_norm),
-                "all_models": os.path.join( "source", "output", "agents", self.agent_type, self.eval_type, "all_models"),
-                "log": os.path.join("source", "output", "agents", self.agent_type, self.eval_type, "log")}
+        return {"model": os.path.join("output", "agents", self.agent_type, self.eval_type, "model", model_name_norm),
+                "all_models": os.path.join("output", "agents", self.agent_type, self.eval_type, "all_models"),
+                "log": os.path.join("output", "agents", self.agent_type, self.eval_type, "log")}
 
     @staticmethod
     def _create_session_folders_and_log_file(path_map: dict, base_path: str) -> dict:
@@ -1751,7 +1753,7 @@ class BaseEvaluation:
         
         # Załaduj modele z config (z filtrowaniem tested: true)
         base_path = os.path.dirname(os.path.abspath(__file__))
-        config_file = os.path.join(base_path, "source", "input", "agents", agent_type, "evaluation_config", "config.yaml")
+        config_file = os.path.abspath(os.path.join(base_path, "..", "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
         
         if not os.path.exists(config_file):
             print(f"⚠️ Config file not found: {config_file}")
@@ -1790,8 +1792,8 @@ class BaseEvaluation:
             return []
         
 
-        # Sprawdź które modele mają wyniki w evaluation_resultus.json
-        log_file = os.path.join(base_path, "source", "output", "agents", agent_type, evaluation_type, "log", "evaluation_resultus.json")
+        # Sprawdź które modele mają wyniki w evaluation_results.json
+        log_file = os.path.abspath(os.path.join(base_path, "..", "..", "..", "examples", "desktop", "output", "agents", agent_type, evaluation_type, "log", "evaluation_results.json"))
         
         tested_models = set()
         if os.path.exists(log_file):

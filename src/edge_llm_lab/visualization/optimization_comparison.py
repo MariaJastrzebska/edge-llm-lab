@@ -1041,7 +1041,7 @@ def _get_optimization_group_color(opt_name):
     }
     
     # Wykryj grupę optymalizacji
-    from thesis_generators.referenced_clean import EvalModelsReferenced
+    from edge_llm_lab.evaluation.referenced_evaluator import EvalModelsReferenced
     group_name, _ = EvalModelsReferenced.categorize_optimization(opt_name)
     
     return group_colors.get(group_name, '#7f7f7f')

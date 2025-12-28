@@ -8,9 +8,9 @@ This framework provides tools for:
 - Supporting both referenced and unreferenced evaluation strategies
 """
 
-from .core.base_evaluation import BaseEvaluation, Agent
-from .evaluation.referenced_evaluator import ReferencedEvaluator
-from .evaluation.unreferenced_evaluator import UnreferencedEvaluator
+from .utils.base_eval import BaseEvaluation, Agent
+from .evaluation.referenced_evaluator import EvalModelsReferenced
+from .evaluation.unreferenced_evaluator import EvalModelsUnreferenced
 
 __version__ = "0.1.0"
 __author__ = "Maria Jastrzebska"
@@ -18,8 +18,8 @@ __author__ = "Maria Jastrzebska"
 __all__ = [
     "BaseEvaluation",
     "Agent", 
-    "ReferencedEvaluator",
-    "UnreferencedEvaluator",
+    "EvalModelsReferenced",
+    "EvalModelsUnreferenced",
 ]
 
 

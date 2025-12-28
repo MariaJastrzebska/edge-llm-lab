@@ -82,7 +82,7 @@ def load_models_for_agent(agent_type: str, base_path: str = None) -> List[str]:
     if base_path is None:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    config_file = os.path.join(base_path, "thesis_generators", "source", "input","agents", agent_type, "evaluation_config", "config.yaml")
+    config_file = os.path.abspath(os.path.join(base_path, "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
 
     
     if not os.path.exists(config_file):
@@ -130,7 +130,7 @@ def get_agent_config(agent_type: str, base_path: str = None) -> Dict[str, Any]:
     if base_path is None:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    config_file = os.path.join(base_path, "thesis_generators", "source", "input", "agents", agent_type, "evaluation_config", "config.yaml")
+    config_file = os.path.abspath(os.path.join(base_path, "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
     
     if not os.path.exists(config_file):
         return {}
@@ -159,7 +159,7 @@ def list_available_models_for_agent(agent_type: str, base_path: str = None) -> D
     if base_path is None:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    config_file = os.path.join(base_path, "thesis_generators", "source", "input", "agents", agent_type, "evaluation_config", "config.yaml")
+    config_file = os.path.abspath(os.path.join(base_path, "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
     
     if not os.path.exists(config_file):
         return {}
@@ -277,7 +277,7 @@ def mark_model_as_tested(agent_type: str, model_name: str, base_path: str = None
     if base_path is None:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    config_file = os.path.join(base_path, "thesis_generators", "source", "input", "agents", agent_type, "evaluation_config", "config.yaml")
+    config_file = os.path.abspath(os.path.join(base_path, "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
     
     if not os.path.exists(config_file):
         print(f"⚠️ Config file not found: {config_file}")
@@ -328,7 +328,7 @@ def get_untested_models(agent_type: str, base_path: str = None) -> List[str]:
     if base_path is None:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    config_file = os.path.join(base_path, "thesis_generators", "source", "input", "agents", agent_type, "evaluation_config", "config.yaml")
+    config_file = os.path.abspath(os.path.join(base_path, "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
     
     if not os.path.exists(config_file):
         print(f"⚠️ Config file not found: {config_file}")
@@ -377,7 +377,7 @@ def check_model_in_results(agent_type: str, model_name: str, base_path: str = No
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
     # Szukaj w odpowiednim folderze based on evaluation_type
-    results_dir = os.path.join(base_path, "thesis_generators", "source", "output", "agents", agent_type, evaluation_type )
+    results_dir = os.path.abspath(os.path.join(base_path, "..", "..", "examples", "desktop", "output", "agents", agent_type, evaluation_type ))
     # print(f"Results dir: {results_dir}")
     
     if not os.path.exists(results_dir):
@@ -457,7 +457,7 @@ def get_truly_untested_models(agent_type: str, base_path: str = None, evaluation
     if base_path is None:
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     
-    config_file = os.path.join(base_path, "thesis_generators", "source", "input", "agents", agent_type, "evaluation_config", "config.yaml")
+    config_file = os.path.abspath(os.path.join(base_path, "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
     
     if not os.path.exists(config_file):
         print(f"⚠️ Config file not found: {config_file}")

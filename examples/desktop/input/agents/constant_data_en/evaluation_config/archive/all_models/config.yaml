@@ -34,12 +34,12 @@ models_to_evaluate:
 #   tested: false
 #   notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense
 
-- name: granite3.1-dense:8b-instruct-fp16
-  description: IBM Granite 3.1 Dense 8B (unquantized)
-  family: granite
-  quantization: unquantized
-  tested: false
-  notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense/tags
+# - name: granite3.1-dense:8b-instruct-fp16
+#   description: IBM Granite 3.1 Dense 8B (unquantized)
+#   family: granite
+#   quantization: unquantized
+#   tested: false
+#   notes: ✅ Confirmed tools support, fast responses, https://ollama.com/library/granite3.1-dense/tags
 
 # - name: granite3.1-dense:2b-instruct-fp16
 #   description: IBM Granite 3.1 Dense 2B (unquantized)

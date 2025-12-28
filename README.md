@@ -13,16 +13,46 @@ A comprehensive framework for evaluating Large Language Models (LLMs) on edge de
 
 ## 📦 Installation
 
+### Method 1: Poetry (Recommended)
+
 ```bash
 # Clone the repository
 git clone https://github.com/MariaJastrzebska/edge-llm-lab.git
 cd edge-llm-lab
 
-# Install in development mode
-pip install -e .
+# Configure Poetry to create virtualenv in project folder
+poetry config virtualenvs.in-project true
 
-# Or install from PyPI (when published)
-pip install edge-llm-lab
+# Install dependencies (automatically creates .venv)
+poetry install
+
+# Activate environment
+source .venv/bin/activate
+```
+
+### Method 2: Standard pip
+
+```bash
+pip install -e .
+```
+
+## ⚙️ Prerequisites & Setup
+
+### 1. Build Local llama.cpp (Required for Desktop Evaluation)
+To use advanced optimizations, you need a local `llama-server` binary built within the project:
+
+```bash
+cd examples/desktop
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+make -j  # Builds the llama-server binary
+```
+
+### 2. Environment Variables
+Create a `.env` file in the root directory:
+```bash
+OPENAI_API_KEY=your_key_here
+OLLAMA_HOST=http://localhost:11434
 ```
 
 ## 🏗️ Quick Start
@@ -52,13 +82,17 @@ python examples/desktop/basic_evaluation.py \
   --agent data_collection_agent \
   --optimizations examples/desktop/config/custom_optimizations.yaml
 
-# Dry run (show config only)
-python examples/desktop/basic_evaluation.py \
-  --model llama3:8b \
-  --agent data_collection_agent \
-  --mode desktop \
-  --dry-run
-```
+```bash
++# Run referenced evaluation (interactive reference creation if missing)
++python src/edge_llm_lab/core/referenced_clean.py
++```
+
+### 3. Creating Reference Conversations
+When running `referenced_clean.py` for the first time for a specific agent, the framework will:
+1. Detect that a reference file is missing (or empty).
+2. Start an **interactive session** using ChatGPT.
+3. Prompt you to enter user messages to guide the "perfect" conversation.
+4. Save the result to `source/output/agents/<agent>/referenced/reference/`.
 
 ### 1. Create Configuration
 

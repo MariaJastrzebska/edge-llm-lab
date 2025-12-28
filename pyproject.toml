@@ -6,7 +6,7 @@ authors = ["Maria Jastrzebska <maria.jastrzebska@example.com>"]
 packages = [
     { include = "edge_llm_lab", from = "src" }
 ]
-package-mode = false
+package-mode = true
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13" 
@@ -51,6 +51,7 @@ pyyaml = "^6.0.2"
 python-levenshtein = "^0.27.1"
 llama-cpp-python = "^0.3.16"
 optuna-integration = {extras = ["mlflow"], version = "^4.5.0"}
+
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
