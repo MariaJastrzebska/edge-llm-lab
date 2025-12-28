@@ -1,6 +1,20 @@
 import os
 import sys
 import argparse
+
+# Add project root and src to path for direct script execution
+try:
+    _file_path = os.path.abspath(__file__)
+    # examples/desktop/run_evaluation_pipeline.py -> ../.. gets to project root
+    _project_root = os.path.abspath(os.path.join(os.path.dirname(_file_path), "../../"))
+    _src_path = os.path.join(_project_root, "src")
+    if _src_path not in sys.path:
+        sys.path.insert(0, _src_path)
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+except Exception:
+    pass
+
 from edge_llm_lab.evaluation.referenced_evaluator import EvalModelsReferenced
 from edge_llm_lab.core.model_config_loader import load_stage_config
 from edge_llm_lab.utils.base_eval import Agent, BaseEvaluation
@@ -22,7 +36,8 @@ def run_pipeline(agent_type: str = "constant_data_en"):
         evaluator = EvalModelsReferenced(model_name=model_name, agent=Agent(agent_type))
         # Logic to extract score after eval...
         # For demonstration, simplify:
-        evaluator.pipeline_eval_model(mode="logs_only")
+        # Pipeline evaluation with logs and visualization enabled
+        evaluator.pipeline_eval_model(mode="logs_and_viz")
         # golden_model logic here...
         
     # STAGE 2: Quantization Analysis

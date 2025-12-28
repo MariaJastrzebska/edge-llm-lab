@@ -2,14 +2,24 @@ import numpy as np
 import json
 from typing import List, Dict, Any, Union, Optional, Literal
 import os
+import sys
+
+# Add project root and src to path for direct script execution
+try:
+    _file_path = os.path.abspath(__file__)
+    # src/edge_llm_lab/evaluation/referenced_evaluator.py -> ../../.. gets to project root
+    _project_root = os.path.abspath(os.path.join(os.path.dirname(_file_path), "../../../"))
+    _src_path = os.path.join(_project_root, "src")
+    if _src_path not in sys.path:
+        sys.path.insert(0, _src_path)
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+except Exception:
+    pass
+
 from datetime import datetime
 import matplotlib.pyplot as plt
 from enum import Enum
-import sys
-
-
-import sys, os
-sys.path.append(os.path.abspath("src"))
 
 from edge_llm_lab.utils.base_eval import BaseEvaluation, Agent
 

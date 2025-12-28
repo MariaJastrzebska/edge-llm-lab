@@ -2,6 +2,22 @@ import pandas as pd
 import time
 import csv
 import sys
+import os
+
+# Add project root and src to path for direct script execution
+# This allows 'from edge_llm_lab...' to work regardless of where the script is run from
+try:
+    _file_path = os.path.abspath(__file__)
+    # src/edge_llm_lab/utils/base_eval.py -> ../../.. gets to project root
+    _project_root = os.path.abspath(os.path.join(os.path.dirname(_file_path), "../../../"))
+    _src_path = os.path.join(_project_root, "src")
+    if _src_path not in sys.path:
+        sys.path.insert(0, _src_path)
+    if _project_root not in sys.path:
+        sys.path.insert(0, _project_root)
+except Exception:
+    pass
+
 import yaml
 import requests
 import atexit
@@ -10,6 +26,10 @@ import json
 import subprocess
 from enum import Enum
 from typing import List, Dict, Any, Union, Optional, Literal, Tuple
+from pydantic import BaseModel
+import ollama
+import openai
+import instructor
 from joblib import Memory
 from edge_llm_lab.utils.neptune_utils import NeptuneManager
 from datetime import datetime
@@ -149,7 +169,7 @@ class BaseEvaluation:
         self.current_model_metadata, self.all_model_metadata = self.save_and_get_current_model_metadata()
 
         # Pluggable Tracking (Default to Neptune if available, else Mock/Console)
-        self.tracker: Optional[RunTracker] = NeptuneManager()
+        self.neptune: Optional[RunTracker] = NeptuneManager()
     def _finalize_init(self, model_name, agent, eval_type):
         # check if model metadata cashed
         if self.eval_type in ("referenced", "unreferenced"):
@@ -243,7 +263,7 @@ class BaseEvaluation:
         else:
             source_path = source_path
         if type_of_file == "cache":
-            folder = os.path.join(source_path, "output","agents", self.agent_type, self.eval_type,"prompt_cache", self.evaluator_model_name)
+            folder = os.path.join(source_path, "output","agents", self.agent_type, self.eval_type,"prompt_cache", self.evaluator_model_name, self.model_name_norm)
         elif type_of_file== "reference":
             folder = os.path.join(source_path, "output","agents", self.agent_type, self.eval_type,"reference")
         elif type_of_file== "log":
@@ -415,13 +435,19 @@ class BaseEvaluation:
         """
 
         if isinstance(obj, str):
-            json_obj = json.loads(obj)
+            try:
+                json_obj = json.loads(obj)
+            except (json.JSONDecodeError, TypeError):
+                # If not valid JSON, treat as plain text for 'str' output or return as is
+                if output_type == 'str':
+                    return obj
+                return obj
         elif isinstance(obj, dict):
             json_obj = obj
         elif isinstance(obj, BaseModel):
             json_obj = obj.model_dump_json(indent=2)
         else:
-            raise Exception("Object is not a string or dictionary")
+            json_obj = str(obj)
         if output_type == 'json':
             return json_obj
         elif output_type == 'str':
@@ -1054,33 +1080,18 @@ class BaseEvaluation:
         try:
             response = requests.get(f"{self.LLAMA_SERVER_URL}/v1/models", timeout=self.TIMEOUT)
             if response.status_code == 200:
-                print("✅ Found existing llama-server, testing tool support...")
-                # Test if tools are supported
-                test_payload = {
-                    "messages": [{"role": "user", "content": "test"}],
-                    "tools": []  # Empty tools list to check compatibility
-                }
-                try:
-                    test_response = requests.post(
-                        f"{self.LLAMA_SERVER_URL}/v1/chat/completions",
-                        json=test_payload,
-                        timeout=10 # Increased from 2 to 10 for reliability
-                    )
-                    test_response.raise_for_status()
-                    print("✅ Reusing existing llama-server with tool support")
+                server_models = response.json().get("data", [])
+                loaded_model = server_models[0].get("id") if server_models else None
+                
+                # Verify loaded model matches self.model_name
+                is_correct = loaded_model and (self.model_name in loaded_model or os.path.basename(loaded_model) in self.model_name)
+                
+                if is_correct:
+                    print(f"✅ Reusing existing llama-server with correct model: {loaded_model}")
                     return self.get_llama_response(tools_schema, context, optimisations=optimisations)
-                except requests.exceptions.HTTPError as e:
-                    # Some servers without --jinja return 400/500 with message like "tools param requires --jinja flag"
-                    if "tools param requires --jinja flag" in str(e):
-                        print("❌ Existing llama-server lacks --jinja flag, restarting safely...")
-                        # Kill only llama-server processes, not all connections on the port
-                        self._kill_llama_server_processes()
-                    else:
-                        print(f"❌ llama-server HTTP error: {e}")
-                        # We'll try fallback below
-                except requests.exceptions.RequestException as e:
-                    print(f"❌ llama-server test request failed: {e}")
-                    # We'll try restart below
+                else:
+                    print(f"⚠️ Existing llama-server has different model loaded: {loaded_model}. Restarting...")
+                    self._kill_llama_server_processes()
         except requests.exceptions.RequestException as e:
             print(f"❌ Error checking llama-server: {e}")
 
