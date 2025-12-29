@@ -2888,6 +2888,11 @@ class EvalModelsReferenced(BaseEvaluation):
                 
                 model_metadata = metadata.get('model', {}).get(full_model_name, {}) if isinstance(metadata, dict) else {}
                 size_gb = model_metadata.get('model_size_gb', 0)
+                
+                print(f"🔍 DEBUG MODEL SIZE: model_name={model_name}, full_model_name={full_model_name}")
+                print(f"🔍 DEBUG MODEL SIZE: model_metadata keys={model_metadata.keys() if model_metadata else 'EMPTY'}")
+                print(f"🔍 DEBUG MODEL SIZE: size_gb={size_gb}")
+                
                 model_sizes.append(size_gb)
                 
                 # Store metadata and energy data in models_data for radar chart
@@ -2945,9 +2950,11 @@ class EvalModelsReferenced(BaseEvaluation):
         import numpy as np
 
         # Calculate averages using centralized function
+        print(f"📊 DEBUG: plot_aggr_all_models_with_reference called")
         models_data, model_names, avg_scores, avg_latencies, model_sizes, model_params = self.calculate_averages(session_data, metadata, model_name_prefix)
         
         if models_data is None:
+            print("❌ DEBUG: models_data is None, returning early")
             return None
 
         # Create separate visualizations instead of one combined plot
@@ -2995,8 +3002,9 @@ class EvalModelsReferenced(BaseEvaluation):
             saved_plots['scatter'] = plot2_path
             print(f"📈 Scatter plot saved: {plot2_path}")
         
-        # 3. Radar chart for multiple metrics
-        if len(model_names) > 1:
+        # 3. Radar chart for multiple metrics (also works for single model)
+        if len(model_names) >= 1:
+            print(f"🎯 DEBUG: Generating radar chart for {len(model_names)} model(s): {model_names}")
             fig3 = plt.figure(figsize=(10, 10))
             ax3 = fig3.add_subplot(111, polar=True)
             # Radar chart needs raw session data, not processed data
@@ -3367,6 +3375,7 @@ class EvalModelsReferenced(BaseEvaluation):
 
     def _create_latency_bars(self, ax, model_names, avg_latencies, model_sizes, model_name=None):
         """Create a bar chart of average latencies sorted by model size."""
+        print(f"📊 DEBUG: _create_latency_bars called with {len(model_names)} models: {model_names}")
         # Sort by model size for better visualization
         sorted_indices = sorted(range(len(model_names)), key=lambda i: model_sizes[i])
         names = [model_names[i] for i in sorted_indices]
@@ -3744,8 +3753,8 @@ class EvalModelsReferenced(BaseEvaluation):
             'bleu': 'Metryka BLEU używana w ocenie jakości tłumaczeń maszynowych',
             'rougeL': 'ROUGE-L mierzy najdłuższy wspólny podciąg dla oceny podsumowań',
             'meteor': 'METEOR uwzględnia synonimy i stemming w porównaniu tekstów',
-            'gpt_json_correctness': 'Ocena GPT Judge dotycząca poprawności struktury JSON',
-            'gpt_tool_calls_correctness': 'Ocena GPT Judge jakości wywołań narzędzi',
+            'gpt_context_correctness': 'Ocena GPT Judge dotycząca poprawności struktury JSON',
+            'gpt_tool_call_correctness': 'Ocena GPT Judge jakości wywołań narzędzi',
             'gpt_reasoning_logic': 'Ocena GPT Judge logiki rozumowania w odpowiedzi',
             'gpt_question_naturalness': 'Ocena GPT Judge naturalności zadawanych pytań',
             'gpt_context_relevance': 'Ocena GPT Judge trafności odpowiedzi w kontekście',
@@ -3773,8 +3782,8 @@ class EvalModelsReferenced(BaseEvaluation):
                         'bleu': 'BLEU metric used in machine translation quality',
                         'rougeL': 'ROUGE-L measures longest common subsequence for summarization',
                         'meteor': 'METEOR considers synonyms and stemming in text comparison',
-                        'gpt_json_correctness': 'GPT Judge score for JSON structure correctness',
-                        'gpt_tool_calls_correctness': 'GPT Judge score for tool call quality',
+                        'gpt_context_correctness': 'GPT Judge score for JSON structure correctness',
+                        'gpt_tool_call_correctness': 'GPT Judge score for tool call quality',
                         'gpt_reasoning_logic': 'GPT Judge score for reasoning logic',
                         'gpt_question_naturalness': 'GPT Judge score for question naturalness',
                         'gpt_context_relevance': 'GPT Judge score for context relevance',
@@ -3796,18 +3805,22 @@ class EvalModelsReferenced(BaseEvaluation):
         if 'gpt_judge' in valid_metrics and isinstance(valid_metrics['gpt_judge'], dict):
             gpt_data = valid_metrics['gpt_judge']
             judge_text += f"Ogólna ocena: {gpt_data.get('original_score', 0.0):.1f}/10\n\n"
+            
+            print(f"🔍 DEBUG: gpt_data keys: {gpt_data.keys()}")
+            print(f"🔍 DEBUG: 'criteria_scores' in gpt_data: {'criteria_scores' in gpt_data}")
 
             if 'criteria_scores' in gpt_data:
                 criteria_scores = gpt_data['criteria_scores']
+                print(f"🔍 DEBUG: criteria_scores keys: {criteria_scores.keys()}")
                 category_names = {
                     'json_correctness': 'JSON Correctness',
-                    'tool_calls_correctness': 'Tool Calls',
+                    'tool_call_correctness': 'Tool Calls',
                     'reasoning_logic': 'Reasoning Logic',
                     'question_naturalness': 'Question Natural',
                     'context_relevance': 'Context Relevance'
                 }
 
-                for category in ['json_correctness', 'tool_calls_correctness', 'reasoning_logic', 'question_naturalness', 'context_relevance']:
+                for category in ['json_correctness', 'tool_call_correctness', 'reasoning_logic', 'question_naturalness', 'context_relevance']:
                     if category in criteria_scores:
                         score_data = criteria_scores[category]
                         name = category_names.get(category, category)
@@ -3821,6 +3834,8 @@ class EvalModelsReferenced(BaseEvaluation):
                         indented_reason = '\n'.join(
                             ['  ' + line for line in wrapped_reason.split('\n')])
                         judge_text += f"• {name}: {score_value}/10\n{indented_reason}\n\n"
+            else:
+                print("⚠️ DEBUG: 'criteria_scores' NOT FOUND in gpt_data!")
 
         ax3.text(0.0, 0.95, judge_text, transform=ax3.transAxes, fontsize=6,
                  verticalalignment='top', fontfamily='monospace',
@@ -3832,8 +3847,8 @@ class EvalModelsReferenced(BaseEvaluation):
                  fontsize=10, ha='center', va='top', weight='bold', color='blue')
 
         if reference_response_preview:
-            # ref_json = self.pretty_json(reference_response_preview, 'str')
-            ref_json = reference_response_preview.replace('$', '\\$')
+            ref_json = self.pretty_json(reference_response_preview, 'str')
+            ref_json = ref_json.replace('$', '\\$')
             ax4.text(0.0, 0.95, ref_json, transform=ax4.transAxes, fontsize=5,
                      verticalalignment='top', fontfamily='monospace', color='blue',
                      bbox=dict(boxstyle='round,pad=0.3', facecolor='lightblue', alpha=0.2))
@@ -3845,8 +3860,8 @@ class EvalModelsReferenced(BaseEvaluation):
                  fontsize=10, ha='center', va='top', weight='bold', color='red')
 
         if llm_response_preview:
-            # llm_json = self.pretty_json(llm_response_preview, 'str')
-            llm_json = llm_response_preview.replace('$', '\\$')
+            llm_json = self.pretty_json(llm_response_preview, 'str')
+            llm_json = llm_json.replace('$', '\\$')
             ax5.text(0.0, 0.95, llm_json, transform=ax5.transAxes, fontsize=5,
                      verticalalignment='top', fontfamily='monospace', color='red',
                      bbox=dict(boxstyle='round,pad=0.3', facecolor='lightcoral', alpha=0.2))
@@ -4987,14 +5002,19 @@ class EvalModelsReferenced(BaseEvaluation):
                     continue
                 
                 # Get model metadata
-                # Handle both full model names and shortened names with prefix
+                # model_name from JSON already has correct format (e.g., "granite3.2:2b-instruct-q8_0")
+                # Metadata keys also use underscores in quantization (e.g., "granite3.2:2b-instruct-q8_0")
+                # So we should NOT do any replacement here
                 if model_name_prefix is not None:
                     # For shortened names (e.g., "fp16"), reconstruct full name with prefix
                     metadata_model_name = f"{model_name_prefix}-{model_name}"
+                    # Only replace the first underscore between prefix and variant
+                    # e.g., "granite3.2_2b-instruct-fp16" -> "granite3.2:2b-instruct-fp16"
                     metadata_model_name = metadata_model_name.replace("_", ":", 1)
                 else:
-                    # For full model names, convert underscores to colons
-                    metadata_model_name = model_name.replace("_", ":",1)
+                    # For full model names from JSON, they already have correct format
+                    # e.g., "granite3.2:2b-instruct-q8_0" - no replacement needed
+                    metadata_model_name = model_name
                 
                 model_metadata = metadata.get("model", {}).get(metadata_model_name, {}) if isinstance(metadata, dict) else {}
                 print(f"DEBUG MOBILE ANALYSIS METADATA: model_name={model_name}, metadata_model_name={metadata_model_name}, model_size_gb={model_metadata.get('model_size_gb')}")
@@ -5035,7 +5055,7 @@ class EvalModelsReferenced(BaseEvaluation):
             sorted_model_names = sorted(models_data.keys())
             model_sizes = []
             for name in sorted_model_names:
-                size = models_data[name].get('model_size_gb', 0)
+                size = models_data[name].get('metadata', {}).get('model_size_gb', 0)
                 if size is None:
                     size = 0
                 model_sizes.append(size)
@@ -5108,8 +5128,8 @@ class EvalModelsReferenced(BaseEvaluation):
                 rps = 1000.0 / avg_lat if isinstance(avg_lat, (int, float)) and avg_lat > 0 else 0.0
                 throughputs.append(rps)
                 
-                # Get model size for bubble size
-                model_size = models_data[name].get('model_size_gb', 0)
+                # Get model size for bubble size - it's stored in metadata
+                model_size = models_data[name].get('metadata', {}).get('model_size_gb', 0)
                 if model_size is None:
                     model_size = 0
                 model_sizes_gb.append(model_size)
@@ -5269,11 +5289,13 @@ class EvalModelsReferenced(BaseEvaluation):
         
         for mdl_name, model_data in models_data.items():
             # Get real data from models_data
+            # mdl_name from models_data already has correct format from JSON
             if model_name_prefix is not None:
                 full_model_name = f"{model_name_prefix}-{mdl_name}"
                 full_model_name = full_model_name.replace("_", ":", 1)
             else:
-                full_model_name = mdl_name.replace("_", ":", 1)
+                # mdl_name already has correct format, no replacement needed
+                full_model_name = mdl_name
             gpt_score = model_data.get('avg_gpt_score', 0)  # Already in 0-1 range
             avg_latency = model_data.get('avg_latency', 0)
             model_size = model_data.get('model_size_gb', 0)
@@ -5394,14 +5416,14 @@ class EvalModelsReferenced(BaseEvaluation):
         ax4.set_ylim(0, 100)
         
         # Get model metadata
-        # Handle both full model names and shortened names with prefix
+        # best_mobile[0] already has correct format from JSON
         if model_name_prefix is not None:
             # For shortened names (e.g., "fp16"), reconstruct full name with prefix
             metadata_model_name = f"{model_name_prefix}-{best_mobile[0]}"
             metadata_model_name = metadata_model_name.replace("_", ":", 1)
         else:
-            # For full model names, convert underscores to colons
-            metadata_model_name = best_mobile[0].replace("_", ":", 1)
+            # best_mobile[0] already has correct format, no replacement needed
+            metadata_model_name = best_mobile[0]
         
         model_metadata = self.all_model_metadata.get("model", {}).get(metadata_model_name, {})
         params = model_metadata.get('parameter_size_display', 'N/A')

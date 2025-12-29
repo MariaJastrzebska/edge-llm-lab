@@ -155,6 +155,13 @@ class BaseEvaluation:
         self.LLAMA_SERVER_HOST = "127.0.0.1"
         self.LLAMA_SERVER_PORT = 8080
         self.LLAMA_SERVER_URL = f"http://{self.LLAMA_SERVER_HOST}:{self.LLAMA_SERVER_PORT}"
+        
+        # # Create instructor-patched client for llama-server (structured output support)
+        # self.PATCHED_LLAMA_CLIENT = instructor.from_provider(
+        #     "openai/gpt-4",  # Model name (will be overridden in actual calls)
+        #     base_url=f"{self.LLAMA_SERVER_URL}/v1",
+        #     api_key="dummy"  # llama-server doesn't need API key
+        # )
         # Load timeout from config.yaml agent_config, default to 60s
         from edge_llm_lab.core.model_config_loader import get_agent_config
         agent_config = get_agent_config(self.agent_type)

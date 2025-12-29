@@ -396,14 +396,14 @@
                             "score": 0.004549590536851684,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -425,13 +425,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                                 },
@@ -631,14 +631,14 @@
                             "score": 0.004606172270842929,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure and formatting rules of JSON, with no errors present."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, whereas the reference response includes a specific tool call with detailed arguments. To achieve a higher score, the model should include a tool call that matches the reference in name and structure."
                         },
                         "gpt_reasoning_logic": {
@@ -660,13 +660,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure and formatting rules of JSON, with no errors present."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, whereas the reference response includes a specific tool call with detailed arguments. To achieve a higher score, the model should include a tool call that matches the reference in name and structure."
                                 },
@@ -874,14 +874,14 @@
                             "score": 0.0045871559633027525,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the appropriate name and arguments as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -903,13 +903,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the appropriate name and arguments as seen in the reference."
                                 },
@@ -1125,14 +1125,14 @@
                             "score": 0.005336179295624333,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 0.1,
                             "details": "GPT Judge - json_correctness: 1/10",
                             "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct for the expected output. The reference response contains a structured JSON with specific fields and values. To achieve a score of 10, the model should provide a complete JSON structure similar to the reference, including 'tool_calls', 'arguments', and relevant data."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments and structure. There are no similarities to evaluate, and thus it scores the lowest. To improve, the model should include a correctly structured tool call that matches the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -1154,13 +1154,13 @@
                             "score": 0.1,
                             "original_score": 1.0,
                             "details": "Judge average score: 1.0/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:1, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:1, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 1,
                                     "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct for the expected output. The reference response contains a structured JSON with specific fields and values. To achieve a score of 10, the model should provide a complete JSON structure similar to the reference, including 'tool_calls', 'arguments', and relevant data."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments and structure. There are no similarities to evaluate, and thus it scores the lowest. To improve, the model should include a correctly structured tool call that matches the reference."
                                 },
@@ -1585,14 +1585,14 @@
                             "score": 0.004549590536851684,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -1614,13 +1614,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                                 },
@@ -1820,14 +1820,14 @@
                             "score": 0.004606172270842929,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure, with no missing brackets or commas, and is well-formed."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -1849,13 +1849,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure, with no missing brackets or commas, and is well-formed."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                                 },
@@ -2063,14 +2063,14 @@
                             "score": 0.0045871559633027525,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure similar to the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -2092,13 +2092,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure similar to the reference."
                                 },
@@ -2314,14 +2314,14 @@
                             "score": 0.005336179295624333,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 0.1,
                             "details": "GPT Judge - json_correctness: 1/10",
                             "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct for the expected output. The reference response contains a structured JSON with specific fields and values. To achieve a score of 10, the model should provide a complete JSON structure similar to the reference, including 'tool_calls' and relevant arguments."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments. There are no similarities to evaluate. To improve, the model should include a tool call that matches the structure and content of the reference response."
                         },
                         "gpt_reasoning_logic": {
@@ -2343,13 +2343,13 @@
                             "score": 0.1,
                             "original_score": 1.0,
                             "details": "Judge average score: 1.0/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:1, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:1, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 1,
                                     "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct for the expected output. The reference response contains a structured JSON with specific fields and values. To achieve a score of 10, the model should provide a complete JSON structure similar to the reference, including 'tool_calls' and relevant arguments."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments. There are no similarities to evaluate. To improve, the model should include a tool call that matches the structure and content of the reference response."
                                 },
@@ -2774,14 +2774,14 @@
                             "score": 0.004549590536851684,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call that matches the reference in name, arguments, and structure."
                         },
                         "gpt_reasoning_logic": {
@@ -2803,13 +2803,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call that matches the reference in name, arguments, and structure."
                                 },
@@ -3009,14 +3009,14 @@
                             "score": 0.004606172270842929,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure, with no missing brackets or commas, and is well-formed."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -3038,13 +3038,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure, with no missing brackets or commas, and is well-formed."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                                 },
@@ -3252,14 +3252,14 @@
                             "score": 0.0045871559633027525,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the appropriate name and arguments as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -3281,13 +3281,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the appropriate name and arguments as seen in the reference."
                                 },
@@ -3503,14 +3503,14 @@
                             "score": 0.005336179295624333,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 0.1,
                             "details": "GPT Judge - json_correctness: 1/10",
                             "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct for the expected output. The reference response contains a structured JSON with specific fields and values. To achieve a score of 10, the model should provide a complete JSON structure similar to the reference, including 'tool_calls', 'arguments', and relevant data."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments and structure. There are no similarities to evaluate, and thus it scores the lowest. To improve, the model should include a correctly structured tool call that matches the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -3532,13 +3532,13 @@
                             "score": 0.1,
                             "original_score": 1.0,
                             "details": "Judge average score: 1.0/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:1, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:1, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 1,
                                     "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct for the expected output. The reference response contains a structured JSON with specific fields and values. To achieve a score of 10, the model should provide a complete JSON structure similar to the reference, including 'tool_calls', 'arguments', and relevant data."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments and structure. There are no similarities to evaluate, and thus it scores the lowest. To improve, the model should include a correctly structured tool call that matches the reference."
                                 },
@@ -3963,14 +3963,14 @@
                             "score": 0.004549590536851684,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -3992,13 +3992,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                                 },
@@ -4198,14 +4198,14 @@
                             "score": 0.004606172270842929,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure and formatting rules of JSON, with no errors present."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a complete tool call structure. To achieve a score of 10, the model should include a tool call with the same name, arguments, and structure as the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -4227,13 +4227,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure and formatting rules of JSON, with no errors present."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a complete tool call structure. To achieve a score of 10, the model should include a tool call with the same name, arguments, and structure as the reference."
                                 },
@@ -4441,14 +4441,14 @@
                             "score": 0.0045871559633027525,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure similar to the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -4470,13 +4470,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure similar to the reference."
                                 },
@@ -4692,14 +4692,14 @@
                             "score": 0.005336179295624333,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 0.1,
                             "details": "GPT Judge - json_correctness: 1/10",
                             "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct for the expected output. The reference response contains a structured JSON with specific fields and values. To achieve a score of 10, the model should provide a complete JSON structure similar to the reference, including 'tool_calls', 'arguments', and relevant data."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments and structure. There are no similarities to evaluate, and thus it scores the lowest. To improve, the model should include a correctly structured tool call that matches the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -4721,13 +4721,13 @@
                             "score": 0.1,
                             "original_score": 1.0,
                             "details": "Judge average score: 1.0/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:1, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:1, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 1,
                                     "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct for the expected output. The reference response contains a structured JSON with specific fields and values. To achieve a score of 10, the model should provide a complete JSON structure similar to the reference, including 'tool_calls', 'arguments', and relevant data."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments and structure. There are no similarities to evaluate, and thus it scores the lowest. To improve, the model should include a correctly structured tool call that matches the reference."
                                 },
@@ -5144,14 +5144,14 @@
                             "score": 0.08277187558612285,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 0.7,
                             "details": "GPT Judge - json_correctness: 7/10",
                             "explanation": "The JSON structure is mostly correct, but it is incomplete. The 'thoughts' array is cut off and does not include all necessary elements, such as 'current_info', 'missing_info', and 'status'. To achieve a score of 10, the model should provide a complete JSON structure that mirrors the reference response."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.8,
-                            "details": "GPT Judge - tool_calls_correctness: 8/10",
+                            "details": "GPT Judge - tool_call_correctness: 8/10",
                             "explanation": "The tool call name 'send_medical_data_en' is correct, but the arguments are incomplete. The reference includes detailed fields like 'current_info', 'missing_info', and 'status', which are absent in the model response. To improve, the model should include all relevant arguments as in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -5173,13 +5173,13 @@
                             "score": 0.7,
                             "original_score": 7.0,
                             "details": "Judge average score: 7.0/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:7, tool_calls_correctness:8, reasoning_logic:5, question_naturalness:9, context_relevance:6",
+                            "explanation": "Average of 5 criteria: json_correctness:7, tool_call_correctness:8, reasoning_logic:5, question_naturalness:9, context_relevance:6",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 7,
                                     "explanation": "The JSON structure is mostly correct, but it is incomplete. The 'thoughts' array is cut off and does not include all necessary elements, such as 'current_info', 'missing_info', and 'status'. To achieve a score of 10, the model should provide a complete JSON structure that mirrors the reference response."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 8,
                                     "explanation": "The tool call name 'send_medical_data_en' is correct, but the arguments are incomplete. The reference includes detailed fields like 'current_info', 'missing_info', and 'status', which are absent in the model response. To improve, the model should include all relevant arguments as in the reference."
                                 },
@@ -5371,14 +5371,14 @@
                             "score": 0.004549590536851684,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -5400,13 +5400,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object, which is valid. There are no errors in the structure."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the necessary arguments and structure as seen in the reference."
                                 },
@@ -5606,14 +5606,14 @@
                             "score": 0.004606172270842929,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure and formatting rules of JSON, with no errors present."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To achieve a higher score, the model should include a tool call with the appropriate name and arguments as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -5635,13 +5635,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct JSON. It adheres to the proper structure and formatting rules of JSON, with no errors present."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To achieve a higher score, the model should include a tool call with the appropriate name and arguments as seen in the reference."
                                 },
@@ -5849,14 +5849,14 @@
                             "score": 0.0045871559633027525,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the appropriate name and arguments as seen in the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -5878,13 +5878,13 @@
                             "score": 0.27999999999999997,
                             "original_score": 2.8,
                             "details": "Judge average score: 2.8/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The model response is syntactically correct as it is an empty JSON object. There are no errors in the structure, and it adheres to JSON formatting rules."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, which is a significant deviation from the reference response that includes a detailed tool call structure. To improve, the model should include a tool call with the appropriate name and arguments as seen in the reference."
                                 },
@@ -6100,14 +6100,14 @@
                             "score": 0.005336179295624333,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 0.1,
                             "details": "GPT Judge - json_correctness: 1/10",
                             "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct in the context of the expected output. The reference response contains structured data with specific fields and values, while the model response lacks any of this necessary information. To achieve a score of 10, the model response must include a properly structured JSON object that mirrors the reference response."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.1,
-                            "details": "GPT Judge - tool_calls_correctness: 1/10",
+                            "details": "GPT Judge - tool_call_correctness: 1/10",
                             "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments and thoughts. There are no similarities in structure or content. To improve, the model should include a tool call that matches the reference in name, arguments, and structure."
                         },
                         "gpt_reasoning_logic": {
@@ -6129,13 +6129,13 @@
                             "score": 0.1,
                             "original_score": 1.0,
                             "details": "Judge average score: 1.0/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:1, tool_calls_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
+                            "explanation": "Average of 5 criteria: json_correctness:1, tool_call_correctness:1, reasoning_logic:1, question_naturalness:1, context_relevance:1",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 1,
                                     "explanation": "The model response is an empty JSON object '{}', which is not syntactically correct in the context of the expected output. The reference response contains structured data with specific fields and values, while the model response lacks any of this necessary information. To achieve a score of 10, the model response must include a properly structured JSON object that mirrors the reference response."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 1,
                                     "explanation": "The model response does not contain any tool calls, whereas the reference response includes a detailed tool call with specific arguments and thoughts. There are no similarities in structure or content. To improve, the model should include a tool call that matches the reference in name, arguments, and structure."
                                 },
@@ -6552,14 +6552,14 @@
                             "score": 0.5560640903244298,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The JSON structure is syntactically correct, with proper nesting and formatting. All keys and values are appropriately quoted, and there are no missing commas or brackets."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.9,
-                            "details": "GPT Judge - tool_calls_correctness: 9/10",
+                            "details": "GPT Judge - tool_call_correctness: 9/10",
                             "explanation": "The tool call is mostly identical to the reference, with the same name and structure. However, the order of the 'thoughts' array is slightly different, which could be seen as a minor difference. To achieve a perfect score, the order should match the reference exactly."
                         },
                         "gpt_reasoning_logic": {
@@ -6581,13 +6581,13 @@
                             "score": 0.96,
                             "original_score": 9.6,
                             "details": "Judge average score: 9.6/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:9, reasoning_logic:9, question_naturalness:10, context_relevance:10",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:9, reasoning_logic:9, question_naturalness:10, context_relevance:10",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The JSON structure is syntactically correct, with proper nesting and formatting. All keys and values are appropriately quoted, and there are no missing commas or brackets."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 9,
                                     "explanation": "The tool call is mostly identical to the reference, with the same name and structure. However, the order of the 'thoughts' array is slightly different, which could be seen as a minor difference. To achieve a perfect score, the order should match the reference exactly."
                                 },
@@ -6608,7 +6608,7 @@
                                 "The model's response is well-structured and maintains a clear logical flow, particularly in the reasoning behind the data collection process."
                             ],
                             "weaknesses": [
-                                "The minor difference in the order of thoughts in the tool call could be improved for a perfect score in tool_calls_correctness."
+                                "The minor difference in the order of thoughts in the tool call could be improved for a perfect score in tool_call_correctness."
                             ]
                         }
                     }
@@ -6783,14 +6783,14 @@
                             "score": 0.933943590084391,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The JSON structure is syntactically correct, with proper use of brackets, commas, and key-value pairs. There are no errors in formatting, and it parses correctly."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.9,
-                            "details": "GPT Judge - tool_calls_correctness: 9/10",
+                            "details": "GPT Judge - tool_call_correctness: 9/10",
                             "explanation": "The tool call structure is very similar to the reference, but there is a minor difference in the 'action_input' for the first thought. The model states 'gender = unknown' instead of 'gender = null'. This could lead to confusion about the state of the gender field. To achieve a score of 10, it should match the reference exactly."
                         },
                         "gpt_reasoning_logic": {
@@ -6812,13 +6812,13 @@
                             "score": 0.9199999999999999,
                             "original_score": 9.2,
                             "details": "Judge average score: 9.2/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:9, reasoning_logic:8, question_naturalness:10, context_relevance:9",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:9, reasoning_logic:8, question_naturalness:10, context_relevance:9",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The JSON structure is syntactically correct, with proper use of brackets, commas, and key-value pairs. There are no errors in formatting, and it parses correctly."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 9,
                                     "explanation": "The tool call structure is very similar to the reference, but there is a minor difference in the 'action_input' for the first thought. The model states 'gender = unknown' instead of 'gender = null'. This could lead to confusion about the state of the gender field. To achieve a score of 10, it should match the reference exactly."
                                 },
@@ -7022,14 +7022,14 @@
                             "score": 0.9699528405834221,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The JSON structure in the model response is syntactically correct, with proper use of brackets, commas, and key-value pairs. There are no errors in formatting, and it adheres to JSON standards."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.9,
-                            "details": "GPT Judge - tool_calls_correctness: 9/10",
+                            "details": "GPT Judge - tool_call_correctness: 9/10",
                             "explanation": "The tool call structure is very similar to the reference, with only a minor difference in the question for missing information. The reference asks for 'What is your height in cm?' while the model asks 'What is your height?'. This slight change could lead to ambiguity regarding the unit of measurement, which is important in medical contexts."
                         },
                         "gpt_reasoning_logic": {
@@ -7051,13 +7051,13 @@
                             "score": 0.9,
                             "original_score": 9.0,
                             "details": "Judge average score: 9.0/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:9, reasoning_logic:9, question_naturalness:8, context_relevance:9",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:9, reasoning_logic:9, question_naturalness:8, context_relevance:9",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The JSON structure in the model response is syntactically correct, with proper use of brackets, commas, and key-value pairs. There are no errors in formatting, and it adheres to JSON standards."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 9,
                                     "explanation": "The tool call structure is very similar to the reference, with only a minor difference in the question for missing information. The reference asks for 'What is your height in cm?' while the model asks 'What is your height?'. This slight change could lead to ambiguity regarding the unit of measurement, which is important in medical contexts."
                                 },
@@ -7269,14 +7269,14 @@
                             "score": 0.9590076382031077,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The JSON structure in the model response is syntactically correct, with proper nesting, commas, and quotation marks. There are no errors that would prevent it from parsing correctly."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.7,
-                            "details": "GPT Judge - tool_calls_correctness: 7/10",
+                            "details": "GPT Judge - tool_call_correctness: 7/10",
                             "explanation": "The tool call structure is mostly similar to the reference, but there is a significant difference in the 'missing_info' field. The reference asks for 'date_of_birth', while the model asks for 'blood_type'. This change in the required information indicates a deviation from the expected tool call, which affects the correctness."
                         },
                         "gpt_reasoning_logic": {
@@ -7298,13 +7298,13 @@
                             "score": 0.82,
                             "original_score": 8.2,
                             "details": "Judge average score: 8.2/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:7, reasoning_logic:8, question_naturalness:10, context_relevance:6",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:7, reasoning_logic:8, question_naturalness:10, context_relevance:6",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The JSON structure in the model response is syntactically correct, with proper nesting, commas, and quotation marks. There are no errors that would prevent it from parsing correctly."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 7,
                                     "explanation": "The tool call structure is mostly similar to the reference, but there is a significant difference in the 'missing_info' field. The reference asks for 'date_of_birth', while the model asks for 'blood_type'. This change in the required information indicates a deviation from the expected tool call, which affects the correctness."
                                 },
@@ -7524,14 +7524,14 @@
                             "score": 0.7147717464620865,
                             "details": "METEOR score with synonym and stemming awareness (normalized JSON)."
                         },
-                        "gpt_json_correctness": {
+                        "gpt_context_correctness": {
                             "score": 1.0,
                             "details": "GPT Judge - json_correctness: 10/10",
                             "explanation": "The JSON structure is syntactically correct, with proper nesting and formatting. All keys and values are appropriately quoted, and there are no missing commas or brackets."
                         },
-                        "gpt_tool_calls_correctness": {
+                        "gpt_tool_call_correctness": {
                             "score": 0.7,
-                            "details": "GPT Judge - tool_calls_correctness: 7/10",
+                            "details": "GPT Judge - tool_call_correctness: 7/10",
                             "explanation": "The tool call structure is similar to the reference, but there is a significant difference in the 'status' and 'missing_info' fields. The model response indicates 'status: INCOMPLETE' and specifies missing information for 'blood_type', while the reference states 'status: COMPLETE' with no missing information. To achieve a score of 10, the model should align its status and missing information with the reference."
                         },
                         "gpt_reasoning_logic": {
@@ -7553,13 +7553,13 @@
                             "score": 0.76,
                             "original_score": 7.6,
                             "details": "Judge average score: 7.6/10 (from 5 criteria)",
-                            "explanation": "Average of 5 criteria: json_correctness:10, tool_calls_correctness:7, reasoning_logic:6, question_naturalness:10, context_relevance:5",
+                            "explanation": "Average of 5 criteria: json_correctness:10, tool_call_correctness:7, reasoning_logic:6, question_naturalness:10, context_relevance:5",
                             "criteria_scores": {
                                 "json_correctness": {
                                     "score": 10,
                                     "explanation": "The JSON structure is syntactically correct, with proper nesting and formatting. All keys and values are appropriately quoted, and there are no missing commas or brackets."
                                 },
-                                "tool_calls_correctness": {
+                                "tool_call_correctness": {
                                     "score": 7,
                                     "explanation": "The tool call structure is similar to the reference, but there is a significant difference in the 'status' and 'missing_info' fields. The model response indicates 'status: INCOMPLETE' and specifies missing information for 'blood_type', while the reference states 'status: COMPLETE' with no missing information. To achieve a score of 10, the model should align its status and missing information with the reference."
                                 },

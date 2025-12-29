@@ -46,7 +46,7 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
             evaluator = EvalModelsReferenced(model_name=model_name, agent=Agent(agent_type))
 
             # Pipeline evaluation with logs and visualization enabled
-            evaluator.pipeline_eval_model(mode=mode, stage_name="stage_1_selection", generate_comparison=False)
+            evaluator.pipeline_eval_model(mode=mode, stage_name="stage_1_selection", generate_comparison=True)
             
             # Simple logic to track the best model (Golden Model)
             # In a real scenario, we'd extract the actual score from the logs
@@ -82,34 +82,34 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
          except Exception as e:
              print(f"❌ Error generating summary plots: {e}")
             
-    # STAGE 2: Quantization Analysis
-    print("\n--- STAGE 2: Quantization Analysis ---")
-    # Using the best determined model from Stage 1
-    if not golden_model and models:
-        golden_model = models[0]
+    # # STAGE 2: Quantization Analysis
+    # print("\n--- STAGE 2: Quantization Analysis ---")
+    # # Using the best determined model from Stage 1
+    # if not golden_model and models:
+    #     golden_model = models[0]
         
-    print(f"🏆 Golden Model for Quantization: {golden_model}")
-    stage2_config = load_stage_config(2, agent_type)
-    # logic for quantization comparison...
-    if stage2_config and "models_to_evaluate" in stage2_config:
-         q_models = [m["name"] for m in stage2_config["models_to_evaluate"]]
-         for q_model_name in q_models:
-             print(f"\n📏 Evaluating Quantized Model: {q_model_name}")
+    # print(f"🏆 Golden Model for Quantization: {golden_model}")
+    # stage2_config = load_stage_config(2, agent_type)
+    # # logic for quantization comparison...
+    # if stage2_config and "models_to_evaluate" in stage2_config:
+    #      q_models = [m["name"] for m in stage2_config["models_to_evaluate"]]
+    #      for q_model_name in q_models:
+    #          print(f"\n📏 Evaluating Quantized Model: {q_model_name}")
              
-             # Check model availability and auto-pull if needed
-             if not BaseEvaluation.check_model_availability(q_model_name, install_choice='y'):
-                 print(f"⏭️ Skipping {q_model_name}")
-                 continue
+    #          # Check model availability and auto-pull if needed
+    #          if not BaseEvaluation.check_model_availability(q_model_name, install_choice='y'):
+    #              print(f"⏭️ Skipping {q_model_name}")
+    #              continue
              
-             try:
-                 evaluator = EvalModelsReferenced(model_name=q_model_name, agent=Agent(agent_type))
-                 evaluator.pipeline_eval_model(mode=mode, stage_name="stage_2_quantization", optimisations_choice="test")
-             except Exception as e:
-                 print(f"❌ Error evaluating {q_model_name}: {e}")
+    #          try:
+    #              evaluator = EvalModelsReferenced(model_name=q_model_name, agent=Agent(agent_type))
+    #              evaluator.pipeline_eval_model(mode=mode, stage_name="stage_2_quantization", optimisations_choice="test")
+    #          except Exception as e:
+    #              print(f"❌ Error evaluating {q_model_name}: {e}")
     
-    # STAGE 3: Optuna Optimization
-    print("\n--- STAGE 3: Optuna Optimization ---")
-    opt_engine = OptimizationEngine(study_name=f"opt_{golden_model}")
+    # # STAGE 3: Optuna Optimization
+    # print("\n--- STAGE 3: Optuna Optimization ---")
+    # opt_engine = OptimizationEngine(study_name=f"opt_{golden_model}")
     
     def objective(trial):
         # Sample parameters from trial

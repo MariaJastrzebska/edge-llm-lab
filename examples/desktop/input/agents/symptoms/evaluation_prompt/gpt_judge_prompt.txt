@@ -13,31 +13,31 @@ Oceń odpowiedź modelu w 5 kategoriach NIEZALEŻNIE (1-10 każda). Dla każdej 
 
 WAŻNE: Jeśli nie dajesz maksymalnej oceny 10, MUSISZ dokładnie wyjaśnić DLACZEGO i co konkretnie należałoby poprawić żeby dostać 10.
 
-1. JSON_CORRECTNESS (1-10): Czy JSON jest poprawny składniowo?
+1. json_correctness (1-10): Czy JSON jest poprawny składniowo?
    - 10: Idealny JSON bez błędów
    - 7-9: Drobne błędy ale parsuje się poprawnie
    - 4-6: Średnie problemy ze składnią
    - 1-3: Poważne błędy składni lub nie parsuje się
 
-2. TOOL_CALLS_CORRECTNESS (1-10): Czy tool calls są poprawne?
+2. tool_call_correctness (1-10): Czy tool calls są poprawne?
    - 10: Identyczne z referencją (nazwa, argumenty, struktura)
    - 7-9: Bardzo podobne z drobnymi różnicami
    - 4-6: Podobne ale z zauważalnymi różnicami
    - 1-3: Znaczące różnice lub błędy
 
-3. REASONING_LOGIC (1-10): Czy logika rozumowania jest poprawna?
+3. reasoning_logic (1-10): Czy logika rozumowania jest poprawna?
    - 10: Perfekcyjna logiczna sekwencja myśli, spójne wnioskowanie
    - 7-9: W większości logiczne z drobnymi problemami
    - 4-6: Częściowo logiczne ale z zauważalnymi problemami
    - 1-3: Niespójne lub błędne rozumowanie
 
-4. QUESTION_NATURALNESS (1-10): Czy pytanie brzmi naturalnie po polsku?
+4. question_naturalness (1-10): Czy pytanie brzmi naturalnie po polsku?
    - 10: Perfekcyjna polszczyzna, bardzo naturalny styl
    - 7-9: Poprawne i naturalne z drobnymi niedoskonałościami
    - 4-6: Poprawne ale sztywne lub nienaturalne
    - 1-3: Błędy gramatyczne lub bardzo nienaturalne
 
-5. CONTEXT_RELEVANCE (1-10): Czy odpowiedź pasuje do kontekstu?
+5. context_relevance (1-10): Czy odpowiedź pasuje do kontekstu?
    - 10: Idealnie dopasowana do sytuacji i historii
    - 7-9: Bardzo dobrze pasuje z drobnymi problemami
    - 4-6: W większości pasuje ale z zauważalnymi problemami
@@ -50,7 +50,7 @@ ODPOWIEDZ W FORMACIE JSON:
       "score": [1-10],
       "explanation": "Konkretne uzasadnienie z przykładami z odpowiedzi modelu. Jeśli ocena < 10, wyjaśnij DOKŁADNIE dlaczego nie 10 i co należałoby poprawić żeby dostać 10."
     }},
-    "tool_calls_correctness": {{
+    "tool_call_correctness": {{
       "score": [1-10], 
       "explanation": "Konkretne uzasadnienie z przykładami różnic/podobieństw. Jeśli ocena < 10, wyjaśnij DOKŁADNIE dlaczego nie 10 i co należałoby poprawić."
     }},
