@@ -5357,7 +5357,9 @@ class EvalModelsReferenced(BaseEvaluation):
             ax2.text(0, 0.5, 'N/A', ha='center', fontweight='bold', fontsize=14)
         
         # 3. Size Winner (Efficiency)
-        size_gb = best_size[1].get('model_size_gb', 0)  # Default to 0 if missing
+        size_gb = best_size[1].get('model_size_gb')
+        if size_gb is None:
+            size_gb = 0.0  # Default to 0.0 if missing
         ax3.bar(['Winner'], [size_gb], 
                color='#4169E1', alpha=0.8, width=0.5)
         ax3.set_title(f'[DISK] SIZE WINNER (Smallest)\n{best_size[0].replace(":", "_")}', fontweight='bold')
@@ -5408,16 +5410,25 @@ class EvalModelsReferenced(BaseEvaluation):
         else:
             params_str = str(params)
         
-        # Add golden model details with parameters and size
+        
+        # Add golden model details with parameters and size (handle None values)
+        size_display = f"{size_gb:.1f}GB" if size_gb is not None else "N/A"
+        gpt_score = best_mobile[1].get('gpt_judge_score')
+        gpt_score_display = f"{gpt_score*100:.1f}%" if gpt_score is not None else "N/A"
+        latency = best_mobile[1].get('avg_latency_ms')
+        latency_display = f"{latency/1000:.1f}s" if latency is not None else "N/A"
+        mobile_score = best_mobile[1].get('mobile_score')
+        mobile_score_display = f"{mobile_score:.0f}/100" if mobile_score is not None else "N/A"
+        
         golden_details = f"""
 [TROPHY] GOLDEN MODEL DETAILS:
 • Family: [{model_metadata.get('architecture', 'unknown')}]
 • Parameters: {params_str}
-• Size: {size_gb:.1f}GB
+• Size: {size_display}
 • Quantization: {best_mobile[1].get('quantization_level', 'N/A')}
-• GPT Judge Score: {best_mobile[1].get('gpt_judge_score', 0)*100:.1f}%
-• Latency: {best_mobile[1].get('avg_latency_ms', 0)/1000:.1f}s
-• Mobile Score: {best_mobile[1].get('mobile_score', 0):.0f}/100
+• GPT Judge Score: {gpt_score_display}
+• Latency: {latency_display}
+• Mobile Score: {mobile_score_display}
 • Total Rounds: {best_mobile[1].get('total_rounds', 0)}
         """
         

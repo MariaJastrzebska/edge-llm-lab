@@ -1582,14 +1582,24 @@ class BaseEvaluation:
         else:
             metadata_data = {"model": {}}
 
-        if metadata_data != {"model": {}} or {}:
-            if metadata_data["model"].get(self.model_name):  
-                print(f"✅ Model metadata already cached for {self.model_name}")
-                return metadata_data["model"][self.model_name], metadata_data
-        
+        # CRITICAL: Metadata is SACRED - never overwrite if it exists
+        if metadata_data.get("model", {}).get(self.model_name):  
+            cached_metadata = metadata_data["model"][self.model_name]
+            print(f"✅ Model metadata already cached for {self.model_name} - NEVER overwriting")
             
+            # Warn if metadata has invalid values (but don't fix them)
+            if cached_metadata.get('model_size_gb', 0) == 0.0:
+                print(f"⚠️ WARNING: Cached metadata for {self.model_name} has model_size_gb=0.0")
+                print(f"⚠️ This likely means metadata was saved when model was not in Ollama")
+                print(f"⚠️ To fix: restore old models_metadata.json or delete this entry and re-run with model in Ollama")
+            
+            return cached_metadata, metadata_data
+        
+        # Only fetch and save metadata if it doesn't exist yet    
+        print(f"📥 Fetching NEW metadata for {self.model_name} (first time)")
         current_model_metadata = self.extract_and_norma_model_param_from_ollama()
         metadata_data["model"][self.model_name] = current_model_metadata
+        print(f"💾 Saving metadata for {self.model_name} (this will NEVER be overwritten)")
         print(f"All metadata after update:")
         print(metadata_data)
         self.save_json_file(metadata_data, metadata_file)
