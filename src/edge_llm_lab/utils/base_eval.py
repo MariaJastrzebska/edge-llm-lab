@@ -1632,11 +1632,18 @@ class BaseEvaluation:
         dict_keys(['architecture', 'parameter_size', 'parameter_size_orginal', 'context_length', 'embedding_length', 'quantization_level', 'model_format', 'model_size_bytes', 'model_size_gb', 'cached_at', 'context_size', 'max_tokens', 'parameter_size_display'])
         """
         print(f"📥 Fetching model metadata for {self.model_name}...")
-        result = subprocess.run(['ollama', 'show', self.model_name], capture_output=True, text=True, check=True)
-        show_output = result.stdout
-        print(f"Step 1: ollama show output: {show_output}")
-        import re
         model_details = {}
+        show_output = ""
+        
+        try:
+            result = subprocess.run(['ollama', 'show', self.model_name], capture_output=True, text=True, check=True)
+            show_output = result.stdout
+            print(f"Step 1: ollama show output: {show_output}")
+        except Exception as e:
+            print(f"⚠️ Could not run 'ollama show {self.model_name}': {e}. Using placeholders.")
+            show_output = ""
+
+        import re
         for key, pattern in [
             ('family', r'architecture\s+(\w+)'),
             ('parameter_size', r'parameters\s+([\d.]+[BMK])'),
@@ -1645,36 +1652,47 @@ class BaseEvaluation:
             ('embedding_length', r'embedding length\s+(\d+)'),
             ('modelfile', r'modelfile\s+(\w+)')
         ]:
+            default_val = 'Unknown'
+            if key in ['context_length', 'embedding_length']:
+                default_val = '0'
+            elif key == 'parameter_size':
+                default_val = '0B'
+            
             match = re.search(pattern, show_output)
-            model_details[key] = match.group(1) if match else 'Unknown'
+            model_details[key] = match.group(1) if match else default_val
         print(f"Step 1: extracted from ollama show: {model_details}")
 
         model_details['format'] = 'gguf'
         model_size_bytes = 0
         
-        result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
-        print(f"Step 2: ollama list output: {result}")
-        for line in result.stdout.strip().split('\n')[1:]:
-            parts = line.split()
-            if parts and parts[0] == self.model_name:
-                number_str = parts[2]
-                unit_str = parts[3].upper()
-                print(f"Step 2: extract model size: {number_str} unit: {unit_str}")
+        try:
+            result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
+            print(f"Step 2: ollama list output: {result}")
+            if result.returncode == 0:
+                for line in result.stdout.strip().split('\n')[1:]:
+                    parts = line.split()
+                    if parts and parts[0] == self.model_name:
+                        number_str = parts[2]
+                        unit_str = parts[3].upper()
+                        print(f"Step 2: extract model size: {number_str} unit: {unit_str}")
 
-                if 'GB' in unit_str:
-                    model_size_bytes = int(float(number_str) * 1024**3)
-                    model_size_gb = number_str
-                    print(f"Step 2: model_size_bytes if GB: {model_size_bytes}")
-                elif 'MB' in unit_str:
-                    model_size_bytes = int(float(number_str) * 1024**2)
-                    print(f"Step 2: model_size_bytes if MB: {model_size_bytes}")
-                elif 'KB' in unit_str:
-                    model_size_bytes = int(float(number_str) * 1024)
-                    print(f"Step 2: model_size_bytes if KB: {model_size_bytes}")
-                elif 'B' in unit_str:
-                    model_size_bytes = int(float(number_str))
-                    print(f"Step 2: model_size_bytes if B: {model_size_bytes}")
-                break
+                        if 'GB' in unit_str:
+                            model_size_bytes = int(float(number_str) * 1024**3)
+                            model_size_gb = number_str
+                            print(f"Step 2: model_size_bytes if GB: {model_size_bytes}")
+                        elif 'MB' in unit_str:
+                            model_size_bytes = int(float(number_str) * 1024**2)
+                            print(f"Step 2: model_size_bytes if MB: {model_size_bytes}")
+                        elif 'KB' in unit_str:
+                            model_size_bytes = int(float(number_str) * 1024)
+                            print(f"Step 2: model_size_bytes if KB: {model_size_bytes}")
+                        elif 'B' in unit_str:
+                            model_size_bytes = int(float(number_str))
+                            print(f"Step 2: model_size_bytes if B: {model_size_bytes}")
+                        break
+        except Exception as e:
+            print(f"⚠️ Could not run 'ollama list': {e}")
+        
         print(f"Step 3: normalized model_size_bytes: {model_size_bytes}")
 
         

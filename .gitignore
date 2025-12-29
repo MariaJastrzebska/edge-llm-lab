@@ -26,6 +26,7 @@ venv/
 ENV/
 env/
 .venv
+.env
 
 # Testing
 .pytest_cache/
@@ -56,7 +57,7 @@ dmypy.json
 
 # Logs
 *.log
-logs/
+# logs/
 
 # Evaluation outputs
 output/

@@ -20,7 +20,7 @@ from edge_llm_lab.core.model_config_loader import load_stage_config, delete_mode
 from edge_llm_lab.utils.base_eval import Agent, BaseEvaluation
 from edge_llm_lab.evaluation.optimization.optimization_engine import OptimizationEngine
 
-def run_pipeline(agent_type: str = "constant_data_en"):
+def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz"):
     print("🚀 Starting 3-Stage Evaluation Pipeline")
     
     # STAGE 1: Model Selection
@@ -38,7 +38,7 @@ def run_pipeline(agent_type: str = "constant_data_en"):
         try:
             evaluator = EvalModelsReferenced(model_name=model_name, agent=Agent(agent_type))
             # Pipeline evaluation with logs and visualization enabled
-            evaluator.pipeline_eval_model(mode="logs_and_viz", stage_name="stage_1_selection")
+            evaluator.pipeline_eval_model(mode=mode, stage_name="stage_1_selection", generate_comparison=False)
             
             # Simple logic to track the best model (Golden Model)
             # In a real scenario, we'd extract the actual score from the logs
@@ -58,6 +58,21 @@ def run_pipeline(agent_type: str = "constant_data_en"):
             # as it might still be needed for comparison or fallback.
             continue
             
+    # Generate Global Comparison after Stage 1
+    if last_successful_model and mode != "logs_only":
+         print("\n📊 Generating Global Comparison for Stage 1...")
+         try:
+             summary_evaluator = EvalModelsReferenced(model_name=last_successful_model, agent=Agent(agent_type))
+             summary_evaluator.pipeline_eval_model(
+                 mode="viz_only", 
+                 stage_name="stage_1_summary",
+                 generate_per_round=False,
+                 generate_per_model=False,
+                 generate_comparison=True
+             )
+         except Exception as e:
+             print(f"❌ Error generating summary plots: {e}")
+            
     # STAGE 2: Quantization Analysis
     print("\n--- STAGE 2: Quantization Analysis ---")
     # Using the best determined model from Stage 1
@@ -73,7 +88,7 @@ def run_pipeline(agent_type: str = "constant_data_en"):
              print(f"\n📏 Evaluating Quantized Model: {q_model_name}")
              try:
                  evaluator = EvalModelsReferenced(model_name=q_model_name, agent=Agent(agent_type))
-                 evaluator.pipeline_eval_model(mode="logs_and_viz", stage_name="stage_2_quantization", optimisations_choice="test")
+                 evaluator.pipeline_eval_model(mode=mode, stage_name="stage_2_quantization", optimisations_choice="test")
              except Exception as e:
                  print(f"❌ Error evaluating {q_model_name}: {e}")
     
@@ -101,5 +116,6 @@ def run_pipeline(agent_type: str = "constant_data_en"):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--agent", default="constant_data_en", help="Agent type to evaluate")
+    parser.add_argument("--mode", default="logs_and_viz", choices=["logs_only", "logs_and_viz", "viz_only"], help="Evaluation mode")
     args = parser.parse_args()
-    run_pipeline(args.agent)
+    run_pipeline(args.agent, args.mode)

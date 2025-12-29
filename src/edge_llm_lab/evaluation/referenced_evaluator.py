@@ -85,7 +85,12 @@ class EvalModelsReferenced(BaseEvaluation):
                     
                     for round_data in session_data['rounds']:
                         # Ask user if they want to generate this plot
-                        plot_name = f"{optimisation}_round_{round_data['round']}_{timestamp}"
+                        # Sanitize optimization string for filename
+                        opt_str = str(optimisation)
+                        if opt_str in ["{}", "()", "((),)", "None"]:
+                             opt_str = "baseline"
+                        
+                        plot_name = f"{opt_str}_round_{round_data['round']}_{timestamp}"
 
                         
     
@@ -461,12 +466,13 @@ class EvalModelsReferenced(BaseEvaluation):
                     filtered_sessions.append(session)
         return filtered_sessions
 
-    def display_models_and_get_selection(self, session_data):
+    def display_models_and_get_selection(self, session_data, interactive=True):
         """
         Wyświetla listę wykrytych grup modeli i pozwala użytkownikowi wybrać grupę lub konkretny model.
         
         Args:
             session_data: Lista danych sesji z modelami
+            interactive: Czy pytać użytkownika (True) czy wybrać wszystko (False)
             
         Returns:
             tuple: (wybrany_session_data, nazwa_modelu) lub (None, None) jeśli anulowano
@@ -481,6 +487,10 @@ class EvalModelsReferenced(BaseEvaluation):
         if not model_groups:
             print("❌ Nie znaleziono grup modeli")
             return None, None
+            
+        if not interactive:
+            print("✅ Automatycznie wybrano wszystkie modele (tryb nieinteraktywny)")
+            return session_data, None
         
         print(f"\n🔍 Wybierz grupę modeli:")
         print("=" * 60)
@@ -513,7 +523,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 print("\n⚠️ Przerwano - wybrano wszystkie modele")
                 return session_data, None
 
-    def all_models_plots(self, session_locations, timestamp, use_polish=True):
+    def all_models_plots(self, session_locations, timestamp, use_polish=True, interactive=True):
         """
         Tworzy wykresy porównujące WSZYSTKIE modele dla każdej optymalizacji.
         
@@ -538,7 +548,7 @@ class EvalModelsReferenced(BaseEvaluation):
         all_session_data = list(valid_session_data.values())
 
         # Pozwól użytkownikowi wybrać grupę lub konkretny model
-        selected_session_data, selected_model_name = self.display_models_and_get_selection(all_session_data)
+        selected_session_data, selected_model_name = self.display_models_and_get_selection(all_session_data, interactive=interactive)
         
         if selected_session_data is None:
             print("❌ Anulowano generowanie wykresów")
@@ -570,33 +580,6 @@ class EvalModelsReferenced(BaseEvaluation):
 
         print(f"🔍 DEBUG FINAL: model_name = {model_name}")
         # Generate ONE set of plots with ALL models and ALL optimizations
-        # 1. Generate latency performance chart (ALL models, ALL optimizations)
-        latency_chart_path = self.plot_latency_performance(
-            session_data=all_session_data,
-            optimisation_type="all_models_all_optimizations",
-            agent_type=self.agent_type,
-            plotting_session_timestamp=timestamp,
-            metadata=metadata,
-            output_dir=output_dir,
-            output_file_name=f"all_models_latency_performance_chart_{timestamp}",
-            use_polish=use_polish,
-            model_name_prefix = model_name,
-        )
-        print(f"📈 Latency chart saved to: {latency_chart_path}")
-        
-        # 2. Generate latency breakdown timeline (ALL models, ALL optimizations)
-        timeline_chart_path = self.plot_latency_breakdown_timeline(
-            session_data=all_session_data,
-            optimisation_type="all_models_all_optimizations",
-            agent_type=self.agent_type,
-            plotting_session_timestamp=timestamp,
-            metadata=metadata,
-            output_dir=output_dir,
-            output_file_name=f"all_models_latency_timeline_{timestamp}",
-            model_name_prefix = model_name,
-            use_polish=use_polish,
-        )
-        print(f"📈 Timeline chart saved to: {timeline_chart_path}")
         
         # 3. Generate model comparison plot (ALL models, ALL optimizations)
         comparison_plot_path = self.plot_aggr_all_models_with_reference(
@@ -4247,9 +4230,13 @@ class EvalModelsReferenced(BaseEvaluation):
             
             # Add legend for models
             ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
-        else:
-            ax1.text(0.5, 0.5, 'No energy data available', transform=ax1.transAxes, 
+        elif len(avg_cpu_power) == 0:
+            ax1.text(0.5, 0.5, 'Brak danych energii (Empty Data)', transform=ax1.transAxes, 
                     ha='center', va='center', fontsize=12)
+        else:
+             # Case where we have lists but they might be mismatched or contain Nones that caused issues
+             ax1.text(0.5, 0.5, 'Insufficient Energy Data', transform=ax1.transAxes,
+                     ha='center', va='center', fontsize=12)
         
         # Check language preference (use_polish parameter already passed to function)
         if use_polish:
@@ -5096,11 +5083,19 @@ class EvalModelsReferenced(BaseEvaluation):
                 model_sizes_gb.append(model_size)
 
             # Use model size as bubble size (normalize to 50-2000 range for better visibility)
-            if len(model_sizes_gb) > 0 and max(model_sizes_gb) > 0:
-                min_size = min(model_sizes_gb) if min(model_sizes_gb) > 0 else 0.1
-                max_size = max(model_sizes_gb)
-                range_size = (max_size - min_size) if (max_size - min_size) > 0 else 1e-9
-                bubble_sizes = [50 + ((size - min_size) / range_size) * 1950 for size in model_sizes_gb]
+            if len(model_sizes_gb) > 0:
+                # Filter out None values just in case
+                safe_sizes = [s if s is not None and s > 0 else 0.1 for s in model_sizes_gb]
+                
+                min_size = min(safe_sizes) if safe_sizes else 0.1
+                max_size = max(safe_sizes) if safe_sizes else 0.1
+                
+                # Avoid division by zero
+                range_size = (max_size - min_size)
+                if range_size <= 0:
+                    range_size = 1.0 # arbitrary non-zero value
+                    
+                bubble_sizes = [50 + ((s - min_size) / range_size) * 1950 for s in safe_sizes]
             else:
                 bubble_sizes = [500] * len(model_names)  # Default size if no size data
 
@@ -5459,10 +5454,10 @@ class EvalModelsReferenced(BaseEvaluation):
             print(f"⚠️ Error reading logs: {e}")
             return set()
 
-    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation"):
+    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation", generate_comparison: bool = True, generate_per_round: bool = True, generate_per_model: bool = True):
         """
         Pipeline evaluation with 3 modes:
-        """
+        
         Args:
             mode: Evaluation mode
                 - "logs_only": Only perform evaluation and logging, no visualizations
@@ -5475,6 +5470,22 @@ class EvalModelsReferenced(BaseEvaluation):
                 - If None: Use standard parameters from config
             stage_name: Name of the current evaluation stage (e.g. "stage_1_selection")
         """
+        # optimization config loading
+        selected = [{"name": "default"}] # Placeholder default
+        test = [{"name": "default"}] # Placeholder default
+        
+        # Try to load from custom_optimizations.yaml if available
+        try:
+             optim_config_path = "examples/desktop/input/agents/constant_data_en/evaluation_config/custom_optimizations.yaml"
+             if os.path.exists(optim_config_path):
+                 import yaml
+                 with open(optim_config_path, 'r') as f:
+                     optim_config = yaml.safe_load(f)
+                     selected = optim_config.get('selected', selected)
+                     test = optim_config.get('test', test)
+        except Exception as e:
+            print(f"⚠️ Could not load custom optimizations, using defaults: {e}")
+
         if optimisations_choice == "selected":
             optimisations = selected
         if optimisations_choice == "test":
@@ -5573,6 +5584,12 @@ class EvalModelsReferenced(BaseEvaluation):
                 successful_evaluations += 1
             print(f" Ewaluacja modelu zakończona!")
 
+        # Plotting flags
+        # generate_per_round passed as arg
+        generate_aggr_over_rounds = generate_per_model
+        # generate_per_model passed as arg
+        generate_all_models = generate_comparison
+
         def plot_results():
             # Only visualizations, no logging - plot for all models in logs
             # Get list of all models from logs
@@ -5582,11 +5599,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 print("❌ No models found in logs for visualization")
                 list_of_models = [self.model_name]  # Fallback to current model
             
-            # Automatically generate all plots without user input
-            generate_per_round = True
-            generate_aggr_over_rounds = True
-            generate_per_model = True
-            generate_all_models = True
+            
             
             if generate_per_round:
                 print("\n📊 Generating per-round plots...")
@@ -5608,7 +5621,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 
             if generate_all_models:
                 print("\n📊 Generating all-models plots...")
-                self.all_models_plots(session_locations=session_locations, timestamp=timestamp, use_polish=use_polish)
+                self.all_models_plots(session_locations=session_locations, timestamp=timestamp, use_polish=use_polish, interactive=False)
             else:
                 print("⏭️ Skipping all-models plots")
             
@@ -5648,13 +5661,13 @@ class EvalModelsReferenced(BaseEvaluation):
         # Handle 3 modes: "logs_only", "logs_and_viz", "viz_only"
         # Initialize Neptune Run using NeptuneManager
         neptune_initialized = False
-        if mode in ["logs_only", "logs_and_viz"]:
+        if mode in ["logs_only", "logs_and_viz", "viz_only"]:
              # Prepare tags based on scenario
-              neptune_tags = [self.agent_type, self.eval_type, stage_name]
-              if inference_params:
-                  neptune_tags.append("inference_test")
-              if optimisations_choice == "test":
-                  neptune_tags.append("quantization_test")
+             neptune_tags = [self.agent_type, self.eval_type, stage_name]
+             if inference_params:
+                 neptune_tags.append("inference_test")
+             if optimisations_choice == "test":
+                 neptune_tags.append("quantization_test")
              
              # Prepare core parameters
              params = {
@@ -5738,14 +5751,101 @@ class EvalModelsReferenced(BaseEvaluation):
             self.neptune.upload_directory_artifacts(all_models_run_folder, "comparison_artifacts", gallery_path="visualizations/mosaic")
             
             # Log successful count
-            self.neptune.run["successful_evaluations"] = successful_evaluations
-                         
+            # Generate Best Models Summary if we have multiple models
+            if generate_all_models:
+                 self.generate_best_models_summary(session_locations, timestamp, use_polish)
+            
+            # Log scalar metrics for comparison in Neptune Dashboard
+            self.log_metrics_to_neptune(session_locations)
+
             self.neptune.stop()
             print("✅ Neptune upload completed")
-            
-            # Generate Best Models Summary if we have multiple models
-            if mode == "logs_and_viz" and generate_all_models:
-                 self.generate_best_models_summary(session_locations, timestamp, use_polish)
+                 
+    def log_metrics_to_neptune(self, session_locations):
+        """Parses local logs and uploads scalar metrics to Neptune for comparison."""
+        print("📊 Logging scalar metrics to Neptune...")
+        log_file = session_locations["log_file"]
+        
+        # Load logs
+        if not os.path.exists(log_file):
+            print("⚠️ Log file not found, skipping metric logging.")
+            return
+
+        try:
+             data = self.load_json_file(log_file)
+             if not data or 'evaluations' not in data:
+                 return
+                 
+             # Get the latest evaluation session
+             # In viz_only or logs_and_viz, we might be interested in the most recent run
+             # For simplicity, we log the metrics of the LAST session matching our config
+             
+             # Filter sessions for current model/agent
+             matching_sessions = [
+                 s for s in data.get('evaluations', [])
+                 if s.get('model_name') == self.model_name and s.get('agent_type') == self.agent_type
+             ]
+             
+             if not matching_sessions:
+                 print("⚠️ No matching sessions found in log.")
+                 return
+                 
+             latest_session = matching_sessions[-1]
+             rounds = latest_session.get('rounds', [])
+             
+             if not rounds:
+                 return
+
+             # Aggregate metrics
+             gpt_scores = []
+             latencies = []
+             cpu_energies = []
+             gpu_energies = []
+             
+             for r in rounds:
+                 metrics = r.get('metrics', {})
+                 breakdown = r.get('latency_breakdown', {})
+                 
+                 # Score
+                 score = metrics.get('gpt_judge', {}).get('score')
+                 if score is not None:
+                     gpt_scores.append(score)
+                     
+                 # Latency
+                 lat = breakdown.get('total_ms')
+                 if lat is not None:
+                     latencies.append(lat)
+                     
+                 # Energy
+                 res_diff = breakdown.get('resource_differences', {}).get('energy', {})
+                 cpu = res_diff.get('cpu_power_delta_mw')
+                 gpu = res_diff.get('gpu_power_delta_mw')
+                 
+                 if cpu: cpu_energies.append(abs(cpu))
+                 if gpu: gpu_energies.append(abs(gpu))
+             
+             # Log averages to Neptune
+             if gpt_scores:
+                 avg_score = sum(gpt_scores) / len(gpt_scores)
+                 self.neptune.run["metrics/avg_gpt_score"] = avg_score
+                 self.neptune.run["metrics/max_gpt_score"] = max(gpt_scores)
+                 
+             if latencies:
+                 avg_lat = sum(latencies) / len(latencies)
+                 self.neptune.run["metrics/avg_latency_ms"] = avg_lat
+                 self.neptune.run["metrics/min_latency_ms"] = min(latencies)
+                 self.neptune.run["metrics/throughput_tok_sec"] = 1000.0 / avg_lat if avg_lat > 0 else 0
+                 
+             if cpu_energies:
+                 self.neptune.run["metrics/avg_cpu_power_mw"] = sum(cpu_energies) / len(cpu_energies)
+                 
+             if gpu_energies:
+                 self.neptune.run["metrics/avg_gpu_power_mw"] = sum(gpu_energies) / len(gpu_energies)
+                 
+             print("✅ Scalar metrics logged to Neptune.")
+                 
+        except Exception as e:
+            print(f"⚠️ Failed to log metrics to Neptune: {e}")
 
 
     def generate_best_models_summary(self, session_locations, timestamp, use_polish=True):
