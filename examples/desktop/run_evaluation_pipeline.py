@@ -37,8 +37,14 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
     for i, model_name in enumerate(models):
         print(f"\n🧐 Evaluating {model_name} ({i+1}/{len(models)})...")
         
+        # Check model availability and auto-pull if needed
+        if not BaseEvaluation.check_model_availability(model_name, install_choice='y'):
+            print(f"⏭️ Skipping {model_name}")
+            continue
+        
         try:
             evaluator = EvalModelsReferenced(model_name=model_name, agent=Agent(agent_type))
+
             # Pipeline evaluation with logs and visualization enabled
             evaluator.pipeline_eval_model(mode=mode, stage_name="stage_1_selection", generate_comparison=False)
             
@@ -89,6 +95,12 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
          q_models = [m["name"] for m in stage2_config["models_to_evaluate"]]
          for q_model_name in q_models:
              print(f"\n📏 Evaluating Quantized Model: {q_model_name}")
+             
+             # Check model availability and auto-pull if needed
+             if not BaseEvaluation.check_model_availability(q_model_name, install_choice='y'):
+                 print(f"⏭️ Skipping {q_model_name}")
+                 continue
+             
              try:
                  evaluator = EvalModelsReferenced(model_name=q_model_name, agent=Agent(agent_type))
                  evaluator.pipeline_eval_model(mode=mode, stage_name="stage_2_quantization", optimisations_choice="test")

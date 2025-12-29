@@ -62,8 +62,8 @@ def pull_model_with_progress(model_name):
         for progress in client.pull(model_name, stream=True):
             # Extract relevant progress information
             status = progress.get('status', '')
-            completed = progress.get('completed', 0)
-            total = progress.get('total', 0)
+            completed = progress.get('completed', 0) or 0  # Ensure not None
+            total = progress.get('total', 0) or 0  # Ensure not None
             
             # Calculate and display progress percentage if applicable
             if total > 0:
