@@ -3684,7 +3684,7 @@ class EvalModelsReferenced(BaseEvaluation):
         info_text = "MODEL METADATA\n\n"
 
         if metadata:
-            info_text += f"• Name: {metadata.get('model_name', 'Unknown')}\n"
+            info_text += f"• Name: {model_name}\n"
             info_text += f"• Architecture: {metadata.get('architecture', 'Unknown')}\n"
             info_text += f"• Parameters: {metadata.get('parameter_size_display', 'Unknown')}\n"
             info_text += f"• Quantization: {metadata.get('quantization_level', 'Unknown')}\n"
