@@ -114,10 +114,10 @@ class EvalModelsReferenced(BaseEvaluation):
             model_name = self.model_name
             _create_round_plots_for_single_model(self.model_name)
         else:
+            # Use existing session_locations instead of creating new sessions
+            # This ensures plots are saved to the folder that will be uploaded
+            output_dir = session_locations["model_output_directory"]
             for model_name in list_of_models:
-                # Create ONE session per model (not per optimization)
-                model_session_locations = self.create_session(model_name=model_name)
-                output_dir = model_session_locations["model_run_folder"]
                 metadata = self.all_model_metadata.get("model", {}).get(model_name, {}) if isinstance(self.all_model_metadata, dict) else {}
                 _create_round_plots_for_single_model(model_name)
 
