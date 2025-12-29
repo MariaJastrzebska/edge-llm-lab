@@ -3561,8 +3561,8 @@ class EvalModelsReferenced(BaseEvaluation):
         
         return efficiency_data
     
-    @staticmethod
-    def plot_per_round_with_reference(round_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True):
+    
+    def plot_per_round_with_reference(self, round_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True):
         """
         Wizualizuje wyniki pojedynczej rundy ewaluacji LLM.
 

@@ -56,7 +56,7 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
             # Sequential Cleanup: Delete the PREVIOUS successful model
             if last_successful_model and last_successful_model != model_name:
                 print(f"🧹 Sequential Cleanup: Removing previous successful model {last_successful_model}")
-                delete_model(last_successful_model)
+                #delete_model(last_successful_model)
             
             last_successful_model = model_name
             
@@ -111,17 +111,17 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
     # print("\n--- STAGE 3: Optuna Optimization ---")
     # opt_engine = OptimizationEngine(study_name=f"opt_{golden_model}")
     
-    def objective(trial):
-        # Sample parameters from trial
-        params = {
-            "temperature": trial.suggest_float("temperature", 0.0, 1.0),
-            "top_p": trial.suggest_float("top_p", 0.0, 1.0)
-        }
-        # In a real run, this would call evaluator.run_inference with these params
-        return 0.8 # Mock score
+    # def objective(trial):
+    #     # Sample parameters from trial
+    #     params = {
+    #         "temperature": trial.suggest_float("temperature", 0.0, 1.0),
+    #         "top_p": trial.suggest_float("top_p", 0.0, 1.0)
+    #     }
+    #     # In a real run, this would call evaluator.run_inference with these params
+    #     return 0.8 # Mock score
         
-    best_params = opt_engine.run_optimization(objective, n_trials=5)
-    print(f"🎯 Best inference parameters for {golden_model}: {best_params}")
+    # best_params = opt_engine.run_optimization(objective, n_trials=5)
+    # print(f"🎯 Best inference parameters for {golden_model}: {best_params}")
 
     # Final Cleanup
     if last_successful_model:
