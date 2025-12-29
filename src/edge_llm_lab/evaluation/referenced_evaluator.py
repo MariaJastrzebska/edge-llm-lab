@@ -5454,7 +5454,7 @@ class EvalModelsReferenced(BaseEvaluation):
             print(f"⚠️ Error reading logs: {e}")
             return set()
 
-    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation", generate_comparison: bool = True, generate_per_round: bool = True, generate_per_model: bool = True):
+    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation", generate_comparison: bool = True, generate_per_round: bool = True, generate_per_model: bool = True, neptune_tags_list: Optional[list] = None, existing_session_metadata: dict = None):
         """
         Pipeline evaluation with 3 modes:
         
@@ -5494,7 +5494,10 @@ class EvalModelsReferenced(BaseEvaluation):
 
 
         successful_evaluations = 0
-        session_metadata = self.create_session()
+        if existing_session_metadata:
+            session_metadata = existing_session_metadata
+        else:
+            session_metadata = self.create_session()
         timestamp = session_metadata["timestamp"]
         log_folder = session_metadata["log_folder"]
         model_run_folder = session_metadata["model_run_folder"]
@@ -5664,6 +5667,8 @@ class EvalModelsReferenced(BaseEvaluation):
         if mode in ["logs_only", "logs_and_viz", "viz_only"]:
              # Prepare tags based on scenario
              neptune_tags = [self.agent_type, self.eval_type, stage_name]
+             if neptune_tags_list:
+                 neptune_tags.extend(neptune_tags_list)
              if inference_params:
                  neptune_tags.append("inference_test")
              if optimisations_choice == "test":
@@ -5708,9 +5713,11 @@ class EvalModelsReferenced(BaseEvaluation):
                  if prompt_path and os.path.exists(prompt_path):
                      self.neptune.upload_artifact(prompt_path, "system_prompt")
                      
-                 # Upload Source Code (referenced_evaluator.py)
+                 # Upload Full Source Code
                  current_file_path = os.path.abspath(__file__)
-                 self.neptune.upload_artifact(current_file_path, "source_code/evaluator.py")
+                 src_dir = os.path.abspath(os.path.join(os.path.dirname(current_file_path), "../../.."))
+                 print(f"DEBUG: Uploading source code from {src_dir}")
+                 self.neptune.upload_directory_artifacts(src_dir, "source_code", extensions=(".py", ".yaml", ".md"))
                  
                  # Upload Config Files
                  # Try to locate config files relative to the script execution or known paths
@@ -5746,6 +5753,10 @@ class EvalModelsReferenced(BaseEvaluation):
             if os.path.exists(log_file):
                 self.neptune.upload_artifact(log_file, "final_logs/main_log")
             
+            # Upload all_models log file
+            if os.path.exists(all_models_log_file):
+                self.neptune.upload_artifact(all_models_log_file, "final_logs/all_models_log")
+            
             # Upload results from BOTH folders
             self.neptune.upload_directory_artifacts(model_run_folder, "model_artifacts", gallery_path="visualizations/mosaic")
             self.neptune.upload_directory_artifacts(all_models_run_folder, "comparison_artifacts", gallery_path="visualizations/mosaic")
@@ -5760,6 +5771,8 @@ class EvalModelsReferenced(BaseEvaluation):
 
             self.neptune.stop()
             print("✅ Neptune upload completed")
+            
+        return session_metadata
                  
     def log_metrics_to_neptune(self, session_locations):
         """Parses local logs and uploads scalar metrics to Neptune for comparison."""

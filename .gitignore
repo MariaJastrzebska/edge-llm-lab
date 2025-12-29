@@ -60,15 +60,15 @@ dmypy.json
 # logs/
 
 # Evaluation outputs
-output/
-results/
-experiments/
+# output/
+# results/
+# experiments/
 
 # Models (don't commit large model files)
 *.bin
 *.gguf
 *.safetensors
-models/
+# models/
 
 # Data
 data/

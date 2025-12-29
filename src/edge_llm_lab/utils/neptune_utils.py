@@ -74,6 +74,7 @@ class NeptuneManager:
                     self.run[neptune_path].upload(File(local_path))
                 else:
                     self.run[neptune_path].upload(local_path)
+                print(f"DEBUG: Uploaded {local_path} -> {neptune_path}")
             except Exception as e:
                 print(f"⚠️ Failed to upload {local_path} to Neptune: {e}")
 
@@ -98,12 +99,16 @@ class NeptuneManager:
             extensions: Tuple of allowed file extensions
             gallery_path: Optional Neptune path to append all images to (for mosaic view)
         """
+        print(f"DEBUG: Starting artifact upload from {local_dir}")
         if not (self.run and os.path.exists(local_dir)):
+            print(f"DEBUG: Skipping upload - Run: {self.run is not None}, Exists: {os.path.exists(local_dir)}")
             return
             
+        files_found = 0
         for root, dirs, files in os.walk(local_dir):
             for f in files:
                 if f.lower().endswith(extensions):
+                    files_found += 1
                     full_path = os.path.join(root, f)
                     # Create a relative path for Neptune based on the provided prefix and folder structure
                     rel_path = os.path.relpath(full_path, local_dir)
@@ -112,10 +117,12 @@ class NeptuneManager:
                     
                     # Also append images to gallery if requested
                     if gallery_path and f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+                        print(f"DEBUG: Appending {f} to gallery {gallery_path}")
                         try:
                             self.run[gallery_path].append(File(full_path))
                         except Exception as e:
                             print(f"⚠️ Failed to append {full_path} to Neptune gallery {gallery_path}: {e}")
+        print(f"DEBUG: Scanned {local_dir}, matching files found: {files_found}")
 
     def recover_log(self, run_id: str, target_path: str) -> bool:
         """Downloads a JSON log from a past Neptune run."""
