@@ -1597,6 +1597,31 @@ class BaseEvaluation:
         
         # Only fetch and save metadata if it doesn't exist yet    
         print(f"📥 Fetching NEW metadata for {self.model_name} (first time)")
+        
+        # CRITICAL: Check if model is in Ollama before fetching metadata
+        try:
+            self.OLLAMA_CLIENT.show(self.model_name)
+        except Exception as e:
+            print(f"⚠️ WARNING: Model {self.model_name} not in Ollama - skipping metadata fetch")
+            print(f"⚠️ Metadata will be fetched when model is available")
+            # Return dummy metadata to prevent crashes
+            dummy_metadata = {
+                'architecture': 'Unknown',
+                'parameter_size': 0,
+                'parameter_size_orginal': '0B',
+                'context_length': 0,
+                'embedding_length': 0,
+                'quantization_level': 'Unknown',
+                'model_format': 'gguf',
+                'model_size_bytes': 0,
+                'model_size_gb': 0.0,
+                'cached_at': datetime.now().isoformat(),
+                'context_size': self.CONTEXT_SIZE,
+                'max_tokens': self.MAX_TOKENS,
+                'parameter_size_display': '0B'
+            }
+            return dummy_metadata, metadata_data
+        
         current_model_metadata = self.extract_and_norma_model_param_from_ollama()
         metadata_data["model"][self.model_name] = current_model_metadata
         print(f"💾 Saving metadata for {self.model_name} (this will NEVER be overwritten)")

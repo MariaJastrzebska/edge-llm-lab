@@ -1,0 +1,196 @@
+{
+  "$defs": {
+    "BloodTypeEnum": {
+      "enum": [
+        "A+",
+        "A-",
+        "B+",
+        "B-",
+        "AB+",
+        "AB-",
+        "O+",
+        "O-"
+      ],
+      "title": "BloodTypeEnum",
+      "type": "string"
+    },
+    "ConstantDataSetup": {
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Patient's name - optional",
+          "title": "Name"
+        },
+        "gender": {
+          "anyOf": [
+            {
+              "enum": [
+                "male",
+                "female",
+                "other"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Patient's gender - required",
+          "title": "Gender"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "maximum": 250,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Height in cm - required",
+          "title": "Height"
+        },
+        "blood_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BloodTypeEnum"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Blood type - optional"
+        },
+        "date_of_birth": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Date of birth - required",
+          "title": "Date Of Birth"
+        }
+      },
+      "title": "ConstantDataSetup",
+      "type": "object"
+    },
+    "MedScreeningInputStatus": {
+      "enum": [
+        "incomplete",
+        "complete",
+        "skipped"
+      ],
+      "title": "MedScreeningInputStatus",
+      "type": "string"
+    },
+    "MissingInfo": {
+      "properties": {
+        "field": {
+          "description": "Missing information, e.g. 'height'",
+          "maxLength": 50,
+          "title": "Field",
+          "type": "string"
+        },
+        "question": {
+          "description": "Question to user, e.g. 'What is your height?'",
+          "maxLength": 200,
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "question"
+      ],
+      "title": "MissingInfo",
+      "type": "object"
+    },
+    "ThoughtStep": {
+      "properties": {
+        "thought": {
+          "description": "What I'm thinking, e.g. 'Provided: height=174 cm; missing required: blood_type; missing optional: none' or 'User refuses to provide: blood_type'",
+          "maxLength": 500,
+          "title": "Thought",
+          "type": "string"
+        },
+        "action": {
+          "description": "What I'm doing, e.g. 'Save data', 'Ask for required', 'Ask for optional (once)', 'Set skipped'",
+          "maxLength": 100,
+          "title": "Action",
+          "type": "string"
+        },
+        "action_input": {
+          "description": "Data or question, e.g. 'Height: 174 cm' or 'Please provide blood type' or 'Status: skipped due to refusal'",
+          "maxLength": 200,
+          "title": "Action Input",
+          "type": "string"
+        }
+      },
+      "required": [
+        "thought",
+        "action",
+        "action_input"
+      ],
+      "title": "ThoughtStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "thoughts": {
+      "description": "Analysis steps",
+      "items": {
+        "$ref": "#/$defs/ThoughtStep"
+      },
+      "title": "Thoughts",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/MedScreeningInputStatus",
+      "description": "Status: 'incomplete' if missing required data, 'complete' when all collected, 'skipped' if skipped"
+    },
+    "missing_info": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MissingInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Missing required data or null if status is 'complete'"
+    },
+    "current_info": {
+      "$ref": "#/$defs/ConstantDataSetup",
+      "description": "Current state of collected data"
+    }
+  },
+  "required": [
+    "thoughts",
+    "status",
+    "current_info"
+  ],
+  "title": "ConstantDataAnalysisCOT",
+  "type": "object",
+  "model_name": "ConstantDataAnalysisCOT"
+}

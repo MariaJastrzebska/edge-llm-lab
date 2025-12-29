@@ -1,0 +1,307 @@
+{
+  "$defs": {
+    "Activity": {
+      "properties": {
+        "activity_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ActivityTypeEnum"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Type of activity"
+        },
+        "intensity": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Intensity level",
+          "title": "Intensity"
+        },
+        "duration": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Duration",
+          "title": "Duration"
+        },
+        "frequency": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Frequency",
+          "title": "Frequency"
+        }
+      },
+      "title": "Activity",
+      "type": "object"
+    },
+    "ActivityTypeEnum": {
+      "enum": [
+        "walking",
+        "running",
+        "cycling",
+        "swimming",
+        "other"
+      ],
+      "title": "ActivityTypeEnum",
+      "type": "string"
+    },
+    "Blood": {
+      "properties": {
+        "glucose_fasting": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Fasting glucose in mg/dL",
+          "title": "Glucose Fasting"
+        },
+        "glucose_postprandial": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Postprandial glucose in mg/dL",
+          "title": "Glucose Postprandial"
+        },
+        "blood_pressure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BloodPressure"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Blood pressure"
+        }
+      },
+      "title": "Blood",
+      "type": "object"
+    },
+    "BloodPressure": {
+      "properties": {
+        "systolic": {
+          "anyOf": [
+            {
+              "maximum": 300,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Systolic pressure in mmHg",
+          "title": "Systolic"
+        },
+        "diastolic": {
+          "anyOf": [
+            {
+              "maximum": 200,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Diastolic pressure in mmHg",
+          "title": "Diastolic"
+        }
+      },
+      "title": "BloodPressure",
+      "type": "object"
+    },
+    "Macros": {
+      "properties": {
+        "proteins": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Proteins in grams",
+          "title": "Proteins"
+        },
+        "fats": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Fats in grams",
+          "title": "Fats"
+        },
+        "carbs": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Carbohydrates in grams",
+          "title": "Carbs"
+        }
+      },
+      "title": "Macros",
+      "type": "object"
+    },
+    "Nutrition": {
+      "properties": {
+        "diet_calories": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Calories in kcal",
+          "title": "Diet Calories"
+        },
+        "diet_macros": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Macros"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Macronutrients"
+        },
+        "diet_description": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Diet description",
+          "title": "Diet Description"
+        }
+      },
+      "title": "Nutrition",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "blood": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Blood"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Blood data - optional"
+    },
+    "stress_level": {
+      "description": "Stress level (1-10) - required",
+      "maximum": 10,
+      "minimum": 1,
+      "title": "Stress Level",
+      "type": "integer"
+    },
+    "activity": {
+      "$ref": "#/$defs/Activity",
+      "description": "Activity - required"
+    },
+    "weight": {
+      "description": "Weight in kg - required",
+      "maximum": 300,
+      "minimum": 0,
+      "title": "Weight",
+      "type": "number"
+    },
+    "nutrition": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Nutrition"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Nutrition - optional"
+    }
+  },
+  "required": [
+    "stress_level",
+    "activity",
+    "weight"
+  ],
+  "title": "FluctuatingData",
+  "type": "object",
+  "model_name": "FluctuatingData"
+}

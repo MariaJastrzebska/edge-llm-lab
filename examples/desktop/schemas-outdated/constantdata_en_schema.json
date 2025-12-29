@@ -1,0 +1,77 @@
+{
+  "$defs": {
+    "BloodTypeEnum": {
+      "enum": [
+        "A+",
+        "A-",
+        "B+",
+        "B-",
+        "AB+",
+        "AB-",
+        "O+",
+        "O-"
+      ],
+      "title": "BloodTypeEnum",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "name": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Patient's name - optional",
+      "title": "Name"
+    },
+    "gender": {
+      "description": "Patient's gender - required",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ],
+      "title": "Gender",
+      "type": "string"
+    },
+    "height": {
+      "description": "Height in cm - required",
+      "maximum": 250,
+      "minimum": 0,
+      "title": "Height",
+      "type": "integer"
+    },
+    "blood_type": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BloodTypeEnum"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Blood type - optional"
+    },
+    "date_of_birth": {
+      "description": "Date of birth - required",
+      "format": "date",
+      "title": "Date Of Birth",
+      "type": "string"
+    }
+  },
+  "required": [
+    "gender",
+    "height",
+    "date_of_birth"
+  ],
+  "title": "ConstantData",
+  "type": "object",
+  "model_name": "ConstantData"
+}

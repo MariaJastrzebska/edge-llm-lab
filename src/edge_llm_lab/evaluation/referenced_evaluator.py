@@ -1,6 +1,7 @@
 import numpy as np
 import json
 from typing import List, Dict, Any, Union, Optional, Literal
+from pydantic import BaseModel, Field
 import os
 import sys
 
@@ -39,6 +40,16 @@ class EvalModelsReferenced(BaseEvaluation):
         THREE = 3
         FOUR = 4
         FIVE = 5
+    
+    # Pydantic models for GPT Judge structured output (matches log format exactly)
+    class CriterionScore(BaseModel):
+        score: int
+        explanation: str
+    
+    class GPTJudgeResponse(BaseModel):
+        criteria_scores: Dict[str, 'EvalModelsReferenced.CriterionScore']
+        overall_strengths: List[str] = Field(default_factory=list)
+        overall_weaknesses: List[str] = Field(default_factory=list)
     
     _cached_references = {}  # agent_type -> reference_file_path
 
@@ -1994,35 +2005,36 @@ class EvalModelsReferenced(BaseEvaluation):
             {"role": "user", "content": prompt},
         ]
         try:
-            
-            # judge_response, cache_key = self.get_openai_response(
+            # Use structured output with Pydantic model
             judge_response = self.get_openai_response(
                 messages=judge_messages,
                 custom_catch_type="gpt_judge",
                 use_cache=use_cache,
-                response_format="json"  # Zawsze string dla JSON parsing
-                
+                response_model=EvalModelsReferenced.GPTJudgeResponse
             )
-            print(judge_response)
-            result = judge_response
             
-            # Oblicz średnią ze wszystkich kryteriów
-            criteria_scores = result.get('criteria_scores', {})
-            all_scores = []
-            for criterion, criterion_data in criteria_scores.items():
-                if isinstance(criterion_data, dict) and 'score' in criterion_data:
-                    all_scores.append(float(criterion_data['score']))
-                elif isinstance(criterion_data, (int, float)):
-                    all_scores.append(float(criterion_data))
-
-            # Średnia ze wszystkich kryteriów
+            # Parse JSON string if needed (from cache)
+            if isinstance(judge_response, str):
+                try:
+                    judge_response = json.loads(judge_response)
+                except json.JSONDecodeError as e:
+                    print(f" ❌ Failed to parse GPT Judge response as JSON: {e}")
+                    print(f" Response was: {judge_response[:200]}...")
+                    raise
+            
+            # Extract structured output directly (already in correct format)
+            if isinstance(judge_response, dict) and 'arguments' in judge_response:
+                result = judge_response['arguments']
+            else:
+                result = judge_response
+            
+            # Calculate average score from all criteria
+            criteria_scores = result['criteria_scores']
+            all_scores = [v['score'] for v in criteria_scores.values()]
             total = sum(all_scores) / len(all_scores) if all_scores else 0.0
 
-            # Przygotuj opis kryteriów (bez backslash w f-string)
-            criteria_desc = ', '.join(
-                [f'{k}:{v.get("score", v) if isinstance(v, dict) else v}' for k, v in criteria_scores.items()])
-
-
+            # Prepare criteria description
+            criteria_desc = ', '.join([f'{k}:{v["score"]}' for k, v in criteria_scores.items()])
 
             if use_cache:
                 if not hasattr(self, 'gpt_judge_cache'):
@@ -2035,24 +2047,24 @@ class EvalModelsReferenced(BaseEvaluation):
                     'original_score': float(total),
                     'details': f"Judge average score: {total:.1f}/10 (from {len(all_scores)} criteria)",
                     'explanation': f"Average of {len(all_scores)} criteria: {criteria_desc}",
-                    'criteria_scores': result.get('criteria_scores', {}),
+                    'criteria_scores': result['criteria_scores'],
                     'strengths': result.get('overall_strengths', []),
                     'weaknesses': result.get('overall_weaknesses', []),
                 }
                 # self.save_cache(cache_key, custom_catch = custom_catch, filename="gpt_judge_scores")
             return {
-                # Normalizacja do 0-1 dla spójności z innymi metrykami
-                'score': float(total) / 10.0,
-                # Oryginalny wynik 0-10 do wyświetlania
-                'original_score': float(total),
+                'score': float(total) / 10.0,  # Normalize to 0-1
+                'original_score': float(total),  # Keep 0-10 for display
                 'details': f"Judge average score: {total:.1f}/10 (from {len(all_scores)} criteria)",
                 'explanation': f"Average of {len(all_scores)} criteria: {criteria_desc}",
-                'criteria_scores': result.get('criteria_scores', {}),
+                'criteria_scores': result['criteria_scores'],
                 'strengths': result.get('overall_strengths', []),
                 'weaknesses': result.get('overall_weaknesses', []),
             }
         except Exception as e:
             print(f" Error in GPT Judge evaluation: {e}")
+            import traceback
+            traceback.print_exc()
             return {
                 'score': 0.0,
                 'details': f'Judge evaluation failed: {e}'
@@ -5944,8 +5956,9 @@ class EvalModelsReferenced(BaseEvaluation):
         # Prefer the all_models log file if it exists and has content
         target_log_file = all_models_log_file if os.path.exists(all_models_log_file) else log_file
         
+        # Filter only by agent_type, not by full parameters dict (which may not match exactly)
         models_data = self.get_last_sessions(
-             key_dict={"parameters": self.MULTI_TURN_GLOBAL_CONFIG},
+             key_dict={"agent_type": self.agent_type},
              log_file=target_log_file,
              group_by_keys=['model_name']
         )

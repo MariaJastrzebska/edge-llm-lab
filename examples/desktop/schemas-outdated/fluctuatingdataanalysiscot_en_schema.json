@@ -1,0 +1,426 @@
+{
+  "$defs": {
+    "Activity": {
+      "properties": {
+        "activity_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ActivityTypeEnum"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Type of activity"
+        },
+        "intensity": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Intensity level",
+          "title": "Intensity"
+        },
+        "duration": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Duration",
+          "title": "Duration"
+        },
+        "frequency": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Frequency",
+          "title": "Frequency"
+        }
+      },
+      "title": "Activity",
+      "type": "object"
+    },
+    "ActivityTypeEnum": {
+      "enum": [
+        "walking",
+        "running",
+        "cycling",
+        "swimming",
+        "other"
+      ],
+      "title": "ActivityTypeEnum",
+      "type": "string"
+    },
+    "Blood": {
+      "properties": {
+        "glucose_fasting": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Fasting glucose in mg/dL",
+          "title": "Glucose Fasting"
+        },
+        "glucose_postprandial": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Postprandial glucose in mg/dL",
+          "title": "Glucose Postprandial"
+        },
+        "blood_pressure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BloodPressure"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Blood pressure"
+        }
+      },
+      "title": "Blood",
+      "type": "object"
+    },
+    "BloodPressure": {
+      "properties": {
+        "systolic": {
+          "anyOf": [
+            {
+              "maximum": 300,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Systolic pressure in mmHg",
+          "title": "Systolic"
+        },
+        "diastolic": {
+          "anyOf": [
+            {
+              "maximum": 200,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Diastolic pressure in mmHg",
+          "title": "Diastolic"
+        }
+      },
+      "title": "BloodPressure",
+      "type": "object"
+    },
+    "FluctuatingDataSetup": {
+      "properties": {
+        "blood": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Blood"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Blood data - optional"
+        },
+        "stress_level": {
+          "anyOf": [
+            {
+              "maximum": 10,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Stress level (1-10) - required",
+          "title": "Stress Level"
+        },
+        "activity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Activity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Activity - required"
+        },
+        "weight": {
+          "anyOf": [
+            {
+              "maximum": 300,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Weight in kg - required",
+          "title": "Weight"
+        },
+        "nutrition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Nutrition"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Nutrition - optional"
+        }
+      },
+      "title": "FluctuatingDataSetup",
+      "type": "object"
+    },
+    "Macros": {
+      "properties": {
+        "proteins": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Proteins in grams",
+          "title": "Proteins"
+        },
+        "fats": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Fats in grams",
+          "title": "Fats"
+        },
+        "carbs": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Carbohydrates in grams",
+          "title": "Carbs"
+        }
+      },
+      "title": "Macros",
+      "type": "object"
+    },
+    "MedScreeningInputStatus": {
+      "enum": [
+        "incomplete",
+        "complete",
+        "skipped"
+      ],
+      "title": "MedScreeningInputStatus",
+      "type": "string"
+    },
+    "MissingInfo": {
+      "properties": {
+        "field": {
+          "description": "Missing information, e.g. 'height'",
+          "maxLength": 50,
+          "title": "Field",
+          "type": "string"
+        },
+        "question": {
+          "description": "Question to user, e.g. 'What is your height?'",
+          "maxLength": 200,
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "question"
+      ],
+      "title": "MissingInfo",
+      "type": "object"
+    },
+    "Nutrition": {
+      "properties": {
+        "diet_calories": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Calories in kcal",
+          "title": "Diet Calories"
+        },
+        "diet_macros": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Macros"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Macronutrients"
+        },
+        "diet_description": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Diet description",
+          "title": "Diet Description"
+        }
+      },
+      "title": "Nutrition",
+      "type": "object"
+    },
+    "ThoughtStep": {
+      "properties": {
+        "thought": {
+          "description": "What I'm thinking, e.g. 'Provided: height=174 cm; missing required: blood_type; missing optional: none' or 'User refuses to provide: blood_type'",
+          "maxLength": 500,
+          "title": "Thought",
+          "type": "string"
+        },
+        "action": {
+          "description": "What I'm doing, e.g. 'Save data', 'Ask for required', 'Ask for optional (once)', 'Set skipped'",
+          "maxLength": 100,
+          "title": "Action",
+          "type": "string"
+        },
+        "action_input": {
+          "description": "Data or question, e.g. 'Height: 174 cm' or 'Please provide blood type' or 'Status: skipped due to refusal'",
+          "maxLength": 200,
+          "title": "Action Input",
+          "type": "string"
+        }
+      },
+      "required": [
+        "thought",
+        "action",
+        "action_input"
+      ],
+      "title": "ThoughtStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "thoughts": {
+      "description": "Analysis steps",
+      "items": {
+        "$ref": "#/$defs/ThoughtStep"
+      },
+      "title": "Thoughts",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/MedScreeningInputStatus",
+      "description": "Status: 'incomplete' if missing required data, 'complete' when all collected, 'skipped' if skipped"
+    },
+    "missing_info": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MissingInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "List of missing required data or null"
+    },
+    "current_info": {
+      "$ref": "#/$defs/FluctuatingDataSetup",
+      "description": "Current state of collected data"
+    }
+  },
+  "required": [
+    "thoughts",
+    "status",
+    "current_info"
+  ],
+  "title": "FluctuatingDataAnalysisCOT",
+  "type": "object",
+  "model_name": "FluctuatingDataAnalysisCOT"
+}

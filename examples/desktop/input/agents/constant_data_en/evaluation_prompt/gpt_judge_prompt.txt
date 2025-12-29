@@ -17,9 +17,9 @@ IMPORTANT: If you don't give the maximum score of 10, you MUST explain exactly W
    - 10: Perfect JSON with all required fields present and correct structure matching reference
    - 7-9: Valid JSON with most required fields, minor structural differences from reference
    - 4-6: Valid JSON but missing important required fields or significant structural issues
-   - 1-3: Empty JSON ({}), missing most required fields, or doesn't parse
+   - 1-3: Empty JSON, missing most required fields, or doesn't parse
    
-   CRITICAL: Empty JSON ({}) should score 1-3, not 10. Syntactic validity alone is NOT sufficient.
+   CRITICAL: Empty JSON should score 1-3, not 10. Syntactic validity alone is NOT sufficient.
    Compare against the reference response structure and check for required fields.
 
 2. TOOL_CALLS_CORRECTNESS (1-10): Are the tool calls correct?
@@ -46,34 +46,11 @@ IMPORTANT: If you don't give the maximum score of 10, you MUST explain exactly W
    - 4-6: Mostly fits but with noticeable problems
    - 1-3: Doesn't fit the context or ignores history
 
-RESPOND IN JSON FORMAT:
-{{
-  "criteria_scores": {{
-    "json_correctness": {{
-      "score": [1-10],
-      "explanation": "Specific justification with examples from the model response. If score < 10, explain EXACTLY why not 10 and what should be improved to get 10."
-    }},
-    "tool_calls_correctness": {{
-      "score": [1-10], 
-      "explanation": "Specific justification with examples of differences/similarities. If score < 10, explain EXACTLY why not 10 and what should be improved."
-    }},
-    "reasoning_logic": {{
-      "score": [1-10],
-      "explanation": "Specific justification with quotes from thoughts. If score < 10, explain EXACTLY why not 10 and what should be improved."
-    }},
-    "question_naturalness": {{
-      "score": [1-10],
-      "explanation": "Specific justification with question quote and language analysis. If score < 10, explain EXACTLY why not 10 and suggest a better question version."
-    }},
-    "context_relevance": {{
-      "score": [1-10],
-      "explanation": "Specific justification of how the response fits the context. If score < 10, explain EXACTLY why not 10 and what should be considered."
-    }}
-  }},
-  "overall_strengths": [
-    "General strength of the entire response with example"
-  ],
-  "overall_weaknesses": [
-    "General problem of the entire response with example"
-  ]
-}}
+For each criterion, provide:
+- A score from 1-10
+- A specific explanation with examples from the model response
+- If score < 10, explain EXACTLY why not 10 and what should be improved to get 10
+
+Also provide:
+- overall_strengths: List of general strengths with examples
+- overall_weaknesses: List of general problems with examples

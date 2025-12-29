@@ -1,0 +1,86 @@
+{
+  "$defs": {
+    "IntensityEnum": {
+      "enum": [
+        "łagodne",
+        "umiarkowane",
+        "ciężkie"
+      ],
+      "title": "IntensityEnum",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "name": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Nazwa objawu - opcjonalne",
+      "title": "Name"
+    },
+    "intensity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/IntensityEnum"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Nasilenie objawu - opcjonalne"
+    },
+    "duration": {
+      "anyOf": [
+        {
+          "maxLength": 50,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Czas trwania - opcjonalne",
+      "title": "Duration"
+    },
+    "frequency": {
+      "anyOf": [
+        {
+          "maxLength": 50,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Częstotliwość - opcjonalne",
+      "title": "Frequency"
+    },
+    "onset_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Data wystąpienia - opcjonalne",
+      "title": "Onset Date"
+    }
+  },
+  "title": "Symptom",
+  "type": "object",
+  "model_name": "Symptom"
+}

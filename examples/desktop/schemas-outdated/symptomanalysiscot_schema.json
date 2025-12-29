@@ -1,0 +1,186 @@
+{
+  "$defs": {
+    "IntensityEnum": {
+      "enum": [
+        "łagodne",
+        "umiarkowane",
+        "ciężkie"
+      ],
+      "title": "IntensityEnum",
+      "type": "string"
+    },
+    "MedScreeningInputStatus": {
+      "enum": [
+        "incomplete",
+        "complete",
+        "skipped"
+      ],
+      "title": "MedScreeningInputStatus",
+      "type": "string"
+    },
+    "MissingInfo": {
+      "properties": {
+        "field": {
+          "description": "Brakująca informacja, np. 'height'",
+          "maxLength": 50,
+          "title": "Field",
+          "type": "string"
+        },
+        "question": {
+          "description": "Pytanie do użytkownika, np. 'Jaki jest twój wzrost?'",
+          "maxLength": 200,
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "question"
+      ],
+      "title": "MissingInfo",
+      "type": "object"
+    },
+    "SymptomSetup": {
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Nazwa objawu - opcjonalne",
+          "title": "Name"
+        },
+        "intensity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IntensityEnum"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Nasilenie objawu - opcjonalne"
+        },
+        "duration": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Czas trwania - opcjonalne",
+          "title": "Duration"
+        },
+        "frequency": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Częstotliwość - opcjonalne",
+          "title": "Frequency"
+        },
+        "onset_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Data wystąpienia - opcjonalne",
+          "title": "Onset Date"
+        }
+      },
+      "title": "SymptomSetup",
+      "type": "object"
+    },
+    "ThoughtStep": {
+      "properties": {
+        "thought": {
+          "description": "Co myślę, np. 'Podano: wzrost=174 cm; brak obowiązkowych: blood_type; brak opcjonalnych: brak' lub 'Użytkownik odmawia podania: blood_type'",
+          "maxLength": 500,
+          "title": "Thought",
+          "type": "string"
+        },
+        "action": {
+          "description": "Co robię, np. 'Zapisz dane', 'Zapytaj o obowiązkowe', 'Zapytaj o opcjonalne (raz)', 'Ustaw skipped'",
+          "maxLength": 100,
+          "title": "Action",
+          "type": "string"
+        },
+        "action_input": {
+          "description": "Dane lub pytanie, np. 'Wzrost: 174 cm' lub 'Podaj grupę krwi' lub 'Status: skipped z powodu odmowy'",
+          "maxLength": 200,
+          "title": "Action Input",
+          "type": "string"
+        }
+      },
+      "required": [
+        "thought",
+        "action",
+        "action_input"
+      ],
+      "title": "ThoughtStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "thoughts": {
+      "description": "Etapy analizy krok po kroku",
+      "items": {
+        "$ref": "#/$defs/ThoughtStep"
+      },
+      "title": "Thoughts",
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/MedScreeningInputStatus",
+      "description": "Status: 'incomplete' jeśli brakuje danych, 'complete' gdy dane są zebrane, 'skipped' jeśli pominięto"
+    },
+    "missing_info": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MissingInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Lista brakujących danych lub null"
+    },
+    "current_info": {
+      "$ref": "#/$defs/SymptomSetup",
+      "description": "Aktualny stan zebranych danych"
+    }
+  },
+  "required": [
+    "thoughts",
+    "status",
+    "current_info"
+  ],
+  "title": "SymptomAnalysisCOT",
+  "type": "object",
+  "model_name": "SymptomAnalysisCOT"
+}
