@@ -90,7 +90,7 @@ class EvalModelsReferenced(BaseEvaluation):
                         if opt_str in ["{}", "()", "((),)", "None"]:
                              opt_str = "baseline"
                         
-                        plot_name = f"{opt_str}_round_{round_data['round']}_{timestamp}"
+                        plot_name = f"{opt_str}_round_{round_data['round']}"
 
                         
     
@@ -5162,10 +5162,12 @@ class EvalModelsReferenced(BaseEvaluation):
                 mid_bubble_size = 50 + ((mid_size_gb - min_size_gb) / range_size) * 1950 if range_size > 0 else 1025
                 max_bubble_size = 50 + ((max_size_gb - min_size_gb) / range_size) * 1950 if range_size > 0 else 2000
                 
+                # Use Line2D for legend instead of empty scatter to avoid matplotlib errors
+                from matplotlib.lines import Line2D
                 size_legend_elements = [
-                    plt.scatter([], [], s=min_bubble_size, c='gray', alpha=0.6, label=f'{min_size_gb:.1f}GB'),
-                    plt.scatter([], [], s=mid_bubble_size, c='gray', alpha=0.6, label=f'{mid_size_gb:.1f}GB'),
-                    plt.scatter([], [], s=max_bubble_size, c='gray', alpha=0.6, label=f'{max_size_gb:.1f}GB')
+                    Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=8, alpha=0.6, label=f'{min_size_gb:.1f}GB'),
+                    Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=12, alpha=0.6, label=f'{mid_size_gb:.1f}GB'),
+                    Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=16, alpha=0.6, label=f'{max_size_gb:.1f}GB')
                 ]
                 ax2.legend(handles=size_legend_elements, title='Model Size', loc='upper right')
             
@@ -5734,7 +5736,7 @@ class EvalModelsReferenced(BaseEvaluation):
                  }
 
              neptune_initialized = self.neptune.init_run(
-                 name=f"EVAL_{self.model_name_norm}_{timestamp}",
+                 name=f"EVAL_{self.model_name_norm}",
                  tags=neptune_tags,
                  params=params,
                  metadata=metadata
@@ -5795,15 +5797,18 @@ class EvalModelsReferenced(BaseEvaluation):
             if os.path.exists(all_models_log_file):
                 self.neptune.upload_artifact(all_models_log_file, "final_logs/all_models_log")
             
-            # Upload results from BOTH folders
-            if os.path.exists(model_run_folder):
-                 num_files = len([f for f in os.listdir(model_run_folder) if not f.startswith('.')])
-                 print(f"DEBUG: Folder {model_run_folder} contains {num_files} files before upload.")
+            # Upload results from BOTH folders (use session_locations for correct paths)
+            model_upload_folder = session_locations["model_output_directory"]
+            all_models_upload_folder = session_locations["all_models_output_directory"]
+            
+            if os.path.exists(model_upload_folder):
+                 num_files = len([f for f in os.listdir(model_upload_folder) if not f.startswith('.')])
+                 print(f"DEBUG: Folder {model_upload_folder} contains {num_files} files before upload.")
             else:
-                 print(f"DEBUG: Folder {model_run_folder} DOES NOT EXIST before upload.")
+                 print(f"DEBUG: Folder {model_upload_folder} DOES NOT EXIST before upload.")
                  
-            self.neptune.upload_directory_artifacts(model_run_folder, "model_artifacts", gallery_path="visualizations/mosaic")
-            self.neptune.upload_directory_artifacts(all_models_run_folder, "comparison_artifacts", gallery_path="visualizations/mosaic")
+            self.neptune.upload_directory_artifacts(model_upload_folder, "model_artifacts", gallery_path="visualizations/mosaic")
+            self.neptune.upload_directory_artifacts(all_models_upload_folder, "comparison_artifacts", gallery_path="visualizations/mosaic")
             
             # Log successful count
             # Generate Best Models Summary if we have multiple models
