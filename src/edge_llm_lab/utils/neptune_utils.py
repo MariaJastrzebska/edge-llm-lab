@@ -19,6 +19,7 @@ class NeptuneManager:
     def init_run(self, name: str, tags: List[str] = None, params: Dict[str, Any] = None, metadata: Dict[str, Any] = None) -> bool:
         """Initializes a Neptune run."""
         if not (self.api_token and self.project):
+            print(f"⚠️ Neptune init skipped: Missing credentials. Token={bool(self.api_token)}, Project={bool(self.project)}")
             return False
             
         try:
@@ -106,6 +107,7 @@ class NeptuneManager:
             
         files_found = 0
         for root, dirs, files in os.walk(local_dir):
+            print(f"DEBUG: Scanned {root} - found {len(files)} files: {files}")
             for f in files:
                 if f.lower().endswith(extensions):
                     files_found += 1

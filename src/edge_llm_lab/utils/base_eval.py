@@ -1637,6 +1637,12 @@ class BaseEvaluation:
         dict_keys(['architecture', 'parameter_size', 'parameter_size_orginal', 'context_length', 'embedding_length', 'quantization_level', 'model_format', 'model_size_bytes', 'model_size_gb', 'cached_at', 'context_size', 'max_tokens', 'parameter_size_display'])
         """
         print(f"📥 Fetching model metadata for {self.model_name}...")
+        
+        # Check cached metadata first to avoid unnecessary ollama calls
+        if hasattr(self, 'models_metadata') and self.models_metadata and self.model_name in self.models_metadata:
+             print(f"✅ Found cached metadata for {self.model_name}")
+             return self.models_metadata[self.model_name]
+             
         model_details = {}
         show_output = ""
         

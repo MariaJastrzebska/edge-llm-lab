@@ -586,7 +586,6 @@ class EvalModelsReferenced(BaseEvaluation):
             session_data=all_session_data,
             optimisation_type="all_models_all_optimizations",
             agent_type=self.agent_type,
-            parameters=self.MULTI_TURN_GLOBAL_CONFIG,
             plotting_session_timestamp=timestamp,
             metadata=metadata,
             output_dir=output_dir,
@@ -3252,6 +3251,27 @@ class EvalModelsReferenced(BaseEvaluation):
 
     def _create_scatter_plot(self, ax, model_names, avg_scores, model_sizes, avg_latencies):
         """Create a scatter plot of performance vs latency with model size as bubble size."""
+        # GUARD: Check for empty data
+        if not model_names or not avg_scores or not model_sizes or not avg_latencies:
+            print("⚠️ Skipping scatter plot: Missing data")
+            return
+            
+        # GUARD: Check for empty data
+        if not model_names or not avg_scores or not model_sizes or not avg_latencies:
+            print("⚠️ Skipping scatter plot: Missing data")
+            return
+
+        # GUARD to prevent plotting if arrays are effectively empty
+        if len(model_names) == 0:
+            return
+        # GUARD: Check for empty data
+        if not model_names or not avg_scores or not model_sizes or not avg_latencies:
+            print("⚠️ Skipping scatter plot: Missing data")
+            return
+
+        # GUARD: Check if we have valid non-zero data for plotting
+        if len(model_names) == 0:
+             return
         # Create gradient colors based on model size
         scatter_colors = self._get_model_size_gradient_colors(model_names, model_sizes)
         
@@ -4518,9 +4538,11 @@ class EvalModelsReferenced(BaseEvaluation):
 
                 if use_polish:
                     ax2.set_title('Mapa czasu wykonania przez model & rundę (ms)', fontweight='bold')
+                    cbar = plt.colorbar(im, ax=ax2)
                     cbar.set_label('Latencja (ms)', fontweight='bold')
                 else:
                     ax2.set_title('Latency Heatmap by Model & Round (ms)', fontweight='bold')
+                    cbar = plt.colorbar(im, ax=ax2)
                     cbar.set_label('Latency (ms)', fontweight='bold')
                 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
                 plot_filename = f"{output_file_name}.png"
@@ -5109,6 +5131,7 @@ class EvalModelsReferenced(BaseEvaluation):
                                      alpha=0.6)
             else:
                  print("⚠️ Skipping scatter plot in mobile analysis: empty data arrays")
+                 return None
                  
             if model_name_prefix is not None:
                 # Add labels for each point
@@ -5454,7 +5477,7 @@ class EvalModelsReferenced(BaseEvaluation):
             print(f"⚠️ Error reading logs: {e}")
             return set()
 
-    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation", generate_comparison: bool = True, generate_per_round: bool = True, generate_per_model: bool = True, neptune_tags_list: Optional[list] = None, pipeline_run_number: int = None, pipeline_timestamp: str = None):
+    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation", generate_comparison: bool = True, generate_per_round: bool = True, generate_per_model: bool = True, generate_aggr_over_rounds: bool = True, neptune_tags_list: Optional[list] = None, pipeline_run_number: int = None, pipeline_timestamp: str = None):
         """
         Pipeline evaluation with 3 modes:
         
@@ -5595,6 +5618,11 @@ class EvalModelsReferenced(BaseEvaluation):
             # Get list of all models from logs
             list_of_models = self.get_models_from_logs(session_locations["log_file"])
             
+            # For single model runs (not summary), restrict scope to current model only
+            if not generate_comparison:
+                list_of_models = [self.model_name]
+                print(f"📉 Single run mode: Restricting visualization to current model: {self.model_name}")
+            
             if not list_of_models:
                 print("❌ No models found in logs for visualization")
                 list_of_models = [self.model_name]  # Fallback to current model
@@ -5602,26 +5630,38 @@ class EvalModelsReferenced(BaseEvaluation):
             
             
             if generate_per_round:
-                print("\n📊 Generating per-round plots...")
-                self.per_round_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
+                try:
+                    print("\n📊 Generating per-round plots...")
+                    self.per_round_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
+                except Exception as e:
+                    print(f"⚠️ Error generating per-round plots: {e}")
             else:
                 print("⏭️ Skipping per-round plots")
                 
             if generate_aggr_over_rounds:
-                print("\n📊 Generating aggr_over_rounds plots...")
-                self.per_model_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
+                try:
+                    print("\n📊 Generating aggr_over_rounds plots...")
+                    self.per_model_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
+                except Exception as e:
+                    print(f"⚠️ Error in aggr_over_rounds plots: {e}")
             else:
                 print("⏭️ Skipping aggr_over_rounds plots")
                 
             if generate_per_model:
-                print("\n📊 Generating per-model plots...")
-                self.per_model_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
+                try:
+                    print("\n📊 Generating per-model plots...")
+                    self.per_model_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
+                except Exception as e:
+                    print(f"⚠️ Error generating per-model plots: {e}")
             else:
                 print("⏭️ Skipping per-model plots")
                 
             if generate_all_models:
-                print("\n📊 Generating all-models plots...")
-                self.all_models_plots(session_locations=session_locations, timestamp=timestamp, use_polish=use_polish, interactive=False)
+                try:
+                    print("\n📊 Generating all-models plots...")
+                    self.all_models_plots(session_locations=session_locations, timestamp=timestamp, use_polish=use_polish, interactive=False)
+                except Exception as e:
+                    print(f"⚠️ Error generating all-models plots: {e}")
             else:
                 print("⏭️ Skipping all-models plots")
             
@@ -5712,7 +5752,7 @@ class EvalModelsReferenced(BaseEvaluation):
                      
                  # Upload Full Source Code
                  current_file_path = os.path.abspath(__file__)
-                 src_dir = os.path.abspath(os.path.join(os.path.dirname(current_file_path), "../../.."))
+                 src_dir = os.path.abspath(os.path.join(os.path.dirname(current_file_path), "../.."))
                  print(f"DEBUG: Uploading source code from {src_dir}")
                  self.neptune.upload_directory_artifacts(src_dir, "source_code", extensions=(".py", ".yaml", ".md"))
                  
@@ -5756,6 +5796,12 @@ class EvalModelsReferenced(BaseEvaluation):
                 self.neptune.upload_artifact(all_models_log_file, "final_logs/all_models_log")
             
             # Upload results from BOTH folders
+            if os.path.exists(model_run_folder):
+                 num_files = len([f for f in os.listdir(model_run_folder) if not f.startswith('.')])
+                 print(f"DEBUG: Folder {model_run_folder} contains {num_files} files before upload.")
+            else:
+                 print(f"DEBUG: Folder {model_run_folder} DOES NOT EXIST before upload.")
+                 
             self.neptune.upload_directory_artifacts(model_run_folder, "model_artifacts", gallery_path="visualizations/mosaic")
             self.neptune.upload_directory_artifacts(all_models_run_folder, "comparison_artifacts", gallery_path="visualizations/mosaic")
             
@@ -5802,6 +5848,10 @@ class EvalModelsReferenced(BaseEvaluation):
              # For simplicity, we log the metrics of the LAST session matching our config
              
              # Filter sessions for current model/agent
+             print(f"DEBUG: Filtering logs for model='{self.model_name}', agent='{self.agent_type}'")
+             available_entries = [(s.get('model_name'), s.get('agent_type')) for s in data.get('evaluations', [])]
+             print(f"DEBUG: Found {len(available_entries)} entries in log. Unique models: {set(m[0] for m in available_entries)}")
+             
              matching_sessions = [
                  s for s in data.get('evaluations', [])
                  if s.get('model_name') == self.model_name and s.get('agent_type') == self.agent_type
