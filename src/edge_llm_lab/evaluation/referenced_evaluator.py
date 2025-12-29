@@ -2519,7 +2519,7 @@ class EvalModelsReferenced(BaseEvaluation):
         # }
 
     @staticmethod
-    def plot_aggr_over_rounds_with_reference(session_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name):
+    def plot_aggr_over_rounds_with_reference1(session_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name):
                                  
         """
         Agreguje i wizualizuje wyniki z wielu rund dla jednego modelu - uproszczona wersja.
@@ -2922,7 +2922,7 @@ class EvalModelsReferenced(BaseEvaluation):
         return models_data, model_names, avg_scores, avg_latencies, model_sizes, model_params
 
 
-    def plot_aggr_all_models_with_reference(self,session_data, optimisation_type, agent_type, parameters,plotting_session_timestamp, metadata, output_dir, output_file_name, model_name_prefix=None):
+    def plot_aggr_all_models_with_reference(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, model_name_prefix=None):
         """
         Compare multiple models using radar/quadrant visualization for model selection.
 
@@ -4434,7 +4434,7 @@ class EvalModelsReferenced(BaseEvaluation):
         return plot_path
 
 
-    def plot_aggr_all_models_with_reference(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
+    def plot_aggr_over_rounds_with_reference(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
         """
         Tworzy zbiorczy wykres porównujący postęp latencji w kolejnych rundach dla wszystkich modeli.
         
@@ -5055,7 +5055,8 @@ class EvalModelsReferenced(BaseEvaluation):
             sorted_model_names = sorted(models_data.keys())
             model_sizes = []
             for name in sorted_model_names:
-                size = models_data[name].get('metadata', {}).get('model_size_gb', 0)
+                # model_size_gb is stored directly in models_data[name], not in metadata sub-dict
+                size = models_data[name].get('model_size_gb', 0)
                 if size is None:
                     size = 0
                 model_sizes.append(size)
@@ -5128,8 +5129,8 @@ class EvalModelsReferenced(BaseEvaluation):
                 rps = 1000.0 / avg_lat if isinstance(avg_lat, (int, float)) and avg_lat > 0 else 0.0
                 throughputs.append(rps)
                 
-                # Get model size for bubble size - it's stored in metadata
-                model_size = models_data[name].get('metadata', {}).get('model_size_gb', 0)
+                # Get model size for bubble size - stored directly in models_data
+                model_size = models_data[name].get('model_size_gb', 0)
                 if model_size is None:
                     model_size = 0
                 model_sizes_gb.append(model_size)

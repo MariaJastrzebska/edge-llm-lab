@@ -1,0 +1,11 @@
+\begin{enumerate}
+\item \textbf{JSON Correctness} – stopień zgodności odpowiedzi z oczekiwanym schematem JSON, w szczególności obecność wymaganych pól oraz poprawność strukturalna względem odpowiedzi referencyjnej. Sama poprawność składniowa JSON nie jest wystarczająca do uzyskania wysokiej oceny. W przypadku odpowiedzi zawierających tekst otaczający kod JSON, analizie poddawany jest wyłącznie poprawnie wyekstrahowany fragment JSON.
+\item \textbf{Tool Call Correctness} – zgodność nazw funkcji, struktury argumentów oraz sposobu użycia narzędzi z referencyjnym przebiegiem konwersacji.
+\item \textbf{Reasoning Logic} – poprawność logiczna sekwencji rozumowania prowadzącej do zadania kolejnego pytania lub wykonania wywołania narzędzia.
+\item \textbf{Question Naturalness} – naturalność, płynność językowa oraz styl formułowanego pytania, oceniane w kontekście rozmowy z pacjentem.
+\item \textbf{Context Relevance} – stopień dopasowania odpowiedzi do aktualnego stanu dialogu oraz historii konwersacji.
+\end{enumerate}
+
+Oprócz ocen liczbowych GPT-4o generuje również opisowe uzasadnienie dla każdej kategorii, zawierające konkretne przykłady zaczerpnięte z odpowiedzi modelu. Dodatkowo generowane są zbiorcze listy \textit{overall\_strengths} oraz \textit{overall\_weaknesses}, umożliwiające syntetyczną identyfikację mocnych i słabych stron zachowania modelu w danej rundzie dialogu.
+
+Tak zdefiniowany protokół oceny pozwala nie tylko na ilościowe porównanie modeli, lecz również na precyzyjną analizę przyczyn błędów strukturalnych, logicznych oraz kontekstowych obserwowanych w scenariuszach multi-turn, co ma kluczowe znaczenie w zastosowaniach medycznych.

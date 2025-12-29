@@ -123,10 +123,10 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
     # best_params = opt_engine.run_optimization(objective, n_trials=5)
     # print(f"🎯 Best inference parameters for {golden_model}: {best_params}")
 
-    # Final Cleanup
-    if last_successful_model:
-        print(f"🧹 Final Cleanup: Removing last model {last_successful_model}")
-        delete_model(last_successful_model)
+    # # Final Cleanup
+    # if last_successful_model:
+    #     print(f"🧹 Final Cleanup: Removing last model {last_successful_model}")
+    #     #delete_model(last_successful_model)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
