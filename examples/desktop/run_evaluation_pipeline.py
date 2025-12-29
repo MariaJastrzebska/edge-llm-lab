@@ -74,8 +74,8 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
              summary_evaluator.pipeline_eval_model(
                  mode="viz_only", 
                  stage_name="stage_1_summary",
-                 generate_per_round=False,
-                 generate_per_model=False,
+                 generate_per_round=True,  # ✅ Generate per-round plots
+                 generate_per_model=True,  # ✅ Generate aggregated plots (radar, GPT score, etc.)
                  generate_comparison=True,
                  neptune_tags_list=["all_models_summary"]
              )

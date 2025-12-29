@@ -10,13 +10,13 @@ models_to_evaluate:
     tested: true
     notes: Q8 quantization, ~3GB, minimal quality loss
 
-#   # 1b. Llama 3.2 3B (Meta) - Reliable with large context
-#   - name: llama3.2:3b-instruct-q4_K_M
-#     description: Llama 3.2 3B (Q4)
-#     family: llama
-#     quantization: quantised
-#     tested: true
-#     notes: 128k context, excellent tool use
+  # 1b. Llama 3.2 3B (Meta) - Reliable with large context
+  - name: llama3.2:3b-instruct-q4_K_M
+    description: Llama 3.2 3B (Q4)
+    family: llama
+    quantization: quantised
+    tested: true
+    notes: 128k context, excellent tool use
 
 #   # 2. Granite 4.0 Micro 3B (IBM)
 #   - name: granite4:micro

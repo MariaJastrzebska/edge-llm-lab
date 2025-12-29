@@ -73,11 +73,10 @@ class EvalModelsReferenced(BaseEvaluation):
         Tworzy wykresy dla każdej rundy dla wybranych optymalizacji.
         """
         def _create_round_plots_for_single_model(model_name):
+            # Filter only by model_name and agent_type
             model_comparison_dict = {
                 "model_name": model_name,
-                "parameters": self.MULTI_TURN_GLOBAL_CONFIG, 
-                "tools": self.tools, 
-                "cot_prompt": self.cot_prompt
+                "agent_type": self.agent_type
             }
             group_by_keys = ['optimisation']
             
@@ -141,11 +140,11 @@ class EvalModelsReferenced(BaseEvaluation):
 
         """
         def _create_model_plots_for_single_model(model_name):
+            # Filter only by model_name and agent_type, not by full parameters dict
+            # (which may not match exactly between evaluation and visualization runs)
             model_comparison_dict = {
                 "model_name": model_name,
-                "parameters": self.MULTI_TURN_GLOBAL_CONFIG, 
-                "tools": self.tools, 
-                "cot_prompt": self.cot_prompt
+                "agent_type": self.agent_type
             }
             group_by_keys = ['optimisation']
             valid_session_data = self.get_last_sessions(key_dict=model_comparison_dict, log_file=session_locations["log_file"], group_by_keys=group_by_keys)
@@ -541,10 +540,9 @@ class EvalModelsReferenced(BaseEvaluation):
         """
         
         from collections import defaultdict
+        # Filter only by agent_type for all models comparison
         all_models_comparison_dict = {
-            "parameters": self.MULTI_TURN_GLOBAL_CONFIG, 
-            "tools": self.tools, 
-            "cot_prompt": self.cot_prompt
+            "agent_type": self.agent_type
         }
         group_by_keys = ['optimisation', 'model_name']
         # Get ALL models for each optimization (not just latest session)
