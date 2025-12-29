@@ -13,11 +13,14 @@ Evaluate the model's response in 5 categories INDEPENDENTLY (1-10 each). For eac
 
 IMPORTANT: If you don't give the maximum score of 10, you MUST explain exactly WHY and what specifically should be improved to get a 10.
 
-1. JSON_CORRECTNESS (1-10): Is the JSON syntactically correct?
-   - 10: Perfect JSON without errors
-   - 7-9: Minor errors but parses correctly
-   - 4-6: Medium syntax problems
-   - 1-3: Serious syntax errors or doesn't parse
+1. JSON_CORRECTNESS (1-10): Does the JSON match the expected schema and contain required fields?
+   - 10: Perfect JSON with all required fields present and correct structure matching reference
+   - 7-9: Valid JSON with most required fields, minor structural differences from reference
+   - 4-6: Valid JSON but missing important required fields or significant structural issues
+   - 1-3: Empty JSON ({}), missing most required fields, or doesn't parse
+   
+   CRITICAL: Empty JSON ({}) should score 1-3, not 10. Syntactic validity alone is NOT sufficient.
+   Compare against the reference response structure and check for required fields.
 
 2. TOOL_CALLS_CORRECTNESS (1-10): Are the tool calls correct?
    - 10: Identical to reference (name, arguments, structure)

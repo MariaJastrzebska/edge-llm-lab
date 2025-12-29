@@ -2651,7 +2651,7 @@ class EvalModelsReferenced(BaseEvaluation):
         if avg_latency:
             total_ms = avg_latency.get('total_ms')
             loading_ms = avg_latency.get('model_loading_ms')
-            prompt_ms = avg_latency.get('prompt_evaluation_ms')
+            prompt_ms = avg_latency.get('prompt_evaluation_ms') or avg_latency.get('prompt_eval_ms')
             generation_ms = avg_latency.get('token_generation_ms')
 
             # Oblicz procenty (tylko jeśli wartości nie są None)
