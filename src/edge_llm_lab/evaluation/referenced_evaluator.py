@@ -5454,7 +5454,7 @@ class EvalModelsReferenced(BaseEvaluation):
             print(f"⚠️ Error reading logs: {e}")
             return set()
 
-    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation", generate_comparison: bool = True, generate_per_round: bool = True, generate_per_model: bool = True, neptune_tags_list: Optional[list] = None, existing_session_metadata: dict = None):
+    def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation", generate_comparison: bool = True, generate_per_round: bool = True, generate_per_model: bool = True, neptune_tags_list: Optional[list] = None, pipeline_run_number: int = None, pipeline_timestamp: str = None):
         """
         Pipeline evaluation with 3 modes:
         
@@ -5494,10 +5494,7 @@ class EvalModelsReferenced(BaseEvaluation):
 
 
         successful_evaluations = 0
-        if existing_session_metadata:
-            session_metadata = existing_session_metadata
-        else:
-            session_metadata = self.create_session()
+        session_metadata = self.create_session(fixed_run_number=pipeline_run_number, fixed_timestamp=pipeline_timestamp, create_all_models=generate_comparison)
         timestamp = session_metadata["timestamp"]
         log_folder = session_metadata["log_folder"]
         model_run_folder = session_metadata["model_run_folder"]
@@ -5724,7 +5721,8 @@ class EvalModelsReferenced(BaseEvaluation):
                  possible_config_paths = [
                      "examples/desktop/input/agents/constant_data_en/evaluation_config/config.yaml",
                      "examples/desktop/input/agents/constant_data_en/evaluation_config/config_quantized.yaml",
-                     "examples/desktop/input/agents/constant_data_en/evaluation_config/custom_optimizations.yaml"
+                     "examples/desktop/input/agents/constant_data_en/evaluation_config/custom_optimizations.yaml",
+                     "examples/desktop/output/metadata/models_metadata.json"
                  ]
                  for config_path in possible_config_paths:
                      if os.path.exists(config_path):
@@ -5772,6 +5770,16 @@ class EvalModelsReferenced(BaseEvaluation):
             self.neptune.stop()
             print("✅ Neptune upload completed")
             
+        # Cleanup unused all_models run folder if not used for comparison
+        if not generate_comparison and os.path.exists(all_models_run_folder):
+            try:
+                # Check if empty (ignoring hidden files)
+                if not any(f for f in os.listdir(all_models_run_folder) if not f.startswith('.')):
+                     print(f"🧹 Removing unused all_models run folder: {all_models_run_folder}")
+                     os.rmdir(all_models_run_folder)
+            except Exception as e:
+                print(f"⚠️ Failed to remove unused all_models folder: {e}")
+
         return session_metadata
                  
     def log_metrics_to_neptune(self, session_locations):

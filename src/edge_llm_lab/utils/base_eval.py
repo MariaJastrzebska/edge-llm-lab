@@ -204,7 +204,7 @@ class BaseEvaluation:
         
         
         
-    def create_session(self, model_name=None) -> dict:
+    def create_session(self, model_name=None, fixed_run_number: int = None, fixed_timestamp: str = None, create_all_models: bool = True) -> dict:
         """
         Tworzy sesję ewaluacji.
        return: LOG_FILE, MODEL_RUN, ALL_MODELS_RUN, TIMESTAMP
@@ -222,7 +222,8 @@ class BaseEvaluation:
         else:
             model_name_norm = model_name.replace(":", "_").replace("/", "_")
         main_path_map = self.construct_main_paths_for_eval(model_name_norm)
-        run_path_map = self._create_session_folders_and_log_file(main_path_map, self.SOURCE_PATH)
+        print(f"DEBUG: create_session called with create_all_models={create_all_models}")
+        run_path_map = self._create_session_folders_and_log_file(main_path_map, self.SOURCE_PATH, fixed_run_number=fixed_run_number, fixed_timestamp=fixed_timestamp, create_all_models=create_all_models)
         print("run_path_map: ", run_path_map)
         
         log_folder = run_path_map["log_folder"]
@@ -1418,7 +1419,7 @@ class BaseEvaluation:
                 "log": os.path.join("output", "agents", self.agent_type, self.eval_type, "log")}
 
     @staticmethod
-    def _create_session_folders_and_log_file(path_map: dict, base_path: str) -> dict:
+    def _create_session_folders_and_log_file(path_map: dict, base_path: str, fixed_run_number: int = None, fixed_timestamp: str = None, create_all_models: bool = True) -> dict:
         """Tworzy foldery dla sesji ewaluacji
         eg
         >>> import os, tempfile
@@ -1443,12 +1444,15 @@ class BaseEvaluation:
         all_models_folder = os.path.join(base_path,path_map["all_models"])
 
         # Calculate max run number from both folders to keep them in sync
-        model_run_num = BaseEvaluation.get_next_run_number_for_path(model_folder)
-        all_models_run_num = BaseEvaluation.get_next_run_number_for_path(all_models_folder)
-        next_run_num = max(model_run_num, all_models_run_num)
-
-        model_run      = f"run_{next_run_num:03d}"
-        all_models_run = f"run_{next_run_num:03d}"
+        if fixed_run_number is not None:
+             model_run = f"run_{fixed_run_number:03d}"
+             all_models_run = f"run_{fixed_run_number:03d}"
+        else:
+             model_run_num = BaseEvaluation.get_next_run_number_for_path(model_folder)
+             all_models_run_num = BaseEvaluation.get_next_run_number_for_path(all_models_folder)
+             
+             model_run = f"run_{model_run_num:03d}"
+             all_models_run = f"run_{all_models_run_num:03d}"
         
 
         model_folder = os.path.join( model_folder, model_run)
@@ -1457,9 +1461,10 @@ class BaseEvaluation:
         # create folders if not exist
         os.makedirs(log_folder, exist_ok=True)
         os.makedirs(model_folder, exist_ok=True)
-        os.makedirs(all_models_folder, exist_ok=True)
+        if create_all_models:
+            os.makedirs(all_models_folder, exist_ok=True)
 
-        return {"model_run":model_run, "all_models_run":all_models_run, "model_run_folder": model_folder, "all_models_run_folder": all_models_folder, "log_folder": log_folder, "timestamp": datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}
+        return {"model_run":model_run, "all_models_run":all_models_run, "model_run_folder": model_folder, "all_models_run_folder": all_models_folder, "log_folder": log_folder, "timestamp": fixed_timestamp if fixed_timestamp else datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}
 
     def get_model_path_from_ollama(self, model_name):
         """Get the local file path for a model from Ollama storage using Ollama API."""

@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+from datetime import datetime
 
 # Add project root and src to path for direct script execution
 try:
@@ -29,7 +30,7 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
     models = [m["name"] for m in stage1_config.get("models_to_evaluate", [])]
     
     last_successful_model = None
-    last_session_metadata = None
+    golden_model = None
     golden_model = None
     best_score = -1
     
@@ -39,7 +40,7 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
         try:
             evaluator = EvalModelsReferenced(model_name=model_name, agent=Agent(agent_type))
             # Pipeline evaluation with logs and visualization enabled
-            last_session_metadata = evaluator.pipeline_eval_model(mode=mode, stage_name="stage_1_selection", generate_comparison=False)
+            evaluator.pipeline_eval_model(mode=mode, stage_name="stage_1_selection", generate_comparison=False)
             
             # Simple logic to track the best model (Golden Model)
             # In a real scenario, we'd extract the actual score from the logs
@@ -70,8 +71,7 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
                  generate_per_round=False,
                  generate_per_model=False,
                  generate_comparison=True,
-                 neptune_tags_list=["all_models_summary"],
-                 existing_session_metadata=last_session_metadata
+                 neptune_tags_list=["all_models_summary"]
              )
          except Exception as e:
              print(f"❌ Error generating summary plots: {e}")
