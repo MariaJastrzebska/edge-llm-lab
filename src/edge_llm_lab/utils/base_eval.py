@@ -141,7 +141,7 @@ class BaseEvaluation:
 
 
         # --- Configuration ---
-        self.evaluator_model_name = 'gpt-4o-mini'
+        self.evaluator_model_name = 'gpt-4o'
         self.evaluator_api_key = os.getenv("OPENAI_API_KEY")
         self.OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
         self.OLLAMA_CLIENT = ollama.Client(host=self.OLLAMA_HOST)
@@ -264,7 +264,7 @@ class BaseEvaluation:
         ...         ref_path, _ = be.get_or_create_file_or_folder(file_name="test", type_of_file="reference", source_path=d)
         ...         cache_path, _ = be.get_or_create_file_or_folder(file_name="test", type_of_file="cache", source_path=d)
         ...         log_path, _ = be.get_or_create_file_or_folder(file_name="test", type_of_file="log", source_path=d)
-        >>> print(ref_path.endswith("reference/test.json"), cache_path.endswith("gpt-4o-mini"), log_path.endswith("log/test.json"))
+        >>> print(ref_path.endswith("reference/test.json"), cache_path.endswith("gpt-4o"), log_path.endswith("log/test.json"))
         True True True
         """
         if source_path is None:
@@ -536,7 +536,7 @@ class BaseEvaluation:
         ...         response_model=CoTReasoning,
         ...         response_format='str', 
         ...         use_cache=True)
-        💰 Używam cache w 'examples/desktop/output/agents/constant_data_en/default/prompt_cache/gpt-4o-mini'
+        💰 Używam cache w 'examples/desktop/output/agents/constant_data_en/default/prompt_cache/gpt-4o'
         >>> print(response) # doctest: +NORMALIZE_WHITESPACE
         {
           "arguments": {

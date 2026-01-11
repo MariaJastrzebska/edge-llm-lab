@@ -150,8 +150,21 @@ class EvalModelsReferenced(BaseEvaluation):
             valid_session_data = self.get_last_sessions(key_dict=model_comparison_dict, log_file=session_locations["log_file"], group_by_keys=group_by_keys)
 
             for optimisation, session_data in valid_session_data.items():    
-                # Create summary plot for this optimization
-                summary_plot_path = self.plot_aggr_over_rounds_with_reference(
+                # 1. Timeline & Heatmap Plot (using the "over rounds" function)
+                timeline_plot_path = self.plot_aggr_over_rounds_with_reference(
+                    session_data=session_data,
+                    optimisation_type=optimisation,
+                    # model_name is not accepted by this function
+                    agent_type=self.agent_type,
+                    plotting_session_timestamp=timestamp,
+                    metadata=metadata,
+                    output_dir=output_dir,
+                    output_file_name=f"{optimisation}_timeline_{timestamp}",
+                )
+                print(f"Timeline/Heatmap plot saved to: {timeline_plot_path}")
+
+                # 2. Single Model Summary Plot (Metrics Bar Chart)
+                summary_plot_path = self.plot_single_model_summary(
                     session_data=session_data,
                     optimisation_type=optimisation,
                     model_name=model_name,
@@ -159,7 +172,8 @@ class EvalModelsReferenced(BaseEvaluation):
                     plotting_session_timestamp=timestamp,
                     metadata=metadata,
                     output_dir=output_dir,
-                    output_file_name=f"{optimisation}_aggr_over_rounds_{timestamp}",)
+                    output_file_name=f"{optimisation}_summary_{timestamp}",
+                )
                 print(f"Summary plot saved to: {summary_plot_path}")
                 
                 # --- NEW: Throttling Timeline Plot (per optimization) ---
@@ -2518,8 +2532,7 @@ class EvalModelsReferenced(BaseEvaluation):
         #     # "summary_plot": summary_plot_path
         # }
 
-    @staticmethod
-    def plot_aggr_over_rounds_with_reference1(session_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name):
+    def plot_single_model_summary(self, session_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name):
                                  
         """
         Agreguje i wizualizuje wyniki z wielu rund dla jednego modelu - uproszczona wersja.
@@ -3040,6 +3053,16 @@ class EvalModelsReferenced(BaseEvaluation):
             saved_plots['category_winners'] = category_winners_plot
             print(f"🏆 Category winners saved: {category_winners_plot}")
         
+        # 6. Score Comparison
+        score_plot = self._create_score_comparison(model_names, models_data, output_dir, output_file_name, use_polish)
+        if score_plot:
+            saved_plots['score_comparison'] = score_plot
+        
+        # 7. Resource Comparison
+        resource_plot = self._create_resource_comparison(model_names, models_data, output_dir, output_file_name, use_polish)
+        if resource_plot:
+            saved_plots['resource_comparison'] = resource_plot
+
         return saved_plots
 
     def _create_latex_table(self, model_names, models_data, output_dir, filename):
@@ -3562,6 +3585,108 @@ class EvalModelsReferenced(BaseEvaluation):
         return efficiency_data
     
     
+    def _create_score_comparison(self, model_names, models_data, output_dir, filename_prefix, use_polish=True):
+        """Creates a bar chart comparing GPT Judge scores across all models."""
+        import matplotlib.pyplot as plt
+        import numpy as np
+        
+        scores = []
+        names = []
+        for name in model_names:
+            score = models_data[name].get('avg_gpt_score', 0)
+            scores.append(score)
+            names.append(name)
+            
+        # Sort by score desc
+        if scores:
+            sorted_indices = np.argsort(scores)[::-1]
+            scores = [scores[i] for i in sorted_indices]
+            names = [names[i] for i in sorted_indices]
+        
+        fig, ax = plt.subplots(figsize=(12, 6))
+        bars = ax.bar(names, scores, color='skyblue')
+        
+        # Labels
+        ax.set_ylabel('GPT Judge Score' if not use_polish else 'Ocena GPT Judge')
+        ax.set_title('Model Score Comparison' if not use_polish else 'Porównanie Ocen Modeli')
+        ax.set_ylim(0, 10.5)
+        plt.xticks(rotation=45, ha='right')
+        ax.grid(True, axis='y', alpha=0.3)
+        
+        # Values
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., height,
+                    f'{height:.2f}', ha='center', va='bottom')
+                    
+        plt.tight_layout()
+        path = os.path.join(output_dir, f"{filename_prefix}_scores.png")
+        plt.savefig(path, dpi=300)
+        plt.close()
+        print(f"📊 Score comparison saved: {path}")
+        return path
+
+    def _create_resource_comparison(self, model_names, models_data, output_dir, filename_prefix, use_polish=True):
+        """Creates a grouped bar chart comparing CPU and GPU power usage across all models."""
+        import matplotlib.pyplot as plt
+        import numpy as np
+        
+        cpu_powers = []
+        gpu_powers = []
+        names = []
+        
+        # Collect data
+        for name in model_names:
+            # Try to get average CPU/GPU power
+            cpu = models_data[name].get('avg_cpu_power', 0)
+            gpu = models_data[name].get('avg_gpu_power', 0)
+            
+            # If 0, try computing from list if present
+            if cpu == 0 and 'cpu_power' in models_data[name]:
+                l = models_data[name]['cpu_power']
+                cpu = np.mean(l) if l else 0
+            
+            if gpu == 0 and 'gpu_power' in models_data[name]:
+                l = models_data[name]['gpu_power']
+                gpu = np.mean(l) if l else 0
+                
+            cpu_powers.append(cpu)
+            gpu_powers.append(gpu)
+            names.append(name)
+            
+        x = np.arange(len(names))
+        width = 0.35
+        
+        fig, ax = plt.subplots(figsize=(12, 6))
+        rects1 = ax.bar(x - width/2, cpu_powers, width, label='CPU', color='royalblue')
+        rects2 = ax.bar(x + width/2, gpu_powers, width, label='GPU', color='orange')
+        
+        ax.set_ylabel('Power (mW)' if not use_polish else 'Moc (mW)')
+        ax.set_title('Resource Usage Comparison' if not use_polish else 'Porównanie Zużycia Zasobów')
+        ax.set_xticks(x)
+        ax.set_xticklabels(names, rotation=45, ha='right')
+        ax.legend()
+        ax.grid(True, axis='y', alpha=0.3)
+
+        # Add value labels
+        def autolabel(rects):
+            for rect in rects:
+                height = rect.get_height()
+                if height > 0:
+                    ax.text(rect.get_x() + rect.get_width()/2., height,
+                            f'{int(height)}',
+                            ha='center', va='bottom', fontsize=8)
+
+        autolabel(rects1)
+        autolabel(rects2)
+        
+        plt.tight_layout()
+        path = os.path.join(output_dir, f"{filename_prefix}_resources.png")
+        plt.savefig(path, dpi=300)
+        plt.close()
+        print(f"⚡ Resource comparison saved: {path}")
+        return path
+
     def plot_per_round_with_reference(self, round_data, optimisation_type, model_name, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True):
         """
         Wizualizuje wyniki pojedynczej rundy ewaluacji LLM.
