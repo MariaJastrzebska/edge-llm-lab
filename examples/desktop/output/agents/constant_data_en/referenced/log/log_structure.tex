@@ -1,0 +1,54 @@
+\section{Struktura Logów Ewaluacyjnych (JSON)}
+
+Wyniki ewaluacji agentów medycznych są przechowywane w formacie JSON. Plik zawiera listę obiektów w kluczu \texttt{evaluations}, z których każdy reprezentuje pojedynczą sesję testową modelu. Poniżej znajduje się opis kluczowych sekcji struktury.
+
+\subsection{Metadane Sesji}
+Każdy wpis w \texttt{evaluations} zawiera informacje o konfiguracji testu:
+\begin{itemize}
+    \item \texttt{model\_name} – nazwa testowanego modelu (np. \texttt{granite3.2:2b-instruct-q8\_0}).
+    \item \texttt{agent\_type} – typ agenta (np. \texttt{constant\_data\_en}).
+    \item \texttt{parameters} – parametry generowania (temperatura, \texttt{top\_p}, \texttt{max\_tokens}) oraz ścieżki do plików promptów i schematów.
+    \item \texttt{tools} – definicja narzędzi dostępnych dla agenta (np. \texttt{send\_medical\_data\_en}) wraz z ich schematami Pydantic.
+\end{itemize}
+
+\subsection{Rundy Konwersacji (\texttt{rounds})}
+Klucz \texttt{rounds} zawiera historię interakcji w ramach sesji:
+\begin{itemize}
+    \item \texttt{context} – pełna historia rozmowy (system, user, assistant).
+    \item \texttt{llm\_response} – surowa odpowiedź modelu w formacie JSON.
+    \item \texttt{reference\_response} – odpowiedź wzorcowa (Gold Standard).
+    \item \texttt{metrics} – wyniki oceny danej rundy.
+\end{itemize}
+
+\subsection{Analiza Wydajności (\texttt{latency\_breakdown})}
+Szczegółowe dane dotyczące czasu i zasobów:
+\begin{itemize}
+    \item \texttt{total\_ms} – całkowity czas odpowiedzi.
+    \item \texttt{prompt\_eval\_ms} – czas przetwarzania promptu (prefill).
+    \item \texttt{token\_generation\_ms} – czas generowania odpowiedzi.
+    \item \texttt{tokens} – liczba tokenów promptu i odpowiedzi oraz przepustowość (\texttt{tokens/sec}).
+    \item \texttt{resource\_differences} – zmiana zużycia pamięci RAM, Swap oraz mocy CPU/GPU podczas generowania.
+\end{itemize}
+
+\subsection{Metryki i GPT Judge (\texttt{metrics})}
+Ewaluacja jakościowa i ilościowa opiera się na dwóch grupach metryk:
+
+\paragraph{Metryki Automatyczne}
+Porównują tokeny \texttt{llm\_response} z \texttt{reference\_response}:
+\begin{itemize}
+    \item \texttt{BLEU, ROUGE-L, METEOR} – podobieństwo tekstowe.
+    \item \texttt{BERTScore (P\_BERT, R\_BERT)} – podobieństwo semantyczne (odporność na halucynacje i kompletność).
+    \item \texttt{Jaccard, Levenshtein} – podobieństwo na poziomie znaków i zbiorów słów.
+\end{itemize}
+
+\paragraph{GPT Judge (5 Pillar Protocol)}
+Ocena dokonywana przez wyższy model (np. GPT-4o-mini) w skali 1-10:
+\begin{itemize}
+    \item \textbf{JSON Correctness} – poprawność składniowa i zgodność ze schematem.
+    \item \textbf{Tool Call Correctness} – trafność wyboru narzędzia i argumentów.
+    \item \textbf{Reasoning Logic} – jakość rozumowania (Chain of Thought) w polu \texttt{thoughts}.
+    \item \textbf{Question Naturalness} – naturalność i empatia pytań do pacjenta.
+    \item \textbf{Context Relevance} – pamięć o faktach z poprzednich rund.
+\end{itemize}
+
+Dodatkowo sekcja \texttt{gpt\_judge} zawiera listy \texttt{strengths} (atuty) i \texttt{weaknesses} (słabości), które stanowią syntetyczny opis zachowania modelu.

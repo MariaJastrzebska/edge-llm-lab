@@ -298,9 +298,8 @@ class EvalModelsReferenced(BaseEvaluation):
             # Normalizuj rozmiary do zakresu 0-1 (mniejszy = bliżej 1)
             min_size = min(valid_sizes)
             max_size = max(valid_sizes)
-            normalized_sizes = [(max_size - size) / (max_size - min_size) for size in model_sizes if size is not None and isinstance(size, (int, float))]
-            # Użyj viridis colormap (ciemniejszy = większy model, jaśniejszy = mniejszy model)
-            return plt.cm.viridis(normalized_sizes)
+            # Use tab10 for maximum contrast between categorical model names
+            return plt.cm.tab10(np.linspace(0, 1, len(model_names)))
         else:
             # Fallback do tab10 jeśli brak różnic w rozmiarze
             return plt.cm.tab10(np.linspace(0, 1, len(model_names)))
@@ -635,6 +634,14 @@ class EvalModelsReferenced(BaseEvaluation):
         # Category winners are already generated inside plot_mobile_analysis_visualizations
         if isinstance(mobile_plots, dict) and 'category_winners' in mobile_plots:
             print(f"🏆 Category winners saved to: {mobile_plots['category_winners']}")
+            
+        # 5. Generate Resource Health Check (RAM/SWAP/Throttling) for all models
+        self.plot_resource_health_check(all_session_data, output_dir, timestamp)
+        
+        # 6. Generate individual throttling timelines for each model
+        print("\n📈 Generating individual throttling timelines...")
+        for session in all_session_data:
+            self.plot_throttling_timeline(session, output_dir, timestamp)
             
 
                 
@@ -2806,11 +2813,22 @@ class EvalModelsReferenced(BaseEvaluation):
                     if isinstance(metrics, dict):
                         if 'gpt_judge' in metrics:
                             gpt = metrics['gpt_judge']
-                            gpt_score = gpt.get('score', 0) if isinstance(gpt, dict) else gpt
+                            if isinstance(gpt, dict):
+                                # Prefer original_score (0-10) for visualization
+                                gpt_score = gpt.get('original_score', gpt.get('score', 0))
+                                # If we only have 'score' and it's 0-1 range, scale it
+                                if 'original_score' not in gpt and gpt_score <= 1.0 and gpt_score > 0:
+                                    gpt_score *= 10.0
+                            else:
+                                gpt_score = gpt
                         elif 'gpt_judge_score' in metrics:
                             gpt_score = metrics.get('gpt_judge_score', 0)
+                            if gpt_score <= 1.0 and gpt_score > 0:
+                                gpt_score *= 10.0
                         elif 'gpt_score' in metrics:
                             gpt_score = metrics.get('gpt_score', 0)
+                            if gpt_score <= 1.0 and gpt_score > 0:
+                                gpt_score *= 10.0
                     if isinstance(gpt_score, (int, float)) and gpt_score is not None:
                         models_data[model_name_item]['gpt_scores'].append(gpt_score)
                         if models_data[model_name_item]['gpt_scores']:
@@ -2899,8 +2917,27 @@ class EvalModelsReferenced(BaseEvaluation):
                     # For full model names, convert underscores to colons
                     full_model_name = model_name.replace("_", ":",1)
                 
-                model_metadata = metadata.get('model', {}).get(full_model_name, {}) if isinstance(metadata, dict) else {}
+                # Robust metadata lookup
+                model_meta = metadata.get('model', {}) if isinstance(metadata, dict) else {}
+                model_metadata = model_meta.get(full_model_name)
+                if not model_metadata:
+                    # Try with underscores if colons failed
+                    model_metadata = model_meta.get(full_model_name.replace(":", "_"))
+                if not model_metadata:
+                    # Try with colons if underscores failed (reverse)
+                    model_metadata = model_meta.get(full_model_name.replace("_", ":"))
+                if not model_metadata:
+                    # Try original model_name as well
+                    model_metadata = model_meta.get(model_name)
+                
+                if not model_metadata:
+                    model_metadata = {}
+                    
                 size_gb = model_metadata.get('model_size_gb', 0)
+                
+                # Check if size_gb is 0, try to find it in model_session data as fallback
+                if size_gb == 0 and 'metadata' in model_session:
+                    size_gb = model_session['metadata'].get('model_size_gb', 0)
                 
                 print(f"🔍 DEBUG MODEL SIZE: model_name={model_name}, full_model_name={full_model_name}")
                 print(f"🔍 DEBUG MODEL SIZE: model_metadata keys={model_metadata.keys() if model_metadata else 'EMPTY'}")
@@ -3258,34 +3295,46 @@ class EvalModelsReferenced(BaseEvaluation):
         
         if use_polish:
             detailed_categories = [
-                f'Wynik GPT ({MIN_GPT_SCORE:.1f}-{MAX_GPT_SCORE:.1f})',
-                f'Latencja ({MIN_MOBILE_LATENCY_MS:.0f}-{MAX_MOBILE_LATENCY_MS:.0f}ms)',
-                f'Rozmiar modelu ({MIN_MOBILE_SIZE_GB:.1f}-{MAX_MOBILE_SIZE_GB:.1f}GB)',
-                f'Efektywność energetyczna ({MIN_TOTAL_POWER:.0f}-{MAX_TOTAL_POWER:.0f}mW)'
+                f'Wynik GPT\n({MIN_GPT_SCORE:.1f}-{MAX_GPT_SCORE:.1f})',
+                f'Latencja\n({MIN_MOBILE_LATENCY_MS:.0f}-{MAX_MOBILE_LATENCY_MS:.0f}ms)',
+                f'Rozmiar modelu\n({MIN_MOBILE_SIZE_GB:.1f}-{MAX_MOBILE_SIZE_GB:.1f}GB)',
+                f'Efektywność energetyczna\n({MIN_TOTAL_POWER:.0f}-{MAX_TOTAL_POWER:.0f}mW)'
             ]
             title_text = 'Radar Wydajności Mobilnej\n(Zewnętrzna krawędź = Lepsze)'
         else:
             detailed_categories = [
-                f'GPT Score ({MIN_GPT_SCORE:.1f}-{MAX_GPT_SCORE:.1f})',
-                f'Latency ({MIN_MOBILE_LATENCY_MS:.0f}-{MAX_MOBILE_LATENCY_MS:.0f}ms)',
-                f'Model Size ({MIN_MOBILE_SIZE_GB:.1f}-{MAX_MOBILE_SIZE_GB:.1f}GB)',
-                f'Energy Efficiency ({MIN_TOTAL_POWER:.0f}-{MAX_TOTAL_POWER:.0f}mW)'
+                f'GPT Score\n({MIN_GPT_SCORE:.1f}-{MAX_GPT_SCORE:.1f})',
+                f'Latency\n({MIN_MOBILE_LATENCY_MS:.0f}-{MAX_MOBILE_LATENCY_MS:.0f}ms)',
+                f'Model Size\n({MIN_MOBILE_SIZE_GB:.1f}-{MAX_MOBILE_SIZE_GB:.1f}GB)',
+                f'Energy Efficiency\n({MIN_TOTAL_POWER:.0f}-{MAX_TOTAL_POWER:.0f}mW)'
             ]
             title_text = 'Mobile Performance Radar\n(Outer edge = Better)'
         
         ax.set_xticklabels(detailed_categories)
         ax.set_title(title_text, pad=20, fontsize=12, fontweight='bold')
-        # No legend - clean visualization
+        # Add legend for easier model identification
+        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=9)
         
         # Set y-axis limits but remove percentage labels
         ax.set_ylim(0, 1)
         ax.set_yticks([])  # Remove all y-axis tick labels
         
-        # Make axis labels visible on top of plot lines
-        for label in ax.get_xticklabels():
-            label.set_zorder(1000)  # High z-order to put labels on top
+        # Make axis labels visible on top of plot lines and adjust positioning
+        for i, label in enumerate(ax.get_xticklabels()):
+            label.set_zorder(1000)
             label.set_fontweight('bold')
-            label.set_fontsize(10)
+            label.set_fontsize(9)
+            # Add small padding/offset to labels to avoid overlapping with axes
+            # For polar plots, we can adjust alignment based on angle
+            angle = angles[i]
+            if angle == 0:
+                label.set_ha('left')
+            elif angle == np.pi/2:
+                label.set_va('bottom')
+            elif angle == np.pi:
+                label.set_ha('right')
+            elif angle == 3*np.pi/2:
+                label.set_va('top')
         
         # Add grid for better readability
         ax.grid(True, alpha=0.3)
@@ -3332,11 +3381,20 @@ class EvalModelsReferenced(BaseEvaluation):
             # If all models have the same size, use medium size
             bubble_sizes = [(min_size + max_size) / 2] * len(model_sizes)
         
+        # Use Line2D for a clean legend with fixed-size markers
+        from matplotlib.lines import Line2D
+        legend_elements = []
+        for i, model in enumerate(model_names):
+            legend_elements.append(Line2D([0], [0], marker='o', color='w', 
+                                         label=model,
+                                         markerfacecolor=scatter_colors[i], 
+                                         markersize=10, alpha=0.7))
+
         # Create scatter plot with unique colors for each model
         for i, (lat, score, size, color) in enumerate(zip(latencies_ms, avg_scores, bubble_sizes, scatter_colors)):
             ax.scatter(
                 lat, score, s=size, c=[color], alpha=0.7,
-                edgecolors='black', linewidth=0.5, label=model_names[i]
+                edgecolors='black', linewidth=0.5
             )
         
         # Set axis limits with padding
@@ -3367,7 +3425,8 @@ class EvalModelsReferenced(BaseEvaluation):
         ax.grid(True, linestyle='--', alpha=0.6)
         
         # Add legend for model colors
-        ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
+        # Add legend for model colors with standardized sizes
+        ax.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=8)
 
     def _shorten_model_labels(self, model_names):
         """Shorten model labels if they differ only after the last '-' character."""
@@ -4923,7 +4982,9 @@ class EvalModelsReferenced(BaseEvaluation):
         ax3.set_xlabel('Numer Rundy')
 
         plt.tight_layout()
-        plot_path = os.path.join(output_dir, f"throttling_timeline_{self.model_name_norm}_{timestamp}.png")
+        # Use session's model name for the filename to avoid overwrites in all_models mode
+        session_model_name = self._model_name_to_id(session.get('model_name', 'unknown'))
+        plot_path = os.path.join(output_dir, f"throttling_timeline_{session_model_name}_{timestamp}.png")
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
         print(f"📈 Throttling timeline plot saved: {plot_path}")
@@ -5089,6 +5150,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 gpt_scores = []
                 all_cpu_power = []
                 all_gpu_power = []
+                all_throughputs = []
                 
                 for round_data in rounds:
                     # Get latency
@@ -5096,10 +5158,26 @@ class EvalModelsReferenced(BaseEvaluation):
                         latency = round_data['latency_breakdown'].get('total_ms', 0)
                         if isinstance(latency, (int, float)) and latency > 0:
                             latencies.append(latency)
+                        
+                        # Get token throughput (Tokens per second)
+                        tokens_data = round_data['latency_breakdown'].get('tokens', {})
+                        if isinstance(tokens_data, dict):
+                            tps = tokens_data.get('throughput', 0)
+                            if isinstance(tps, (int, float)) and tps > 0:
+                                all_throughputs.append(tps)
                     
                     # Get GPT judge score
                     if isinstance(round_data, dict) and 'metrics' in round_data:
-                        gpt_score = round_data['metrics'].get('gpt_judge', {}).get('score')
+                        gpt_data = round_data['metrics'].get('gpt_judge', {})
+                        if isinstance(gpt_data, dict):
+                            gpt_score = gpt_data.get('original_score')
+                            if gpt_score is None:
+                                gpt_score = gpt_data.get('score')
+                                if gpt_score is not None and gpt_score <= 1.0 and gpt_score > 0:
+                                    gpt_score *= 10.0
+                        else:
+                            gpt_score = gpt_data
+                            
                         if gpt_score is not None:
                             gpt_scores.append(gpt_score)
                     
@@ -5126,22 +5204,25 @@ class EvalModelsReferenced(BaseEvaluation):
                 if not latencies:  # Skip if no valid latency data
                     continue
                 
-                # Get model metadata
-                # model_name from JSON already has correct format (e.g., "granite3.2:2b-instruct-q8_0")
-                # Metadata keys also use underscores in quantization (e.g., "granite3.2:2b-instruct-q8_0")
-                # So we should NOT do any replacement here
+                # Define metadata_model_name for lookup
                 if model_name_prefix is not None:
-                    # For shortened names (e.g., "fp16"), reconstruct full name with prefix
-                    metadata_model_name = f"{model_name_prefix}-{model_name}"
-                    # Only replace the first underscore between prefix and variant
-                    # e.g., "granite3.2_2b-instruct-fp16" -> "granite3.2:2b-instruct-fp16"
-                    metadata_model_name = metadata_model_name.replace("_", ":", 1)
+                    metadata_model_name = f"{model_name_prefix}-{model_name}".replace("_", ":", 1)
                 else:
-                    # For full model names from JSON, they already have correct format
-                    # e.g., "granite3.2:2b-instruct-q8_0" - no replacement needed
                     metadata_model_name = model_name
+
+                # Robust metadata lookup
+                model_meta = metadata.get('model', {}) if isinstance(metadata, dict) else {}
+                model_metadata = model_meta.get(metadata_model_name, {})
+                if not model_metadata:
+                    model_metadata = model_meta.get(metadata_model_name.replace(":", "_"), {})
+                if not model_metadata:
+                    model_metadata = model_meta.get(metadata_model_name.replace("_", ":"), {})
+                if not model_metadata:
+                    model_metadata = model_meta.get(model_name, {})
                 
-                model_metadata = metadata.get("model", {}).get(metadata_model_name, {}) if isinstance(metadata, dict) else {}
+                # Check if size_gb is 0, try to find it in model_session data as fallback
+                if isinstance(model_metadata, dict) and model_metadata.get('model_size_gb', 0) == 0 and 'metadata' in model_session:
+                    model_metadata['model_size_gb'] = model_session['metadata'].get('model_size_gb', 0)
                 print(f"DEBUG MOBILE ANALYSIS METADATA: model_name={model_name}, metadata_model_name={metadata_model_name}, model_size_gb={model_metadata.get('model_size_gb')}")
                     
                 # Calculate energy statistics
@@ -5165,6 +5246,7 @@ class EvalModelsReferenced(BaseEvaluation):
                     'gpu_power': all_gpu_power,
                     'avg_cpu_power': avg_cpu_power,
                     'avg_gpu_power': avg_gpu_power,
+                    'avg_token_throughput': np.mean(all_throughputs) if all_throughputs else 0,
                     # Add model metadata
                     'model_size_gb': model_metadata.get('model_size_gb'),
                     'parameter_size_display': model_metadata.get('parameter_size_display'),
@@ -5250,9 +5332,15 @@ class EvalModelsReferenced(BaseEvaluation):
             throughputs = []
             model_sizes_gb = []
             for name in model_names:
-                avg_lat = models_data[name]['avg_latency']
-                rps = 1000.0 / avg_lat if isinstance(avg_lat, (int, float)) and avg_lat > 0 else 0.0
-                throughputs.append(rps)
+                # Use actual token throughput (TPS) instead of requests per second
+                tps = models_data[name].get('avg_token_throughput', 0)
+                
+                # Fallback if TPS is zero but latency is available (simplistic RPS)
+                if tps == 0:
+                    avg_lat = models_data[name]['avg_latency']
+                    tps = 1000.0 / avg_lat if isinstance(avg_lat, (int, float)) and avg_lat > 0 else 0.0
+                
+                throughputs.append(tps)
                 
                 # Get model size for bubble size - stored directly in models_data
                 model_size = models_data[name].get('model_size_gb', 0)
@@ -5297,11 +5385,11 @@ class EvalModelsReferenced(BaseEvaluation):
             
             if use_polish:
                 ax2.set_xlabel('Średnia latencja (ms)')
-                ax2.set_ylabel('Przepustowość (żądania/sekundę)')
+                ax2.set_ylabel('Przepustowość (tokeny/sekundę)')
                 ax2.set_title('Korelacja rundy vs Całkowita latencja (Rozmiar bąbelka = Rozmiar modelu)')
             else:
                 ax2.set_xlabel('Average Latency (ms)')
-                ax2.set_ylabel('Throughput (requests/second)')
+                ax2.set_ylabel('Throughput (tokens/second)')
                 ax2.set_title('Round vs Total Latency Correlation (Bubble Size = Model Size)')
             ax2.grid(True, alpha=0.3)
             
@@ -5312,20 +5400,26 @@ class EvalModelsReferenced(BaseEvaluation):
                 max_size_gb = max(model_sizes_gb)
                 mid_size_gb = (min_size_gb + max_size_gb) / 2
                 
-                # Calculate actual bubble sizes for legend
-                range_size = (max_size_gb - min_size_gb) if (max_size_gb - min_size_gb) > 0 else 1e-9
-                min_bubble_size = 50 + ((min_size_gb - min_size_gb) / range_size) * 1950 if range_size > 0 else 50
-                mid_bubble_size = 50 + ((mid_size_gb - min_size_gb) / range_size) * 1950 if range_size > 0 else 1025
-                max_bubble_size = 50 + ((max_size_gb - min_size_gb) / range_size) * 1950 if range_size > 0 else 2000
-                
-                # Use Line2D for legend instead of empty scatter to avoid matplotlib errors
+                # Use Line2D for model color legend (fixed size)
                 from matplotlib.lines import Line2D
+                color_legend_elements = []
+                for i, name in enumerate(model_names):
+                    color_legend_elements.append(Line2D([0], [0], marker='o', color='w', 
+                                                     label=name,
+                                                     markerfacecolor=model_color_map[name], 
+                                                     markersize=10, alpha=0.6))
+
+                # Use Line2D for SIZE legend instead of empty scatter
                 size_legend_elements = [
                     Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=8, alpha=0.6, label=f'{min_size_gb:.1f}GB'),
                     Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=12, alpha=0.6, label=f'{mid_size_gb:.1f}GB'),
                     Line2D([0], [0], marker='o', color='w', markerfacecolor='gray', markersize=16, alpha=0.6, label=f'{max_size_gb:.1f}GB')
                 ]
-                ax2.legend(handles=size_legend_elements, title='Model Size', loc='upper right')
+                
+                # Combine both legends
+                leg1 = ax2.legend(handles=color_legend_elements, title='Models', loc='lower right', fontsize=8)
+                ax2.add_artist(leg1)
+                ax2.legend(handles=size_legend_elements, title='Model Size', loc='upper right', fontsize=8)
             
             # Adjust layout and save
             plt.tight_layout(rect=[0, 0.03, 1, 0.97])

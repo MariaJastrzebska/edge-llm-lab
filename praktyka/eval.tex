@@ -1,0 +1,265 @@
+\section{Framework ewaluacyjny}
+
+W celu oceny zaprojektowanego rozwiązania opracowano dedykowany, w pełni automatyczny framework ewaluacyjny, którego zadaniem jest empiryczna weryfikacja zachowania aplikacji oraz agentów bazujących na małych modelach językowych w warunkach możliwie najbardziej zbliżonych do rzeczywistego użycia. System ten nie testuje modelu w izolacji, lecz odtwarza kompletne scenariusze aplikacyjne: wielorundowe dialogi prowadzone przez pojedynczego agenta, w oparciu o ustalony prompt oraz narzucony format odpowiedzi (\emph{structured output}).
+
+Framework został zaprojektowany jako narzędzie działające całkowicie offline, w sposób powtarzalny i deterministyczny, bez wykorzystania rzeczywistych danych użytkowników. Zaproponowano dwa podejścia ewaluacyjne: z referencją (\emph{reference-based}) oraz bez referencji (\emph{reference-free}), które zostaną szczegółowo omówione w kolejnych podrozdziałach. Oba podejścia mają charakter półautomatyczny: scenariusze dialogowe oraz odpowiedzi pacjenta są przygotowywane manualnie, natomiast tzw. \emph{golden answers} generowane są automatycznie przez model referencyjny (w tym przypadku duży model językowy z dobrym zrozumieniem danych medycznych jak GPT), a następnie podlegają manualnej weryfikacji. Taki układ umożliwia wierne odwzorowanie rzeczywistego przebiegu rozmowy „pacjent–lekarz”, przy jednoczesnym zachowaniu kontroli eksperckiej nad poprawnością kliniczną i strukturalną odpowiedzi, a także nad poprawnością rozumowania (\emph{reasoningu}) małego modelu językowego, jego zdolnością do interpretacji instrukcji zawartych w promptcie, przestrzegania reguł w nim zdefiniowanych oraz poprawnego generowania odpowiedzi w narzuconym formacie \emph{structured output}.
+
+Część odpowiedzialna za definicję scenariuszy pozostaje więc manualna, generacja referencji jest zautomatyzowana, a ich walidacja odbywa się z udziałem człowieka. Sam proces testowy – uruchamianie scenariuszy, rejestrowanie wyników i obliczanie metryk – jest w pełni zautomatyzowany. Dzięki temu proces ewaluacji pozostaje powtarzalny, zamknięty w obrębie środowiska badawczego oraz zgodny z wymaganiami lokalnego przetwarzania i ochrony danych medycznych.
+
+W praktyce system umożliwia:
+\begin{itemize}
+\item symulację realistycznych scenariuszy użycia aplikacji,
+\item automatyczną ocenę wielorundowych sesji dialogowych,
+\item rejestrowanie odpowiedzi modelu w każdej rundzie interakcji,
+\item zbieranie metryk jakościowych oraz wydajnościowych dla każdej interakcji,
+\item powtarzalne porównywanie wariantów architektury agentowej, promptów oraz konfiguracji modeli,
+\item dobór hiperparametrów oraz technik optymalizacji modeli w oparciu o mierzalne wyniki eksperymentalne.
+\end{itemize}
+
+
+Framework ten stanowi zaplecze eksperymentalne całej dalszej części pracy – wszystkie porównania modeli, konfiguracji inferencji oraz strategii agentowych opierają się na jednolitym, kontrolowanym środowisku testowym, co pozwala na jednoznaczną interpretację uzyskanych wyników.
+
+\subsection{Metodologia ewaluacyjna dla modeli multi-agent multi-turn w kontekście medycznym}
+
+Metodologia ewaluacji została zdefiniowana na poziomie pojedynczej rundy dialogu oraz całej sekwencji interakcji. Każdy scenariusz traktowany jest jako deterministyczny proces, w którym agent w kolejnych turach aktualizuje stan \texttt{current\_info}, formułuje pytanie w \texttt{missing\_info} oraz ustala globalny \texttt{status} procesu zbierania danych.
+
+W ramach frameworku wyróżniono dwa komplementarne tryby oceny:
+
+W obu trybach każda runda dialogu podlega wstępnej walidacji pod kątem spełnienia reguł zawartych w promptcie oraz w modelu Pydantic opisującym zachowanie agenta. Walidacja obejmuje poprawność składniową JSON oraz zgodność odpowiedzi ze schematem. Kryteria te stanowią wspólną warstwę strukturalnej kontroli poprawności i są niezależne od dostępności referencji.
+
+\begin{itemize}
+\item \textbf{ewaluacja z referencją} – każda runda posiada wzorcową odpowiedź (\emph{golden answer}), a odpowiedź badanego modelu jest oceniana względem referencji w wielu wymiarach jakościowych. Stosowane są metryki automatyczne (np.\ metryki NLP obliczane na poziomie poszczególnych pól i wartości JSON odpowiedzi) oraz mechanizm \emph{LLM-as-a-Judge}, w którym niezależny model porównuje odpowiedź badanego agenta bezpośrednio z odpowiedzą referencyjną.
+\item \textbf{ewaluacja bez referencji} – odpowiedź oceniana jest bez użycia referencji przez LLM jako sędzię, w oparciu o własności odpowiedzi w kolejnych rundach dialogu. W tym trybie analizowana jest również efektywność zbierania danych: liczba rund wymaganych do skompletowania informacji, zdolność modelu do doprowadzenia dialogu do stanu \texttt{complete} oraz stabilność przebiegu interakcji. W tym wariancie mechanizm \emph{LLM-as-a-Judge} opiera się wyłącznie na regułach zawartych w promptcie, a nie na odpowiedzi referencyjnej.
+\end{itemize}
+
+Szczegółowa definicja metryk referencyjnych została przedstawiona w kolejnych podrozdziałach.
+
+Oba tryby działają na podobnych logach dialogowych i opierają się na wspólnym rdzeniu kontraktu danych (tj.\ identycznym formacie rejestracji przebiegu dialogu i odpowiedzi agenta). Różnią się natomiast warstwą oceny: zestawem metryk oraz kryteriami walidacji, które są specyficzne dla trybu referencyjnego lub bez referencyjji.
+
+\subsubsection{Struktura Logów Ewaluacyjnych (JSON)}
+
+Wyniki ewaluacji agentów medycznych są rejestrowane w ustrukturyzowanych plikach JSON, co umożliwia precyzyjną analizę techniczną i jakościową. Plik zawiera listę obiektów w kluczu \texttt{evaluations}, gdzie każdy wpis reprezentuje kompletną sesję testową konkretnego modelu. Poniżej przedstawiono schemat kluczowych sekcji logu (Listing \ref{lst:log_example_final}), ilustrujący jak system integruje dane o wydajności z jakością odpowiedzi.
+
+\begin{lstlisting}[language=json, caption={Struktura logu ewaluacyjnego (zgodna z formatem bazy danych)}, label={lst:log_example_final}]
+{
+  "evaluations": [
+    {
+      "session_timestamp": "2025-12-29_17-40-32",
+      "model_name": "granite3.2:2b-instruct-q8_0",
+      "evaluator_model_name": "gpt-4o-mini",
+      "evaluation_type": "referenced",
+      "optimisations": [ {} ],
+      "parameters": {
+        "cot_prompt_path": "/Users/.../prompts/constant_data_en.txt",
+        "context_size": 8192,
+        "temperature": 0.1,
+        "top_p": 1.0,
+        ...
+      },
+      "agent_type": "constant_data_en",
+      "use_cache": true,
+      "tools": [ { "type": "function", "function": { "name": "...", "parameters": { ... } } } ],
+      "rounds": [
+        {
+          "round": 1,
+          "context": [ ... ],
+          "llm_response": {
+            "thoughts": [ { "thought": "...", "action": "...", "action_input": "..." } ],
+            "status": "incomplete",
+            "missing_info": [ { "field": "...", "question": "..." } ]
+          },
+          "reference_response": { ... },
+          "latency_breakdown": {
+            "total_ms": 1150,
+            "prompt_eval_ms": 320,
+            "token_generation_ms": 830,
+            "tokens": { "prompt_tokens": 1240, "completion_tokens": 150, "throughput": 48.2 }
+          },
+          "resource_differences": {
+            "memory": { "ram_delta_gb": 0.12, "swap_delta_gb": 0.02, ... },
+            "energy": { "cpu_power_delta_mw": 480, "gpu_power_delta_mw": 20, ... }
+          },
+          "metrics": {
+            "json_validity": { "score": 1.0 },
+            "bert_score": { "f1": 0.92, ... },
+            "gpt_judge": { 
+              "score": 9.0, 
+              "category_scores": { "JSON Correctness": 10, ... },
+              "strengths": [ ... ],
+              "weaknesses": [ ... ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+\end{lstlisting}
+
+Podstawowe komponenty struktury obejmują:
+\begin{itemize}
+    \item \textbf{Metadane Sesji}: Parametry generowania, nazwa modelu oraz definicje dostępnych narzędzi (\textit{tools}).
+    \item \textbf{Latency Breakdown}: Szczegółowy podział czasu odpowiedzi na fazę przetwarzania promptu (\textit{prefill}) oraz generowania tokenów.
+    \item \textbf{Resource Monitoring}: Rejestracja delty zużycia pamięci operacyjnej oraz poboru mocy (CPU/GPU delta), co jest kluczowe dla optymalizacji brzegowej.
+\end{itemize}
+
+\subsubsection{LLM jako sędzia: Protokół 5 Filarów}
+
+W obliczu subiektywizmu metryk tekstowych w medycynie, wdrożono protokół \textit{LLM-as-a-Judge}. Wykorzystuje on wysokiej klasy model (np. GPT-4o-mini) do oceny agenta w skali 1--10 według pięciu krytycznych kryteriów:
+
+\begin{enumerate}
+\item \textbf{JSON Correctness} -- Weryfikacja zgodności ze schematem Pydantic. Błąd struktury w systemie medycznym uniemożliwia automatyczną analizę danych.
+\item \textbf{Tool Call Correctness} -- Ocena trafności wywołania narzędzi (np. \texttt{send\_medical\_data}). System sprawdza, czy agent nie wywołuje funkcji przedwcześnie.
+\item \textbf{Reasoning Logic} -- Analiza sekcji \texttt{thoughts}. Sędzia sprawdza, czy rozumowanie agenta jest logicznie spójne z dostarczonymi faktami medycznymi.
+\item \textbf{Question Naturalness} -- Ocena empatii i stylu komunikacji. W kontekście zdrowia pacjent musi czuć się komfortowo podczas zbierania danych.
+\item \textbf{Context Relevance} -- Weryfikacja pamięci operacyjnej modelu. Agent musi unikać redundancji i pamiętać fakty podane w poprzednich turach dialogu.
+\end{enumerate}
+
+\subsubsection{Zastosowane Narzędzia i Stos Technologiczny}
+Implementacja frameworku oraz logika agentowa zostały zrealizowane w języku \textbf{Python 3.x}, co zapewniło elastyczność w integracji modeli LLM z bibliotekami do analizy danych. Kluczowe komponenty stosu technologicznego obejmują:
+
+\begin{itemize}
+    \item \textbf{llama-cpp-python} -- Wykorzystany jako główny silnik inferencyjny (backend \texttt{llama.cpp}), umożliwiający wydajne uruchamianie modeli w formacie GGUF na procesorach CPU i akceleratorach brzegowych (np. Apple Metal).
+    \item \textbf{Pydantic} -- Zastosowany do definiowania restrykcyjnych kontraktów danych (\textit{Data Schemas}) oraz automatycznej walidacji wyjść strukturalnych agenta. Każda odpowiedź jest weryfikowana pod kątem poprawności typów i obecności wymaganych pól klinicznych.
+    \item \textbf{Neptune AI} -- Służy jako centralna platforma \textbf{MLOps} do zarządzania eksperymentami. System automatycznie loguje każdą sesję, przechowując parametry (\textit{temperature}, \textit{top\_p}), wersje kodów promptów oraz artefakty w postaci logów JSON. Dashboardy Neptune AI umożliwiają dynamiczne porównywanie wydajności różnych poziomów kwantyzacji (np. Q4 vs Q8).
+    \item \textbf{Matplotlib i Numpy} -- Wykorzystane do statystycznej obróbki wyników oraz generowania wykresów trendów jakościowych per-runda.
+\end{itemize}
+
+Dzięki takiemu doborowi narzędzi, proces badawczy (Rys. \ref{rys:wytlumaczenie}) jest w pełni replikowalny i pozwala na precyzyjną ocenę wpływu optymalizacji na zachowanie modelu.
+
+\subsection{Ewaluacja z referencją} 
+
+Tryb \textit{referenced} wykorzystuje wcześniej przygotowane, pełne wielorundowe konwersacje pełniące rolę złotego standardu przebiegu rozmowy agenta. Docelowo konwersacje referencyjne powinny być opracowywane z ekspertem dziedzinowym oraz bazować na obserwacjach z realnych interakcji użytkowników.Na potrzeby niniejszych eksperymentów konwersacje referencyjne były konstruowane w trybie interakcyjnym z wykorzystaniem ChatGPT w roli pacjenta, natomiast po stronie agenta stosowany był dokładnie ten sam prompt oraz te same reguły \emph{structured output}, które później otrzymywały modele testowane. W każdej turze ręcznie wprowadzano odpowiedzi „pacjenta”, symulując realistyczny przebieg rozmowy, podczas gdy zachowanie agenta było w pełni determinowane przez zaprojektowany prompt i schemat decyzyjny.
+
+Wygenerowane w ten sposób dialogi były następnie poddawane ręcznej weryfikacji i korekcie w celu zapewnienia spójności scenariusza, poprawności logicznej oraz ścisłej zgodności z przyjętymi schematami \emph{structured output}. Tak skonstruowane referencje zachowują tę samą dynamikę i ograniczenia, którym podlegają modele ewaluowane, a jednocześnie umożliwiają pełną kontrolę nad przebiegiem rozmowy oraz deterministyczność eksperymentów.
+
+Ewaluacja jest realizowana per-runda: w każdej turze testowany model otrzymuje bieżący prompt wraz z instrukcją generowania \textit{structured output} oraz kontekst rozmowy (w tym fragment konwersacji referencyjnej podawany w schemacie \textit{sliding window}, zależnie od rundy). Ocenie podlega odpowiedź modelu w danej rundzie, porównywana z odpowiedzą referencyjną oraz analizowana metrykami automatycznymi, w tym mechanizmem \textit{LLM-as-a-Judge}. Podejście to umożliwia:
+
+\begin{itemize}
+    \item deterministyczną weryfikację poprawności strukturalnej odpowiedzi (parsowalność JSON, kompletność wymaganych pól, zgodność struktury i typów, poprawność wartości przekazywanych w argumentach),
+    \item ilościową ocenę podobieństwa odpowiedzi do referencji z wykorzystaniem metryk znakowych i tokenowych (m.in. Levenshtein similarity, Jaccard similarity, BLEU, ROUGE, METEOR),
+    \item ocenę zgodności semantycznej odpowiedzi z referencją przy użyciu metryk embeddingowych (BERTScore Precision i Recall),
+    \item wielowymiarową ocenę jakości zachowania agenta przy użyciu \textit{LLM-as-a-Judge}, obejmującą m.in. poprawność strukturalną, logikę rozumowania, trafność kontekstową, naturalność pytania oraz poprawność wywołań narzędzi,
+    \item analizę stabilności zachowania modelu poprzez agregację wyników metryk w kolejnych rundach dialogu i identyfikację degradacji jakości wraz z narastaniem kontekstu,
+    \item korelację jakości odpowiedzi z metadanymi procesu inferencji, obejmującymi m.in. latencję, przepustowość generacji, zużycie pamięci operacyjnej oraz szacowany wpływ na zużycie energii, rejestrowanymi w logach ewaluacyjnych.
+\end{itemize}
+
+\subsection{Ewaluacja bez referencji} 
+
+W trybie \textit{unreferenced} (reference-free), framework przełącza się w tryb pełnej symulacji. Zamiast statycznej odpowiedzi referencyjnej, wykorzystywany jest \textbf{Patient Simulator} (oparty na GPT-4o-mini), który dynamicznie reaguje na pytania badanego modelu. Pozwala to na badanie agenta w warunkach "otwartego świata", gdzie ścieżka dialogu nie jest sztywno narzucona.
+
+Główne metryki w tym trybie obejmują:
+\begin{itemize}
+    \item \textbf{Efficiency} -- Liczba rund dialogowych potrzebnych do przejścia ze stanu \texttt{incomplete} do \texttt{complete}.
+    \item \textbf{Success Rate} -- Odsetek sesji zakończonych poprawnym zapisem danych bez utraty stabilności konwersacji.
+    \item \textbf{Stability} -- Zdolność modelu do unikania pętli (powtarzania tych samych pytań) przy braku wzorcowej ścieżki.
+\end{itemize}
+
+Ten tryb ewaluacji jest kluczowy dla oceny rzeczywistej użyteczności klinicznej, gdyż weryfikuje odporność modelu na dygresje i nieprecyzyjne odpowiedzi "cyfrowego pacjenta".
+
+\subsection{Wyniki ewaluacji z poszczególnych rund}
+Fundamentem analizy jakościowej jest szczegółowa ewaluacja każdej rundy dialogu. System generuje granularne statystyki, które pozwalają na diagnostykę zachowania modelu w konkretnych punktach interakcji. Na rysunku \ref{rys:jedna runda} przedstawiono reprezentatywny wynik dla modelu \texttt{Llama-3.2-3B} w 4. rundzie zbierania danych.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{rysunki/eval/jedna runda.png}
+    \caption{Szczegółowe wyniki metryk dla pojedynczej rundy (Llama-3.2-3B, Runda 4). Wykres prezentuje zestawienie metryk technicznych (JSON validity), lingwistycznych (BERTScore, ROUGE) oraz sędziowskich.}
+    \label{rys:jedna runda}
+\end{figure}
+
+Wykres słupkowy (Rys. \ref{rys:jedna runda}) ilustruje profil wydajnościowy agenta w danej turze. Widoczna jest wysoka poprawność strukturalna (\texttt{json\_validity} równe 1.0) oraz bardzo dobre dopasowanie semantyczne (\texttt{BERTScore} powyżej 0.9). Takie zestawienie pozwala na natychmiastową identyfikację momentu, w którym model zaczyna tracić spójność lub halucynować, co jest kluczowe przy testowaniu długich sesji medycznych.
+
+Dopełnieniem danych ilościowych jest warstwa jakościowa generowana przez mechanizm \textit{LLM-as-a-Judge}. Rysunek \ref{rys:wytlumaczenie} prezentuje szczegółowy raport uzasadniający przyznane noty.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\linewidth]{rysunki/eval/wytlumaczenie.png}
+    \caption{Raport szczegółowy GPT Judge. System dostarcza tekstowe uzasadnienie dla każdego z 5 filarów, wskazując np. na subtelne rozbieżności w polu \texttt{missing\_info}.}
+    \label{rys:wytlumaczenie}
+\end{figure}
+
+Jak widać na przykładzie (Rys. \ref{rys:wytlumaczenie}), sędzia potrafi wychwycić błędy logiczne, takie jak nieuzasadnione uznanie statusu za \texttt{INCOMPLETE} mimo zebrania wymaganych pól, lub ocenić naturalność sformułowanego pytania o grupę krwi. Takie logi są generowane systematycznie dla wszystkich testowanych modeli i wszystkich rund, tworząc potężną bazę danych do optymalizacji promptów i doboru technik kwantyzacji.
+
+Analiza tak szczegółowych danych pozwoliła na zauważenie istotnego trendu. Chociaż znalezienie małych modeli zdolnych do poprawnego generowania \textit{structured output} jest możliwe, większość ogólnodostępnych modeli w tej klasie wielkościowej (1--4B) wykazuje niską stabilność składniową bez zewnętrznego wymuszania (gramatyk). Modele wyłonione w procesie selekcji często utrzymują poprawność formatu JSON, jednak ich "logika medyczna" oraz zdolność do podążania za złożonymi instrukcjami klinicznymi zaczynają degradować wraz z narastaniem kontekstu. Zjawisko to byłoby niemożliwe do wykrycia przy użyciu wyłącznie metryk znakowych, co potwierdza konieczność stosowania wielowymiarowej oceny sędziowskiej.
+
+\section{Analiza porównawcza małych modeli językowych na urządzeniach brzegowych}
+Dobór odpowiedniego modelu językowego do konkretnego przypadku użycia stanowi istotne wyzwanie badawcze i inżynierskie. Wymaga on jednoczesnego uwzględnienia wielu czynników, takich jak: architektura modelu, rozmiar i liczba parametrów, charakterystyka danych pretrenowania, zdolności rozumowania (reasoning), wsparcie dla mechanizmów takich jak function calling, a także ograniczenia sprzętowe i energetyczne wynikające z docelowego środowiska uruchomieniowego.
+
+W ostatnich latach obserwowany jest dynamiczny rozwój architektur oraz technik optymalizacyjnych, które w istotny sposób wpływają zarówno na jakość generowanych odpowiedzi, jak i na efektywność inferencji. Przykładem są architektury typu Mixture of Experts (MoE), w których tylko podzbiór parametrów aktywowany jest dla danego tokenu, co pozwala na zwiększenie zdolności modelu bez proporcjonalnego wzrostu kosztów obliczeniowych.
+
+Równolegle rozwijane są alternatywne architektury sekwencyjne, takie jak modele oparte na mechanizmie state space models (np. Mamba), które rezygnują z klasycznej uwagi (self-attention) na rzecz liniowej złożoności względem długości sekwencji. Ma to istotne znaczenie w kontekście inferencji na urządzeniach brzegowych, gdzie pamięć operacyjna oraz przepustowość energetyczna są silnie ograniczone.
+
+\subsection{Dobór modeli językowych do use casu medycznego}
+Kluczowym elementem analizowanego przypadku użycia była zdolność małego modelu językowego do generowania odpowiedzi w ściśle narzuconym formacie. Obejmowało to w szczególności:
+\begin{itemize}
+    \item tworzenie logicznych kroków rozumowania (\textit{Chain of Thought}),
+    \item strukturyzowanie odpowiedzi zgodnie z zadanym schematem JSON,
+    \item obsługę mechanizmów function callingu, umożliwiających bezpośrednią integrację z warstwą medyczną.
+\end{itemize}
+
+W pierwszym etapie selekcji, ze względu na specyfikę pracy bez mechanizmów wymuszania struktury (\textit{grammars}), zastosowano metodę \textbf{prób i błędów} w celu wyłonienia modeli wykazujących bazową stabilność w generowaniu JSON. Empirycznie potwierdzono, że modele posiadające natywne wsparcie dla mechanizmu \textbf{tool calling} (wywoływania funkcji) charakteryzują się znacznie większą szansą na poprawne generowanie odpowiedzi strukturalnych również w ogólnych zadaniach agentowych. Do końcowej ewaluacji wybrano modele o rozmiarze nieprzekraczającym 6 GB w wersji nieskwantyzowanej (z przedziału 1--8B parametrów), które przeszły pomyślnie wstępne testy składniowe. Do monitorowania ich wydajności wykorzystano wcześniej opisaną metodologię oraz platformę Neptune AI.
+
+\subsection{Wyniki analizy i Mobile Readiness Index}
+Analiza danych wydajnościowych pozwoliła na wyłonienie modeli najlepiej radzących sobie z wysokoryzykownym kontekstem medycznym. Wykorzystano wskaźnik \textbf{Mobile Readiness Index}, łączący jakość sędziowską z efektywnością energetyczną i latencją (Rys. \ref{fig:mobile-ready}).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{rysunki/3.3.2.optymaizacja inferencji/final_plots/rozne_modele/all_models_latency_performance_chart_2025-10-09_21-35-23.png}
+    \caption{Porównanie wydajności modeli (latencja vs throughput) w logach Neptune AI}
+    \label{fig:model-comparison-analysis}
+\end{figure}
+
+Na podstawie przeprowadzonych testów oraz analizy wskaźnika \textit{Mobile Readiness Index}, wyłoniono grupę modeli o najwyższym potencjale wdrożeniowym. Szczegółowe parametry techniczne testowanych jednostek zestawiono w tabeli \ref{tab:model_details}.
+
+\begin{table}[h!]
+\centering
+\caption{Szczegóły techniczne i profil energetyczny testowanych modeli}
+\label{tab:model_details}
+\begin{tabular}{|l|l|c|c|r|}
+\hline
+\textbf{Model} & \textbf{Architektura} & \textbf{Rozmiar} & \textbf{Kwantyzacja} & \textbf{Moc Średnia (mW)} \\
+\hline
+granite3.2:2b-instruct-q8\_0 & granite & 3.0 GB & Q8\_0 & 419 mW \\
+\hline
+llama3.2:3b-instruct-q4\_K\_M & llama & 2.1 GB & Q4\_K\_M & 820 mW \\
+\hline
+granite4:micro & granite & 2.1 GB & Q8\_0 & 3958 mW \\
+\hline
+nemotron-mini:4b-instruct-q8\_0 & nemotron & 4.0 GB & Q8\_0 & 496 mW \\
+\hline
+nemotron-mini:4b-instruct-q5\_K\_M & nemotron & 3.0 GB & Q5\_K\_M & 343 mW \\
+\hline
+granite3-moe:3b-instruct-q5\_K\_M & granite & 2.5 GB & Q5\_K\_M & 575 mW \\
+\hline
+qwen2.5:3b-instruct-q4\_K\_M & qwen & 2.0 GB & Q4\_K\_M & 2781 mW \\
+\hline
+\end{tabular}
+\subsection{Analiza zużycia zasobów i zjawisko Throttlingu}
+
+Analiza profilu energetycznego (Rys. \ref{fig:resource-comparison}) ujawniła istotne różnice w efektywności implementacji poszczególnych architektur. Zaobserwowano następujące zjawiska:
+
+\begin{itemize}
+    \item \textbf{Anomalia energetyczna Granite 4:micro}: Model ten, mimo najmniejszej liczby parametrów, wykazuje najwyższy pobór mocy (ok. 3840 mW na CPU). Sugeruje to brak optymalizacji jąder obliczeniowych (\textit{compute kernels}) dla tej konkretnej architektury, co w warunkach mobilnych prowadzi do szybkiego nagrzewania urządzenia i ryzyka wystąpienia \textit{thermal throttling} (spadku taktowania procesora w celu ochrony przed przegrzaniem).
+    \item \textbf{Efektywność Granite 3.2 2B}: Model ten wykazuje najbardziej zrównoważony profil (ok. 400 mW), co czyni go idealnym kandydatem do długotrwałej pracy na zasilaniu bateryjnym.
+    \item \textbf{Obciążenie CPU vs GPU}: W większości przypadków (szczególnie przy Qwen 2.5) główny ciężar inferencji spoczywa na jednostkach CPU, co przekłada się na wyższą latencję w porównaniu do modeli optymalizowanych pod akceleratory GPU/NPU.
+\end{itemize}
+
+Wykorzystanie mechanizmu \textit{Sequential Cleanup} oraz monitoringu SWAP pozwoliło stwierdzić, że modele o rozmiarze powyżej 4GB (np. Nemotron-mini q8) powodują agresywne wykorzystanie pamięci wymiennej, co drastycznie obniża płynność interakcji (\textit{token generation latency}).
+Analiza wyników pozwala na sformułowanie następujących wniosków:
+\begin{itemize}
+    \item \textbf{Zwycięzca efektywności}: Model \texttt{Granite 3.2 2B (Q8)} wykazuje optymalny stosunek jakości sędziowskiej do zużycia zasobów ($419$ mW), co czyni go faworytem do długotrwałej pracy na urządzeniach zasilanych bateryjnie.
+    \item \textbf{Wydajność vs Energia}: Modele takie jak \texttt{Qwen 2.5 3B} oferują wysoką precyzję logiczną, jednak ich zapotrzebowanie energetyczne ($2781$ mW) może limitować czas pracy aplikacji mobilnej.
+    \item \textbf{Wpływ tool calling}: Modele z natywnym wsparciem wywoływania funkcji (\texttt{Granite}, \texttt{Nemotron}) charakteryzują się znacznie stabilniejszymi wynikami w protokole 5 Filarów, szczególnie w kategorii \textit{Tool Call Correctness}.
+\end{itemize}
+
+Podsumowując, framework ewaluacyjny pozwolił na obiektywne przejście od szerokiej listy modeli open-source do wąskiej grupy "Mobile Ready", które gwarantują nie tylko poprawność medyczną, ale i użyteczność w restrykcyjnym środowisku brzegowym.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{rysunki/3.3.2.optymaizacja inferencji/final_plots/()_category_winners_2025-09-19_02-56-51.png}
+    \caption{Klasyfikacja modeli pod kątem gotowości do wdrożenia mobilnego}
+    \label{fig:mobile-ready}
+\end{figure}
+
+\subsection{Wyniki jakościowe testów na urządzeniach mobilnych}
+W fazie walidacji końcowej model zwycięzca został uruchomiony na urządzeniu testowym (iPhone/iPad) przy użyciu frameworku \textit{flutter-llama}. Empiryczne testy potwierdziły, że mimo braku \textit{structured output enforcement} na poziomie silnika, modele takie jak Granite-3.2b wykazują zadziwiającą stabilność składniową nawet przy głębokim oknie kontekstowym (powyżej 8 rund dialogu).
