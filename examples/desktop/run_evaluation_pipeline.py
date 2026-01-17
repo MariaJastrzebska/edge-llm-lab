@@ -37,8 +37,8 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
     for i, model_name in enumerate(models):
         print(f"\n🧐 Evaluating {model_name} ({i+1}/{len(models)})...")
         
-        # Check model availability and auto-pull if needed
-        if not BaseEvaluation.check_model_availability(model_name, install_choice='y'):
+        # Check model availability and auto-pull if needed (skip in viz_only mode)
+        if mode != "viz_only" and not BaseEvaluation.check_model_availability(model_name, install_choice='y'):
             print(f"⏭️ Skipping {model_name}")
             continue
         

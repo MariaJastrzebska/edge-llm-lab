@@ -2873,6 +2873,11 @@ class EvalModelsReferenced(BaseEvaluation):
                         # Extract throughput if available
                         tokens_info = latency.get('tokens', {})
                         throughput = tokens_info.get('throughput_tokens_per_sec')
+                        if throughput is None:
+                            throughput = tokens_info.get('predicted_per_second')
+                        if throughput is None:
+                            throughput = tokens_info.get('throughput', 0)
+                            
                         if throughput is not None and throughput > 0:
                             models_data[model_name_item]['throughput'].append(throughput)
                     
@@ -3468,9 +3473,23 @@ class EvalModelsReferenced(BaseEvaluation):
         if len(set(prefixes)) == 1 and prefixes[0]:
             # All models have the same prefix, return shortened labels and common prefix
             return suffixes, prefixes[0]
-        else:
             # Models have different prefixes, return original names
             return model_names, None
+
+    def _model_name_to_id(self, name):
+        """Konwertuje nazwę modelu na bezpieczny identyfikator pliku."""
+        if not name: return "unknown"
+        return str(name).replace(":", "_").replace("/", "_").replace(".", "_")
+
+    def _shorten_model_name(self, name):
+        """Skraca nazwę modelu do wyświetlania na osiach wykresu."""
+        if not name: return "unknown"
+        # Bierzemy nazwę po ostatnim '/' i zamieniamy ':' na '-'
+        clean = str(name).split('/')[-1].replace(':', '-')
+        # Skróć jeśli za długie dla osi wykresu
+        if len(clean) > 20:
+            return clean[:17] + "..."
+        return clean
 
     def _create_latency_bars(self, ax, model_names, avg_latencies, model_sizes, model_name=None):
         """Create a bar chart of average latencies sorted by model size."""
@@ -5056,51 +5075,54 @@ class EvalModelsReferenced(BaseEvaluation):
             print("⚠️ Brak danych do wykresu Resource Health Check")
             return
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+        fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 14))
         
-        # --- WYKRES 1: Memory Pressure (RAM + SWAP) ---
+        # --- WYKRES 1: RAM Usage ---
         x = np.arange(len(models))
         width = 0.6
-        
-        # RAM usage
-        ax1.bar(x, ram_used, width, label='Fizyczna Pamięć RAM', color='#2ecc71', alpha=0.8)
-        # Swap usage (stacked on top)
-        ax1.bar(x, swap_used, width, bottom=ram_used, label='Użycie SWAP (Wolne!)', color='#e74c3c', hatch='//', alpha=0.8)
-        
-        # RAM Limit Line
+        ax1.bar(x, ram_used, width, label='Pamięć RAM', color='#2ecc71', alpha=0.8)
         if ram_total:
-            ax1.axhline(y=ram_total[0], color='black', linestyle='--', linewidth=2, label=f'Całkowity RAM ({ram_total[0]}GB)')
-            
-        ax1.set_ylabel('Użycie Pamięci (GB)')
-        ax1.set_title('🚨 Diagnostyka Pamięci: Analiza Użycia SWAP', fontsize=12, fontweight='bold')
+            ax1.axhline(y=ram_total[0], color='black', linestyle='--', linewidth=2, label=f'Limit RAM ({ram_total[0]}GB)')
+        ax1.set_ylabel('Użycie RAM (GB)')
+        ax1.set_title('📊 RAM Usage per Model', fontsize=12, fontweight='bold')
         ax1.set_xticks(x)
         ax1.set_xticklabels(models, rotation=15, ha='right')
         ax1.legend()
         ax1.grid(True, axis='y', alpha=0.3)
-        
-        # Ostrzeżenie tekstowe jeśli SWAP > 1GB
-        for i, swap in enumerate(swap_used):
-            if swap > 1.0:
-                ax1.text(i, ram_used[i] + swap + 0.5, f'! {swap:.1f}GB SWAP', ha='center', color='red', fontweight='bold')
 
-        # --- WYKRES 2: CPU Throttling (Frequency Stability) ---
+        # --- WYKRES 2: SWAP Usage (The requested missing plot) ---
+        ax2.bar(x, swap_used, width, label='Użycie SWAP (Pamięć Wirtualna)', color='#e74c3c', hatch='//', alpha=0.8)
+        ax2.axhline(y=1.0, color='red', linestyle=':', alpha=0.5, label='Krytyczny poziom SWAP (1GB)')
+        ax2.set_ylabel('Użycie SWAP (GB)')
+        ax2.set_title('🚨 SWAP Memory Pressure (Higher = Worse)', fontsize=12, fontweight='bold')
+        ax2.set_xticks(x)
+        ax2.set_xticklabels(models, rotation=15, ha='right')
+        ax2.legend()
+        ax2.grid(True, axis='y', alpha=0.3)
+        
+        # Ostrzeżenie tekstowe jeśli SWAP > 0.5GB
+        for i, swap in enumerate(swap_used):
+            if swap > 0.5:
+                ax2.text(i, swap + 0.1, f'{swap:.2f} GB', ha='center', color='red', fontweight='bold')
+
+        # --- WYKRES 3: CPU Throttling (Frequency Stability) ---
         # Normalize to % of max freq
         freq_start_pct = [s/m*100 if m else 0 for s, m in zip(cpu_freq_start, cpu_freq_max)]
         freq_end_pct = [e/m*100 if m else 0 for e, m in zip(cpu_freq_end, cpu_freq_max)]
         
-        width = 0.35
-        ax2.bar(x - width/2, freq_start_pct, width, label='Częst. Startowa', color='#3498db')
-        ax2.bar(x + width/2, freq_end_pct, width, label='Częst. Końcowa', color='#f1c40f')
+        width_bar = 0.35
+        ax3.bar(x - width_bar/2, freq_start_pct, width_bar, label='Częst. Startowa', color='#3498db')
+        ax3.bar(x + width_bar/2, freq_end_pct, width_bar, label='Częst. Końcowa', color='#f1c40f')
         
-        ax2.axhline(y=100, color='red', linestyle=':', label='Maksymalna Częst.')
+        ax3.axhline(y=100, color='red', linestyle=':', label='Maksymalna Częst.')
         
-        ax2.set_ylabel('% Maks. Częstotliwości CPU')
-        ax2.set_title('🔥 Diagnostyka Termiczna: Spadek Częstotliwości CPU', fontsize=12, fontweight='bold')
-        ax2.set_xticks(x)
-        ax2.set_xticklabels(models, rotation=15, ha='right')
-        ax2.set_ylim(0, 110)
-        ax2.legend()
-        ax2.grid(True, axis='y', alpha=0.3)
+        ax3.set_ylabel('% Maks. Częstotliwości CPU')
+        ax3.set_title('🔥 Thermal Throttling: CPU Frequency Drop', fontsize=12, fontweight='bold')
+        ax3.set_xticks(x)
+        ax3.set_xticklabels(models, rotation=15, ha='right')
+        ax3.set_ylim(0, 115)
+        ax3.legend()
+        ax3.grid(True, axis='y', alpha=0.3)
         
         # Ostrzeżenie o spadkach
         for i, (start, end) in enumerate(zip(freq_start_pct, freq_end_pct)):
@@ -5184,7 +5206,13 @@ class EvalModelsReferenced(BaseEvaluation):
                         # Get token throughput (Tokens per second)
                         tokens_data = round_data['latency_breakdown'].get('tokens', {})
                         if isinstance(tokens_data, dict):
-                            tps = tokens_data.get('throughput', 0)
+                            # Try multiple keys for throughput for robustness
+                            tps = tokens_data.get('throughput_tokens_per_sec')
+                            if tps is None:
+                                tps = tokens_data.get('predicted_per_second')
+                            if tps is None:
+                                tps = tokens_data.get('throughput', 0)
+                                
                             if isinstance(tps, (int, float)) and tps > 0:
                                 all_throughputs.append(tps)
                     
