@@ -333,6 +333,19 @@ Podsumowując, analiza danych pozwala na sformułowanie następujących wnioskó
         \caption{Diagnostyka zdrowia systemu (Resource Health Check). Zestawienie użycia RAM (z uwzględnieniem limitów MacBook/iPhone), ciśnienia na SWAP oraz stabilności częstotliwości CPU.}
         \label{fig:health-check}
     \end{figure}
+
+    \item \textbf{Radar Wydajności Mobilnej} (Rys. \ref{fig:radar-chart}) – wielowymiarowe zestawienie kluczowych metryk (GPT Score, Latencja, Rozmiar modelu oraz Efektywność energetyczna). Wszystkie osie zostały znormalizowane do zakresu $[0, 1]$, gdzie krawędź zewnętrzna oznacza wynik optymalny.
+    \begin{itemize}
+        \item \textbf{Powierzchnia wielokąta}: Im większa powierzchnia zajmowana przez dany model, tym bardziej "zbalansowany" jest on pod kątem wdrożenia mobilnego. "Złoty Model" z poprzedniej sekcji to ten, którego wielokąt jest najbliższy kształtowi koła o promieniu 1.
+        \item \textbf{Interpretacja bez legendy}: Ze względu na dużą liczbę porównywanych modeli, wykres radarowy może być renderowany bez jawnej legendy. Analiza opiera się na barwach – kolory zbieżne (np. odcienie zieleni) reprezentują rodziny modeli o podobnej wielkości, co pozwala na wizualną ocenę, jak np. kwantyzacja przesuwa wierzchołek latencji bez drastycznej degradacji punktu GPT Score.
+    \end{itemize}
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.85\linewidth]{rysunki/eval/run_071_full/all_models_with_reference_2026-01-18_01-56-08_radar.png}
+        \caption{Radar Wydajności Mobilnej (Referenced). Wizualizacja balansu między jakością odpowiedzi a wymaganiami sprzętowymi. Idealny model brzegowy dąży do objęcia jak największego obszaru wykresu.}
+        \label{fig:radar-chart}
+    \end{figure}
 \end{enumerate}
 \subsection{Dynamika użycia zasobów w czasie}
 Oprócz zagregowanych danych, kluczowe dla optymalizacji mobilnej jest zrozumienie, jak model obciąża system w miarę wzrostu okna kontekstowego. Analiza liniowych przebiegów pozwala na identyfikację wycieków pamięci lub momentów, w których system operacyjny zaczyna agresywnie korzystać z partycji wymiany (SWAP).
@@ -342,6 +355,12 @@ W celu wizualizacji tego zjawiska zestawiono dwa kontrastujące profile dynamiki
     \item \textbf{Scenariusz A: SWAP > RAM (Memory Spill)}: Stan krytyczny, w którym system przenosi dane na dysk SSD. Mimo stabilności CPU (100\%), realna generacja tekstu staje się skokowa. Jest to sytuacja, w której model "przelewa się" poza fizyczną pamięć urządzenia.
     \item \textbf{Scenariusz B: RAM > SWAP (Status Zdrowy)}: Pożądany stan, gdzie wzrost RAM (związany z kontekstem) odbywa się przy minimalnym SWAP. Oznacza to, że model "mieści się" w pamięci, a wydajność ograniczają jedynie bramki logiczne procesora.
     \item \textbf{Punkt Przecięcia (Crossover)}: Moment, w którym linia SWAP przecina linię RAM, wyznacza pragmatyczną granicę użyteczności urządzenia dla danego modelu.
+\end{itemize}
+
+Poniżej przedstawiono dwa reprezentatywne przypadki:
+\begin{itemize}
+    \item \textbf{Przykład "Dobry" (Granite 3.2 2B, Rys. \ref{fig:timeline-granite})}: Model niemal idealnie realizuje \textbf{Scenariusz B}. Linia RAM utrzymuje się stabilnie poniżej progu 8GB, a SWAP wykazuje zerową lub minimalną tendencję wzrostową. Jest to wzorcowy profil dla aplikacji mobilnej.
+    \item \textbf{Przykład "Zły" (Llama 3.2 3B, Rys. \ref{fig:timeline-llama})}: Ilustracja \textbf{Scenariusza A}. Już po 3. rundzie dialogu następuje gwałtowny wzrost SWAP, który wyprzedza fizyczną zajętość RAM. Mimo braku throttlingu na MacBooku, na iPhone 15/16 zjawisko to wywołałoby natychmiastowe ubicie procesu przez systemowy mechanizm \textit{Jetsam}.
 \end{itemize}
 
 \begin{figure}[h!]

@@ -1,0 +1,183 @@
+% W ramach pracy zbudowano prototypową aplikację, ilustrującą przykładowy scenariusz użycia małych modeli językowych (SLM) na urządzeniach mobilnych i desktopowych w aplikacjach, w których kluczowym wymaganiem jest lokalne przetwarzanie danych i zachowanie prywatności użytkownika. Aplikacja została zaprojektowana jako środowisko eksperymentalne, umożliwiające obserwację zachowania modeli językowych w realistycznym, wieloturowym dialogu oraz identyfikację ograniczeń wynikających z ich uruchamiania na urządzeniach brzegowych.
+Zaimplementowana aplikacja została zaprojektowana jako system w pełni lokalny, działający na urządzeniach mobilnych i desktopowych, wykorzystujący małe modele językowe (SLM) do realizacji całego procesu przetwarzania po stronie klienta, bez użycia infrastruktury serwerowej i bez opuszczania danych poza urządzenie użytkownika.
+
+Główną funkcjonalnością aplikacji jest codzienna, wieloturowa konwersacja w języku naturalnym, w ramach której użytkownik przekazuje informacje dotyczące samopoczucia, objawów oraz czynników związanych ze stylem życia, takich jak aktywność fizyczna, sen, poziom stresu czy dieta, a także wyniki badań okresowych oraz bieżące pomiary parametrów fizjologicznych. Dane te są strukturyzowane zgodnie z predefiniowanymi schematami oraz zapisywane lokalnie na urządzeniu w formie zoptymalizowanej pod kątem dalszego przetwarzania i ponownego wykorzystania w kolejnych sesjach.
+
+Aplikacja po zakończeniu konwersacji z danym agentem umożliwia użytkownikowi podgląd wprowadzonych informacji oraz ich korektę.
+
+\subsection{Opis architektury agentowej oraz aplikacji}
+
+\paragraph{Wymagania funkcjonalne}
+\begin{itemize}
+\item Lokalna inferencja na urządzeniu z wykorzystaniem wbudowanego modelu językowego, bez zależności od infrastruktury serwerowej.
+\item Wieloagentowa architektura rozmowy, w której każdy agent odpowiada za ściśle określony etap wywiadu medycznego (dane stałe, zmienne, okresowe, symptomy, feedback), a ich uruchamianie odbywa się w sposób sekwencyjny i warunkowy.
+\item Deterministyczny przepływ pomiędzy agentami, oparty na statusach \texttt{INCOMPLETE}/\texttt{COMPLETE}, umożliwiający przechodzenie do kolejnych etapów dopiero po spełnieniu wymagań bieżącego agenta.
+\item Mechanizm przekazywania danych pomiędzy agentami poprzez lokalną bazę danych – każdy agent odczytuje dane zgromadzone przez poprzedników i wykorzystuje je jako jawny kontekst wejściowy.
+\item Dwupoziomowa walidacja danych:
+\begin{itemize}
+\item automatyczna walidacja strukturalna odpowiedzi modelu względem schematów Pydantic (poprawność pól, kompletność, typy),
+\item walidacja semantyczna przez użytkownika, polegająca na ręcznym potwierdzeniu lub odrzuceniu zebranych informacji przed ich utrwaleniem.
+\end{itemize}
+\item Możliwość przeglądania historii wcześniejszych rozmów oraz edycji lub ponownego potwierdzania danych zapisanych w lokalnej bazie.
+\end{itemize}
+
+\paragraph{Wymagania niefunkcjonalne}
+\begin{itemize}
+\item Czas inferencji nieprzekraczający 10 sekund, przy czym kluczową metryką jakości interakcji jest czas do pojawienia się pierwszego tokena odpowiedzi.
+\item Wszystkie dane użytkownika przechowywane wyłącznie lokalnie na urządzeniu, bez transmisji do systemów zewnętrznych.
+\item Zgodność z zasadami prywatności i bezpieczeństwa danych, w szczególności dla informacji o charakterze medycznym.
+\item Możliwość pełnego działania w trybie offline.
+\item Stabilność działania w warunkach ograniczonych zasobów obliczeniowych, charakterystycznych dla urządzeń mobilnych.
+\end{itemize}
+
+\subsubsection{ Przepływ danych}
+Fragment flow aplikacji, walidacji oraz przepływu danych przedstawiono na \ref{rys:Flow walidacyjne aplikacji agentycznej}. Główna uwaga została skupiona na zaprojektowaniu wieloturowej konwersacji o kontekście medycznej, której struktura i dynamika możliwie wiernie odzwierciedlają naturalny dialog pacjent–lekarz. Istotnym założeniem projektowym było przezwyciężenie ograniczeń małych modeli językowych uruchamianych na urządzeniach mobilnych w taki sposób, aby zapewnić jakość oraz szybkość inferencji zbliżoną do dużych modeli oferowanych przez firmy takie jak OpenAI, w kontekście wyspecjalizowanego zadania medycznego.
+
+W odpowiedzi na wyzwania omówione w części teoretycznej zaproponowano architekturę opartą na podziale wywiadu medycznego na zestaw iteracyjnie uruchamianych agentów, z których każdy specjalizuje się w ściśle określonym etapie procesu. Taki podział umożliwia ograniczenie długości promptów, zmniejszenie złożoności wnioskowania oraz lepsze dopasowanie małych modeli językowych do wąsko zdefiniowanych zadań. Przykładowy podział agentów przedstawiono w tabeli \ref{tab:Definicja Agentów}.
+
+
+\begin{table}
+    \begin{tabular}{|p{4cm}|p{5cm}|p{4cm}|}
+        \hline
+        \textbf{Nazwa agenta} & \textbf{Opis agenta} & \textbf{specjalizacja} \\
+        \hline\hline
+        Symptoms & Zbiera bieżące symptomy pacjenta jak na wizycie u diabetologa; pierwszy agent rozpoczynający medical screening; działa iteracyjnie na podstawie modelu Pydantic i Chain of Thought. & medical chat \newline podstawowa wiedza medyczna o symptomach \newline COT/ReACT \newline function call (Pydantic) \\
+        \hline
+        constant\_data\_agent & Zbiera stałe dane pacjenta: name, gender, height (cm), blood\_type, date\_of\_birth; aktualizuje tylko na podstawie bieżącej odpowiedzi; pilnuje statusów: incomplete/complete/skipped. & medical chat \newline COT (wystarczy podstawowy) \newline function call (Pydantic, ConstantDataAnalysisCOT) \\
+        \hline
+        fluctuating\_data & Zbiera dane zmienne: aktywność (rodzaj, intensywność, czas, częstotliwość), waga, poziom stresu; opcjonalnie dieta (kalorie, makra, opis) i krew (glukoza, ciśnienie). Działa po zebraniu danych stałych. & medical chat \newline wiedza nt. aktywności i diety \newline COT \newline function call (Pydantic, FluctuatingDataAnalysisCOT) \\
+        \hline
+        periodic & Zbiera okresowe/okreslane badania i informacje kliniczne (wg pól w modelu Pydantic); uruchamiany po constant\_data lub – jeśli dane już są – po Symptoms w łańcuchu agentów. & medical chat \newline podstawowa wiedza nt. badań medycznych \newline COT \newline function call (Pydantic) \\
+        \hline
+        medical\_challange & Generuje spersonalizowany „challange” medyczny na podstawie zebranych danych (obecnych i historycznych) oraz wiedzy z literatury; uwzględnia czas trwania. & medical challange \newline wysoka znajomość diabetologii \newline model wyspecjalizowany do syntezy zadań \\
+        \hline
+        feedback & Zbiera informację po wykonaniu challange: czy się udało, trudność, wpływ na symptomy, ocena przydatności (1–3) itp.; działa po medical\_challange. & medical challange $\rightarrow$ feedback \newline COT \newline function call (Pydantic) \\
+        \hline
+    \end{tabular}
+    \caption{Definicja Agentów}
+    \label{tab:Definicja Agentów}
+\end{table}
+
+\begin{figure}[htbp]
+\centering \includegraphics[width=1\linewidth]{rysunki/3.1 Opis Aplikacji/FRAGMENT FLOW.png} % rysunek o szerokości 0.618 długości linii tekstu - złoty podział
+	\caption{Fragment przepływo danych i walidacyji w aplikacji agentycznej}
+	\label{rys:Flow walidacyjne aplikacji agentycznej}
+\end{figure}
+Każdy agent działa w oparciu o własny schemat danych zdefiniowany zgodnie ze standardem \emph{Pydantic} oraz logikę prowadzenia rozmowy opartą na paradygmacie \emph{ReAct (Reason and Act)}. Ze względu na implementację aplikacji w środowisku Flutter/Dart, schematy Pydantic wykorzystywane są pośrednio — w postaci generowanych struktur JSON, które pełnią rolę formalnego kontraktu danych pomiędzy warstwą inferencji modelu językowego a logiką aplikacyjną. Pozwala to zachować spójność struktury danych niezależnie od języka implementacji oraz umożliwia walidację odpowiedzi modelu po stronie aplikacji mobilnej.
+
+Zarządzanie kontekstem rozmowy stanowi kluczowy element architektury agentowej. Każdy agent operuje na jawnie ograniczonym kontekście, obejmującym wyłącznie dane relewantne dla danego etapu wywiadu. Przed inicjalizacją agenta aplikacja sprawdza, czy w lokalnej bazie danych lub w kontekście rozmów z poprzednich tur znajdują się informacje zgodne z jego schematem danych. Jeżeli dane są dostępne, zostają one wstrzyknięte do bieżącego kontekstu agenta, co umożliwia:
+\begin{itemize}
+    \item skrócenie czasu zbierania danych,
+    \item unikanie ponownego zadawania pytań o wcześniej pozyskane informacje,
+    \item iteracyjne uzupełnianie brakujących pól w kolejnych sesjach użytkownika.
+\end{itemize}
+
+W przypadku braku danych historycznych agent inicjuje pełną sekwencję pytań zgodnie z definicją swojego schematu. Odpowiedzi generowane przez model są sprawdzane względem struktury JSON odpowiadającej schematowi Pydantic, a w przypadku wykrycia braków lub niespójności agent przechodzi do kolejnej iteracji dialogu. Dane zebrane w trakcie bieżącej interakcji zapisywane są w lokalnej bazie danych SQLite, co umożliwia ich ponowne wykorzystanie przez kolejne agenty w tym samym cyklu lub w przyszłych sesjach użytkownika. 
+
+W architekturze świadomie zrezygnowano z zastosowania podejścia Retrieval-Augmented Generation (RAG). Ze względu na ograniczenia obliczeniowe urządzeń mobilnych oraz narzut pamięciowy związany z utrzymywaniem wektorowych baz danych, zdecydowano się na wykorzystanie prostej relacyjnej bazy danych SQLite jako mechanizmu trwałego przechowywania stanu rozmowy. Jak wskazano w pracy \cite{deepsense_slm_rag_2024}, implementacja RAG na urządzeniach wbudowanych prowadzi do istotnego wzrostu złożoności systemu, zużycia zasobów oraz czasu odpowiedzi, co w analizowanym przypadku nie przekłada się proporcjonalnie na poprawę jakości inferencji w zadaniach silnie ustrukturyzowanych, takich jak wywiad medyczny.
+
+Warstwa aplikacyjna została w całości zaimplementowana w środowisku Flutter, gdzie zarządzanie cyklem życia agentów, stanem rozmowy oraz lokalnym przechowywaniem danych odbywa się w czasie rzeczywistym na urządzeniu użytkownika. Niezależny framework ewaluacyjny został zaimplementowany w języku Python i wykorzystywany wyłącznie na etapie testów porównawczych modeli językowych oraz walidacji jakości inferencji, bez wpływu na architekturę runtime aplikacji.
+
+
+
+
+
+
+\subsubsection{Wieloturowość agenta i iteracyjne konstruowanie promptu}
+
+Każdy agent realizuje dialog wieloturowy w pętli sterowanej stanem \texttt{INCOMPLETE}/\texttt{COMPLETE}/\texttt{SKIPPED}. W każdej turze aplikacja konstruuje wejście dla modelu jako złożenie trzech komponentów: 
+\begin{itemize}
+    \item stałych instrukcji systemowych agenta (rola, reguły odpowiedzi, kolejność zbierania pól), 
+    \item jawnego kontekstu danych odczytanych z lokalnej bazy (aktualny stan pól schematu) oraz
+    \item bieżącej wypowiedzi użytkownika. Model zwraca odpowiedź w ustrukturyzowanej postaci JSON \ref{rys:schemat_json} zgodnej ze schematem agenta, zawierając m.in. \texttt{current\_info} (zaktualizowany stan danych), \texttt{status} oraz opcjonalnie \texttt{missing\_info} z pojedynczym pytaniem do użytkownika.
+\end{itemize} 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{rysunki/3.1 Opis Aplikacji/json_schema.png}
+    \caption{Schemat odpowiedzi realizowany za pomocą structure output dla jednej rundy}
+    \label{rys:schemat_json}
+\end{figure}
+Iteracyjność polega na tym, że wynik poprzedniej tury staje się stanem wejściowym kolejnej: pola poprawnie wyekstrahowane są utrwalane w \texttt{current\_info}, a agent formułuje następne pytanie wyłącznie dla pierwszego brakującego pola zgodnie z narzuconym porządkiem zbierania danych. Dzięki temu agent nie generuje pełnej ankiety w jednym kroku, lecz prowadzi rozmowę w sposób zbliżony do dialogu klinicznego, minimalizując liczbę pytań i unikając powtórzeń. W przypadku pól opcjonalnych agent zadaje pytanie tylko raz; jeśli użytkownik odmówi lub pominie odpowiedź, pole otrzymuje stan \texttt{SKIPPED}, a proces przechodzi do kolejnych wymaganych informacji.
+
+Tak skonstruowany mechanizm stanowi deterministyczną warstwę sterowania nad probabilistyczną generacją modelu: logika przejść pomiędzy turami pozostaje po stronie aplikacji, natomiast model pełni rolę parsera i generatora treści w granicach formalnego kontraktu danych zdefiniowanego przez schemat.
+
+
+
+\subsubsection{Proces walidacji danych w architekturze agentowej}
+\begin{figure}[htbp]
+\centering \includegraphics[width=0.618\linewidth]{rysunki/3.1 Opis Aplikacji/walidacja _ Mermaid Chart-2025-08-13-115452.png} % rysunek o szerokości 0.618 długości linii tekstu - złoty podział
+	\caption{Uproszczony przepływ i walidacja w aplikacji}
+	\label{rys:Przepływ i walidacja w aplikacji}
+\end{figure}
+Na rysunku \ref{rys:Przepływ i walidacja w aplikacji}
+przedstawiono uproszczony diagram przepływu procesu walidacji danych w architekturze aplikacji.  
+Każdy agent, po zebraniu danych od użytkownika w ramach swojej specjalizacji, przeprowadza proces walidacji, którego celem jest:
+\begin{itemize}
+    \item zapewnienie, że zebrane informacje są zgodne z wymaganą strukturą i typami danych,
+    \item ochrona przed utratą informacji w ramach cyklu dziennego konwersacji,
+    \item przygotowanie danych do dalszego przetwarzania przez kolejnych agentów lub do zapisu w historii.
+\end{itemize}
+
+
+
+Ponieważ aplikacja z założenia powinna działać w cyklach dziennych, walidacja po każdym agencie pozwala na częściowe uzupełnianie informacji — nawet jeśli kolejne agenty zostaną pominięte (np. gdy dane, takie jak wyniki badań laboratoryjnych, nie są zbierane codziennie).  
+W takim przypadku aplikacja zachowuje spójność informacji, a brakujące pola są oznaczane jako \emph{incomplete} do momentu ich uzupełnienia.
+
+Do zbierania i strukturyzowania danych wykorzystywane są schematy \emph{Pydantic}, które są transportowane w formacie \emph{JSON Schema} i używane jako narzędzia (\emph{tools}) w interakcji modelu językowego z aplikacją ze względu na implementacje frameworku flama, co służy jedynie do strukturyzowania wyjścia.  
+Każdy schemat zawiera również wbudowany model myślenia krok po kroku oparty o podejście \emph{ReAct} (\emph{Reason and Act}), umożliwiający agentowi iteracyjne zbieranie i uzupełnianie brakujących danych.  
+Dodatkowo, dla każdego agenta istnieje odrębny schemat walidacyjny, którego zadaniem jest testowanie poprawności struktury wygenerowanego wyjścia — zarówno pod względem formalnym, jak i semantycznym.
+
+Proces walidacji można opisać w trzech głównych etapach:
+\begin{enumerate}
+    \item \textbf{Zebranie danych} — agent prowadzi konwersację z użytkownikiem w oparciu o swój schemat Pydantic oraz logikę ReAct, strukturyzując dane w formacie JSON.
+    \item \textbf{Walidacja lokalna} — dane są weryfikowane względem schematu Pydantic przypisanego do agenta. W przypadku braków generowana jest lista pól \emph{missing\_info} z pytaniami do użytkownika.
+    \item \textbf{Walidacja strukturalna} — niezależny schemat walidacyjny sprawdza całą strukturę JSON, w tym typy pól, wartości dozwolone oraz kompletność wymaganych danych.
+\end{enumerate}
+
+Takie podejście pozwala utrzymać wysoką jakość danych, nawet w warunkach ograniczeń małych modeli językowych uruchamianych na urządzeniach mobilnych, oraz minimalizuje ryzyko błędów w kolejnych krokach procesu analitycznego.
+% \subsection{Zastosowane frameworki, biblioteki i narzędzia programistyczne}
+
+
+% Wykresy i analizy pomocnicze przygotowano w języku \textbf{Python}.  
+% Do zarządzania procesem \emph{MLOps} wykorzystano \textbf{MLflow}, natomiast do procesu \emph{fine-tuningu} modeli w kontekście \emph{knowledge distillation} zastosowano framework \textbf{PyTorch}.
+\subsection{Zastosowane frameworki, biblioteki i narzędzia programistyczne}
+
+
+W celu zbudowania rozwiązania multiplatformowego, umożliwiającego jednoczesne wdrożenie aplikacji na systemach \emph{iOS} i \emph{Android}, zastosowano framework \textbf{Flutter} oraz język \textbf{Dart} \cite{flutter_docs}, które posłużyły do implementacji zarówno warstwy frontendowej, jak i backendowej aplikacji.
+
+Rozważano również implementację w języku \emph{Python} z wykorzystaniem frameworka \emph{Kivy} \cite{kivy}. Podejście to zostało jednak odrzucone, ponieważ wymagałoby dostarczenia wraz z aplikacją pełnego środowiska uruchomieniowego Pythona na urządzeniu końcowym, co istotnie zwiększałoby rozmiar aplikacji oraz narzut pamięciowy i czasowy. W kontekście lokalnej inferencji SLM na urządzeniach o ograniczonych zasobach wprowadzałoby to zbędną warstwę pośrednią pomiędzy logiką aplikacyjną a silnikiem inferencji.
+
+Wybór \emph{Fluttera} i \emph{Darta} umożliwił zbudowanie lekkiego, natywnego runtime, w którym jedyną warstwą obliczeniowo intensywną pozostaje silnik \emph{llama.cpp}.
+
+Aby zapewnić w pełni lokalną inferencję modeli językowych, zrezygnowano z popularnych frameworków, takich jak \emph{LlamaIndex} \cite{llamaindex}, \emph{LangChain} \cite{langchain} czy \emph{LangGraph} \cite{langgraph}, na rzecz \textbf{llama.cpp} \cite{llamacpp}, który umożliwia uruchamianie modeli w całości na urządzeniu. W celu osadzenia silnika \emph{llama.cpp} w aplikacji mobilnej wykorzystano lekką, otwartą bibliotekę \textbf{fllama}~\cite{fllama}, stanowiącą minimalną warstwę pośrednią nad tym silnikiem. Biblioteka ta została w niewielkim zakresie zmodyfikowana na potrzeby niniejszego projektu, w szczególności poprzez aktualizację bindingów do \emph{llama.cpp} oraz dostosowanie mechanizmów logowania i obsługi błędów, tak aby zapewnić stabilne działanie w środowisku \emph{Flutter}.
+
+Testy wstępne modeli przeprowadzono w środowisku \textbf{Python}, korzystając z \emph{Ollama} \cite{ollama} oraz \emph{Hugging Face Transformers} \cite{hf_transformers}.  
+Do przechowywania i uruchamiania modeli wybrano natywny format silnika \emph{llama.cpp} — \textbf{GGUF}~\cite{gguf}, który został zaprojektowany z myślą o lokalnej inferencji na urządzeniach o ograniczonych zasobach. Format ten umożliwia bezpośrednie mapowanie wag modelu do pamięci, wspiera różne warianty kwantyzacji oraz zapewnia wysoką wydajność przy minimalnym narzucie pamięciowym, co czyni go szczególnie odpowiednim dla scenariuszy \emph{on-device}.
+
+Na wczesnym etapie projektu rozważano również alternatywną ścieżkę implementacyjną opartą na natywnych silnikach inferencji, takich jak \emph{Core ML} czy \emph{TensorFlow Lite}. Z tego względu przeprowadzono eksperymenty z konwersją modeli do formatu \emph{ONNX}~\cite{onnx} oraz dalsze próby eksportu do \emph{TFLite}~\cite{tflite} i \emph{CoreML}~\cite{coreml}. W praktyce proces ten okazał się stabilny jedynie dla modeli o niewielkich rozmiarach — dla modeli przekraczających 2~GB konwersja była obarczona błędami, znaczną degradacją jakości lub niemożnością poprawnego uruchomienia modelu na urządzeniu docelowym. Doświadczenia te przesądziły o wyborze ścieżki opartej na \emph{llama.cpp} i formacie \emph{GGUF} jako bardziej przewidywalnej i skalowalnej w kontekście dużych modeli językowych uruchamianych lokalnie.
+
+
+
+\subsection{Uzyskane wyniki i wnioski}
+
+Eksperymenty przeprowadzone z wykorzystaniem prototypowej aplikacji wykazały, że z perspektywy doświadczenia użytkownika kluczową metryką nie jest całkowity czas inferencji, lecz czas do wygenerowania pierwszego tokena (\emph{time to first token}). Nawet relatywnie krótka inferencja, mieszcząca się w granicy 10 sekund, prowadzi do percepcji „zawieszenia” aplikacji, jeśli użytkownik nie otrzymuje natychmiastowej informacji zwrotnej. W zaprojektowanej architekturze odpowiedzi modeli zawierają dodatkowe metadane związane z procesem wnioskowania (\emph{Chain-of-Thought}), przy czym strumieniowanie zostało ograniczone wyłącznie do pola \texttt{response}. Ponieważ pole to znajduje się na końcu struktury JSON, rzeczywiste przyspieszenie odczuwalne przez użytkownika okazuje się marginalne — model generuje znaczną część treści „niewidocznej”, zanim pojawi się pierwsza porcja odpowiedzi.
+
+ Dodatkowo wraz ze wzrostem objętości kontekstu małe modele językowe wykazują ograniczenia w zakresie stabilności wnioskowania, co prowadzi do błędów interpretacyjnych, pomijania wcześniej zebranych informacji lub generowania niespójnych odpowiedzi. W praktyce oznacza to, że mechanizm adaptacyjnego zadawania pytań działa w sposób ograniczony i wymaga dalszych usprawnień.
+
+Zidentyfikowany bottleneck systemu dotyczy zatem przede wszystkim jakości, szybkości i efektywności samej inferencji modeli językowych, a nie warstwy aplikacyjnej jako takiej. Dalsze zwiększanie złożoności logiki konwersacyjnej oraz zakresu kontekstu nie prowadzi do proporcjonalnej poprawy jakości interakcji, a w niektórych przypadkach skutkuje jej pogorszeniem. 
+% Z tego względu aplikacja pełni rolę narzędzia badawczego, które ujawnia granice praktycznego zastosowania obecnych SLM w scenariuszach wieloturowych.
+
+Pozostałe wymagania zostały spełnione: aplikacja realizuje lokalną inferencję, działa w trybie offline, przechowuje wszystkie dane wyłącznie na urządzeniu użytkownika oraz implementuje wieloagentowy przepływ wywiadu medycznego. Uzyskane wyniki wskazują jednak, że na obecnym etapie największy wpływ na jakość interakcji mają mechanizmy inferencji modeli językowych, w szczególności długość kontekstu oraz sposób konstruowania promptów i odpowiedzi.
+
+Rozwój warstwy aplikacyjnej i modelowej postępuje równolegle, jednak w niniejszej pracy przyjęto świadomą decyzję o skoncentrowaniu części badawczej na procesie inferencji małych modeli językowych działających lokalnie. Architektura aplikacji została potraktowana jako środowisko testowe umożliwiające empiryczną ocenę zachowania modeli w warunkach zbliżonych do rzeczywistych zastosowań.
+
+
+
+% W celu zbudowania rozwiązania multiplatformowego, umożliwiającego jednoczesne wdrożenie aplikacji na systemach \emph{iOS} i \emph{Android}, zastosowano framework \textbf{Flutter} oraz język \textbf{Dart}, które posłużyły do implementacji zarówno warstwy frontendowej, jak i backendowej aplikacji.
+
+% Aby zapewnić w pełni lokalną inferencję modeli językowych, zrezygnowano z popularnych frameworków, takich jak \emph{LlamaIndex}, \emph{LangChain} czy \emph{LangGraph}, na rzecz \textbf{llama.cpp}, który umożliwia uruchamianie modeli w całości na urządzeniu. W celu integracji z językiem Dart wykorzystano nakładkę \textbf{flama}.
+
+% Testy wstępne modeli, mające na celu wybór optymalnego wariantu przed implementacją pełnej aplikacji, przeprowadzono w środowisku \textbf{Python}, korzystając z modeli dostępnych w \emph{Ollama} oraz \emph{Hugging Face Transformers}.  
+% Do przechowywania i uruchamiania modeli wybrano format \textbf{GGUF} — zoptymalizowany przez twórców \emph{llama.cpp} pod kątem wydajności lokalnej inferencji.
+
+% W zakresie kwantyzacji modeli przetestowano również konwersję do formatu \emph{ONNX} oraz dalszą kwantyzację przy użyciu narzędzi tego frameworka. Ponadto wykonano próby konwersji modeli do formatów \emph{TFLite} oraz \emph{CoreML}. Należy jednak zauważyć, że konwersja i kwantyzacja z formatu \emph{ONNX} przebiegały pomyślnie jedynie dla modeli o niewielkich rozmiarach wejściowych — dla modeli powyżej 2 GB proces ten był problematyczny.

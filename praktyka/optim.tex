@@ -1,0 +1,62 @@
+\section{Wpływ metod optymalizacji na wydajność i jakość modelu}
+
+W niniejszym rozdziale przeanalizowano proces optymalizacji modelu \textit{Granite-3.1-2B-Instruct}, podzielony na dwa kluczowe etapy: kwantyzację wag (redukcja statyczna) oraz konfigurację parametrów środowiska uruchomieniowego (przyspieszenie dynamiczne).
+
+\subsection{Analiza wpływu kwantyzacji wag (GGUF)}
+
+Kwantyzacja jest najważniejszą techniką umożliwiającą uruchomienie modeli LLM na urządzeniach o ograniczonych zasobach pamięci VRAM/RAM. Proces ten polega na mapowaniu wag modelu z precyzji wysokiej (FP16) na dyskretne poziomy o niższej precyzji (np. 4-bit, 5-bit).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{rysunki/quantisation inpact/all_models_all_optimizations_mobile_performance_analysis_2025-10-08_08-02-40.png}
+    \caption{Analiza wydajności mobilnej dla modelu Granite 3.1 2B przy różnych poziomach kwantyzacji. Górny wykres przedstawia latencję (niższa oznacza lepszą responsywność), dolny — korelację między przepustowością a latencją (rozmiar bąbelka odpowiada rozmiarowi modelu w GB).}
+    \label{fig:quant-mobile-perf}
+\end{figure}
+
+Główne wnioski z analizy kwantyzacji (Rys. \ref{fig:quant-mobile-perf}):
+\begin{itemize}
+    \item \textbf{Efekt skali (Size vs Speed)}: Modele kwantyzowane do poziomu 2-3 bitów (\texttt{q2\_K}, \texttt{q3\_K\_M}) cechują się najniższą latencją (poniżej 55s na rundę), ale wykazują znaczną degradację jakości (GPT Score).
+    \item \textbf{Punkt optymalny (Sweet Spot)}: Kwantyzacja \textbf{Q4\_K\_M} oraz \textbf{Q5\_K\_M} stanowi "złoty środek". Model w formacie Q4\_K\_M zajmuje ok. 1.3-1.5 GB RAM, co pozwala na stabilną pracę nawet na starszych urządzeniach iOS, przy jednoczesnym zachowaniu wyniku GPT Score zbliżonego do wersji pełnej.
+    \item \textbf{Stabilność (Variance)}: Wyższe poziomy kwantyzacji (powyżej Q6\_K) drastycznie zwiększają latencję (powyżej 150s), co dyskwalifikuje je z zastosowań czasu rzeczywistego, mimo wyższej precyzji.
+\end{itemize}
+
+\subsection{Opis zastosowanych technik optymalizacji w \texttt{llama.cpp}}
+
+Po wybraniu optymalnej kwantyzacji (Q4\_K\_M/FP16), przeprowadzono testy flag konfiguracji silnika \texttt{llama.cpp}, które dodatkowo przyspieszają inferencję bez zmiany wag modelu:
+
+\begin{itemize}
+    \item \textbf{\texttt{--flash-attn}} – redukuje liczbę operacji pamięciowych poprzez blokowe obliczanie atencji. Kluczowe dla spłaszczenia wzrostu latencji przy długich konwersacjach.
+    \item \textbf{\texttt{--cache-type-k f16}} – format FP16 dla bufora KV oszczędza połowę pamięci cache, co jest krytyczne przy oknie kontekstowym rzędu 4096 tokenów.
+    \item \textbf{\texttt{--draft-max <n>}} – mechanizm \textit{Speculative Decoding}, wykorzystujący model pomocniczy do predykcji tokenów. Pozwala na skok wydajności throughputu o blisko 40\%.
+\end{itemize}
+
+\begin{table}[hb]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{4pt}
+\caption{Ranking efektywności konfiguracji runtime dla modelu Granite 2B (FP16).}
+\label{tab:optim-results}
+\scriptsize
+\begin{tabular}{|p{6cm}|c|c|c|c|c|}
+\hline
+\textbf{Konfiguracja (Flagi)} & \textbf{Param} & \textbf{Latencja [ms]} & \textbf{Δ\%} & \textbf{Thrpk [tok/s]} & \textbf{Δ\%} \\ 
+\hline
+\rowcolor{green!10} \textbf{cache: f16 + flash-attn} & 3 & 50038 & -27.0\% & 8.97 & +39.0\% \\ \hline
+\textbf{flash-attn + draft-max: 3} & 2 & 54679 & -20.2\% & 8.98 & +39.1\% \\ \hline
+\texttt{flash-attn} (Jednostkowy) & 1 & 59220 & -13.6\% & 8.48 & +31.4\% \\ \hline
+\texttt{Baseline} & 0 & 68542 & 0.0\% & 6.46 & 0.0\% \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Rekomendacja końcowa dla asystenta GlowAI}
+
+Na podstawie przeprowadzonej analizy dwuetapowej, do wdrożenia mobilnego rekomenduje się następujący stos technologiczny:
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Rekomendacja Wdrożeniowa]
+    \begin{itemize}
+        \item \textbf{Model}: Granite 3.2 2B (wyłoniony w procesie selekcji).
+        \item \textbf{Kwantyzacja}: Q4\_K\_M GGUF (balans jakość/rozmiar).
+        \item \textbf{Runtime}: \texttt{--flash-attn --cache-type-k f16 --threads 4}.
+    \end{itemize}
+\end{tcolorbox}
+
+Takie podejście zapewnia, że asystent będzie responsywny, nie przeciąży pamięci RAM urządzenia mobilnego i zachowa zdolność do poprawnego wnioskowania medycznego w formacie ustrukturyzowanym.
