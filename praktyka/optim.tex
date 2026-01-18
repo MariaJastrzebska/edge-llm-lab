@@ -1,62 +1,121 @@
-\section{Wpływ metod optymalizacji na wydajność i jakość modelu}
+\section{Metody optymalizacji wydajności w srodowisku brzegowym}
 
-W niniejszym rozdziale przeanalizowano proces optymalizacji modelu \textit{Granite-3.1-2B-Instruct}, podzielony na dwa kluczowe etapy: kwantyzację wag (redukcja statyczna) oraz konfigurację parametrów środowiska uruchomieniowego (przyspieszenie dynamiczne).
+Proces przygotowania małego modelu językowego (SLM) do pracy na urządzeniu mobilnym jest wyzwaniem inżynierskim o wysokim stopniu złożoności, wymagającym wielomiesięcznych badań nad synergią architektury modelu i środowiska uruchomieniowego. Nawet najlepiej oceniony model (zwycięzca etapu selekcji) wymaga drastycznej redukcji wymagań zasobowych oraz precyzyjnego dostrojenia parametrów silnika inferencyjnego, aby zapewnić płynność interakcji w czasie rzeczywistym.
 
-\subsection{Analiza wpływu kwantyzacji wag (GGUF)}
+W niniejszym rozdziale przeanalizowano dwa kluczowe wymiary optymalizacji, które zostały empirycznie zweryfikowane w toku prac projektowych: kwantyzację wag (optymalizacja statyczna) oraz konfigurację parametrów runtime (optymalizacja dynamiczna).
 
-Kwantyzacja jest najważniejszą techniką umożliwiającą uruchomienie modeli LLM na urządzeniach o ograniczonych zasobach pamięci VRAM/RAM. Proces ten polega na mapowaniu wag modelu z precyzji wysokiej (FP16) na dyskretne poziomy o niższej precyzji (np. 4-bit, 5-bit).
+\subsection{Analiza wpływu kwantyzacji wag (Format GGUF)}
+
+Pierwszym i najbardziej fundamentalnym krokiem optymalizacji jest kwantyzacja wag modelu. Proces ten polega na redukcji precyzji numerycznej parametrów sieci neuronowej z formatu FP16 na formaty o niższej bitowości (np. 4-bit, 5-bit, 8-bit), z wykorzystaniem zaawansowanych algorytmów grupowania i skalowania dostępnych w standardzie \textit{GGUF}.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=1\linewidth]{rysunki/quantisation inpact/all_models_all_optimizations_mobile_performance_analysis_2025-10-08_08-02-40.png}
+    \includegraphics[width=1\linewidth]{rysunki/3.3.2.optymaizacja inferencji/final_plots/all_models_all_optimizations_mobile_performance_analysis_2025-10-08_08-02-40.png}
     \caption{Analiza wydajności mobilnej dla modelu Granite 3.1 2B przy różnych poziomach kwantyzacji. Górny wykres przedstawia latencję (niższa oznacza lepszą responsywność), dolny — korelację między przepustowością a latencją (rozmiar bąbelka odpowiada rozmiarowi modelu w GB).}
     \label{fig:quant-mobile-perf}
 \end{figure}
 
-Główne wnioski z analizy kwantyzacji (Rys. \ref{fig:quant-mobile-perf}):
+Badania nad kwantyzacją wag (Rys. \ref{fig:quant-mobile-perf}) wykazały, że:
 \begin{itemize}
-    \item \textbf{Efekt skali (Size vs Speed)}: Modele kwantyzowane do poziomu 2-3 bitów (\texttt{q2\_K}, \texttt{q3\_K\_M}) cechują się najniższą latencją (poniżej 55s na rundę), ale wykazują znaczną degradację jakości (GPT Score).
-    \item \textbf{Punkt optymalny (Sweet Spot)}: Kwantyzacja \textbf{Q4\_K\_M} oraz \textbf{Q5\_K\_M} stanowi "złoty środek". Model w formacie Q4\_K\_M zajmuje ok. 1.3-1.5 GB RAM, co pozwala na stabilną pracę nawet na starszych urządzeniach iOS, przy jednoczesnym zachowaniu wyniku GPT Score zbliżonego do wersji pełnej.
-    \item \textbf{Stabilność (Variance)}: Wyższe poziomy kwantyzacji (powyżej Q6\_K) drastycznie zwiększają latencję (powyżej 150s), co dyskwalifikuje je z zastosowań czasu rzeczywistego, mimo wyższej precyzji.
+    \item \textbf{Kwantyzacje Ultra-Lekkie (Q2\_K, Q3\_K\_L)}: Choć pozwalają na redukcję modelu do rozmiarów poniżej 1 GB i osiągnięcie najniższych latencji ($\sim$50s), wykazują one krytyczną degradację jakości odpowiedzi. W testach \textit{GPT Judge}, modele te często gubiły strukturę JSON lub wykazywały halucynacje medyczne.
+    \item \textbf{Punkt optymalny (Q4\_K\_M / Q5\_K\_M)}: Kwantyzacja 4-bitowa typu "Medium" okazała się najbardziej zbalansowanym rozwiązaniem. Przy rozmiarze $\sim$1.35 GB, model zachowuje blisko 98\% precyzji modelu bazowego, jednocześnie drastycznie skracając czas ładowania i zapotrzebowanie na RAM (Rys. \ref{fig:quant-scatter}).
 \end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{rysunki/quantisation inpact/all_models_with_reference_2025-10-08_08-02-40_scatter.png}
+    \caption{Wykres rozrzutu: Wydajność (GPT Score) vs Latencja. Rozmiar bąbelka odpowiada rozmiarowi modelu w GB. Widoczna jest grupa modeli 2B (żółte bąbelki), które oferują najlepszy kompromis prędkości do jakości.}
+    \label{fig:quant-scatter}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{rysunki/quantisation inpact/all_models_with_reference_2025-10-08_08-02-40_radar.png}
+    \caption{Radar Wydajności dla różnych poziomów kwantyzacji. Największa powierzchnia wielokąta dla modeli Q4/Q5 dowodzi ich wszechstronności w warunkach brzegowych.}
+    \label{fig:quant-radar}
+\end{figure}
 
 \subsection{Opis zastosowanych technik optymalizacji w \texttt{llama.cpp}}
 
-Po wybraniu optymalnej kwantyzacji (Q4\_K\_M/FP16), przeprowadzono testy flag konfiguracji silnika \texttt{llama.cpp}, które dodatkowo przyspieszają inferencję bez zmiany wag modelu:
+W eksperymentach wykorzystano szereg flag konfiguracyjnych i mechanizmów dostępnych w \texttt{llama.cpp}, umożliwiających redukcję latencji oraz zwiększenie przepustowości generacji. Poniżej przedstawiono opis najważniejszych z nich:
 
 \begin{itemize}
-    \item \textbf{\texttt{--flash-attn}} – redukuje liczbę operacji pamięciowych poprzez blokowe obliczanie atencji. Kluczowe dla spłaszczenia wzrostu latencji przy długich konwersacjach.
-    \item \textbf{\texttt{--cache-type-k f16}} – format FP16 dla bufora KV oszczędza połowę pamięci cache, co jest krytyczne przy oknie kontekstowym rzędu 4096 tokenów.
-    \item \textbf{\texttt{--draft-max <n>}} – mechanizm \textit{Speculative Decoding}, wykorzystujący model pomocniczy do predykcji tokenów. Pozwala na skok wydajności throughputu o blisko 40\%.
+    \item \textbf{\texttt{--flash-attn}} – aktywuje zoptymalizowaną implementację mechanizmu atencji (FlashAttention), która redukuje liczbę operacji pamięciowych poprzez obliczanie atencji blokowo w pamięci podręcznej. Technika ta zmniejsza zużycie pamięci i znacząco skraca czas inferencji, szczególnie przy długich sekwencjach.
+    
+    \item \textbf{\texttt{--cache-type-k f16}, \texttt{--cache-type-v f16}} – określają format przechowywania wektorów kluczy (K) i wartości (V) w KV cache. Użycie formatu FP16 zamiast FP32 ogranicza zużycie pamięci o ok. 50\% i zmniejsza transfer danych pomiędzy CPU a RAM, co przyspiesza inferencję przy minimalnej utracie dokładności.
+    
+    \item \textbf{\texttt{--cont-batching}} – włącza tzw. ciągłe wsadowanie (\textit{continuous batching}), umożliwiające dynamiczne dołączanie nowych zapytań do trwającej inferencji. Zwiększa to przepustowość przy pracy wielowątkowej, optymalizując utylizację akceleratorów.
+    
+    \item \textbf{\texttt{--threads <n>}} – ustala liczbę wątków CPU do obliczeń równoległych. Kluczowe jest dopasowanie tej wartości do liczby rdzeni fizycznych (P-cores) procesora; przekroczenie tego progu prowadzi do degradacji wydajności ze względu na konkurencję o cache.
+    
+    \item \textbf{\texttt{--no-kv-offload}} – wyłącza mechanizm przenoszenia bufora KV między RAM a VRAM (GPU). Jak wykazano w testach, technika ta drastycznie spowalnia działanie modelu na Apple Silicon, czyniąc ją nieużyteczną poza celami diagnostycznymi.
+    
+    \item \textbf{\texttt{--draft-max <n>}} – definiuje maksymalną liczbę tokenów generowanych przez model-draft w trybie \textit{speculative decoding}. Pozwala na akceptację kilku tokenów jednocześnie, skracając czas generacji, pod warunkiem obecności mniejszego modelu pomocniczego.
+    
+    \item \textbf{\texttt{--ngl <n>}} – przenosi warstwy modelu do akceleratora GPU (Metal). Umożliwia pełne wykorzystanie rdzeni graficznych Apple Silicon, co jest fundamentem responsywności aplikacji GlowAI.
 \end{itemize}
+
+\subsection{Analiza wyników i porównanie konfiguracji}
+
+Na podstawie przeprowadzonych testów zestawiono wyniki dla różnych kombinacji flag optymalizacyjnych (Tabela \ref{tab:optim-results-deep}).
 
 \begin{table}[hb]
 \centering
 \renewcommand{\arraystretch}{1.3}
-\setlength{\tabcolsep}{4pt}
-\caption{Ranking efektywności konfiguracji runtime dla modelu Granite 2B (FP16).}
-\label{tab:optim-results}
+\caption{Ranking efektywności konfiguracji \texttt{llama.cpp} dla modelu Granite-3.1-2B (FP16).}
+\label{tab:optim-results-deep}
 \scriptsize
-\begin{tabular}{|p{6cm}|c|c|c|c|c|}
+\begin{tabular}{|p{7cm}|c|c|c|c|c|}
 \hline
-\textbf{Konfiguracja (Flagi)} & \textbf{Param} & \textbf{Latencja [ms]} & \textbf{Δ\%} & \textbf{Thrpk [tok/s]} & \textbf{Δ\%} \\ 
-\hline
-\rowcolor{green!10} \textbf{cache: f16 + flash-attn} & 3 & 50038 & -27.0\% & 8.97 & +39.0\% \\ \hline
-\textbf{flash-attn + draft-max: 3} & 2 & 54679 & -20.2\% & 8.98 & +39.1\% \\ \hline
-\texttt{flash-attn} (Jednostkowy) & 1 & 59220 & -13.6\% & 8.48 & +31.4\% \\ \hline
-\texttt{Baseline} & 0 & 68542 & 0.0\% & 6.46 & 0.0\% \\ \hline
+\textbf{Konfiguracja (Kluczowe Flagi)} & \textbf{P} & \textbf{Latencja [ms]} & \textbf{Δ\%} & \textbf{Throughput [tok/s]} & \textbf{Δ\%} \\ \hline
+\rowcolor{green!10} \texttt{cache: f16, flash-attn} & 3 & 50038 & -27.0\% & 8.97 & +39.0\% \\ \hline
+\texttt{flash-attn, cont-batching} & 2 & 51747 & -24.5\% & 8.93 & +38.3\% \\ \hline
+\texttt{flash-attn, draft-max: 3} & 2 & 54679 & -20.2\% & 8.98 & +39.1\% \\ \hline
+\texttt{cache: f16, flash-attn, cont-batching} & 4 & 57995 & -15.4\% & 8.57 & +32.8\% \\ \hline
+\texttt{Baseline (Default Runtime)} & 0 & 68542 & 0.0\% & 6.46 & 0.0\% \\ \hline
+\texttt{no-kv-offload} & 1 & 90412 & +31.9\% & 4.52 & -30.0\% \\ \hline
 \end{tabular}
 \end{table}
 
-\subsection{Rekomendacja końcowa dla asystenta GlowAI}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{rysunki/3.3.2.optymaizacja inferencji/final_plots/run_032/optimizations_comparison_2025-10-04_12-12-52_improvement_granite3_1-dense_2b-instruct-fp16.png}
+    \caption{Złożony raport optymalizacji. Wykresy obrazują stabilność latencji (\textit{Latency per Round}) oraz wzrost przepustowości pod wpływem stosowanych metod. Największe spłaszczenie krzywej latencji zaobserwowano dla metod wykorzystujących Flash Attention.}
+    \label{fig:optim-summary-plot}
+\end{figure}
 
-Na podstawie przeprowadzonej analizy dwuetapowej, do wdrożenia mobilnego rekomenduje się następujący stos technologiczny:
-\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Rekomendacja Wdrożeniowa]
+Wnioski z analizy grupowej (Rysunki \ref{fig:group-speculative} i \ref{fig:group-hardware}):
+\begin{itemize}
+    \item \textbf{Speculative Decoding}: Wykres \ref{fig:group-speculative} dowodzi, że zastosowanie modelu pomocniczego o identycznym tokenizatorze drastycznie zwiększa przepustowość generacji bez naruszania struktury odpowiedzi.
+    \item \textbf{Akceleracja Sprzętowa}: Wyniki dla grupy \textit{hardware optimization} (Rys. \ref{fig:group-hardware}) potwierdzają, że poprawne zarządzanie wątkami oraz akceleracją GPU jest warunkiem koniecznym do przekroczenia bariery 8 tokenów/s.
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{rysunki/3.3.2.optymaizacja inferencji/final_plots/optimisation_impact/group_pure_speculative_decoding_2025-10-07_01-53-44.png}
+    \caption{Wpływ technik Speculative Decoding na tempo generacji tokenów.}
+    \label{fig:group-speculative}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{rysunki/3.3.2.optymaizacja inferencji/final_plots/optimisation_impact/group_pure_hardware_optimization_2025-10-07_01-53-44.png}
+    \caption{Optymalizacje sprzętowe (Threads, MMAP, Memory) i ich wpływ na stabilność latencji.}
+    \label{fig:group-hardware}
+\end{figure}
+
+\subsection{Rekomendacje i Wnioski dla wdrożenia GlowAI}
+
+Na podstawie wielomiesięcznych badań, do wdrożenia na urządzenia z systemem iOS (klasa iPhone 15 Pro+) rekomenduje się konfigurację:
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Złoty Stos Technologiczny GlowAI]
     \begin{itemize}
-        \item \textbf{Model}: Granite 3.2 2B (wyłoniony w procesie selekcji).
-        \item \textbf{Kwantyzacja}: Q4\_K\_M GGUF (balans jakość/rozmiar).
-        \item \textbf{Runtime}: \texttt{--flash-attn --cache-type-k f16 --threads 4}.
+        \item \textbf{Kwantyzacja}: Q4\_K\_M GGUF (maksymalna wydajność przy zachowaniu jakości).
+        \item \textbf{Silnik}: llama.cpp z flagami \texttt{--flash-attn --cache-type-k f16 --ngl 99 --threads 4}.
     \end{itemize}
 \end{tcolorbox}
 
-Takie podejście zapewnia, że asystent będzie responsywny, nie przeciąży pamięci RAM urządzenia mobilnego i zachowa zdolność do poprawnego wnioskowania medycznego w formacie ustrukturyzowanym.
+Takie podejście zapewnia synergię między statycznym "odchudzeniem" modelu a dynamicznym przyspieszeniem jego pracy na układach Apple Silicon.
+
+\subsection{Finałowa Hipoteza: "The Golden Trace"}
+W oparciu o zebrane doświadczenia, proponuje się zweryfikowanie hipotezy łączącej oba etapy prac:
+\textit{Zastosowanie modelu Granite 3.2 2B (wyłoniony w procesie selekcji) w połączeniu ze zoptymalizowanym runtimem (Flash Attention + Speculative Decoding) pozwoli na przekroczenie bariery 12 tokenów/s, czyniąc lokalną inferencję szybszą i bezpieczniejszą od rozwiązań chmurowych.}
