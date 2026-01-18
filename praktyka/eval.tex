@@ -1,8 +1,51 @@
+% Definicja kolorów i języka JSON dla pakietu listings
+% Jeśli eval.tex jest dołączany poleceniem \input, upewnij się, że xcolor i listings są w preambule pliku głównego.
+\definecolor{eclipseStrings}{RGB}{42,0,255}
+\definecolor{eclipseKeywords}{RGB}{127,0,85}
+\colorlet{numb}{magenta!60!black}
+\definecolor{punct}{RGB}{206,128,57}
+
+\expandafter\ifx\csname lstdefinelanguage\endcsname\relax
+\else
+\lstdefinelanguage{json}{
+    basicstyle=\small\ttfamily,
+    commentstyle=\color{eclipseKeywords},
+    stringstyle=\color{eclipseStrings},
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    string=[s]{"}{"},
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{punct}{\{}}}}{1}
+      {\}}{{{\color{punct}{\}}}}}{1}
+      {[}{{{\color{punct}{[}}}}{1}
+      {]}{{{\color{punct}{]}}}}{1},
+}
+\fi
+
 \section{Framework ewaluacyjny}
 
 W celu oceny zaprojektowanego rozwiązania opracowano dedykowany, w pełni automatyczny framework ewaluacyjny, którego zadaniem jest empiryczna weryfikacja zachowania aplikacji oraz agentów bazujących na małych modelach językowych w warunkach możliwie najbardziej zbliżonych do rzeczywistego użycia. System ten nie testuje modelu w izolacji, lecz odtwarza kompletne scenariusze aplikacyjne: wielorundowe dialogi prowadzone przez pojedynczego agenta, w oparciu o ustalony prompt oraz narzucony format odpowiedzi (\emph{structured output}).
 
-Framework został zaprojektowany jako narzędzie działające całkowicie offline, w sposób powtarzalny i deterministyczny, bez wykorzystania rzeczywistych danych użytkowników. Zaproponowano dwa podejścia ewaluacyjne: z referencją (\emph{reference-based}) oraz bez referencji (\emph{reference-free}), które zostaną szczegółowo omówione w kolejnych podrozdziałach. Oba podejścia mają charakter półautomatyczny: scenariusze dialogowe oraz odpowiedzi pacjenta są przygotowywane manualnie, natomiast tzw. \emph{golden answers} generowane są automatycznie przez model referencyjny (w tym przypadku duży model językowy z dobrym zrozumieniem danych medycznych jak GPT), a następnie podlegają manualnej weryfikacji. Taki układ umożliwia wierne odwzorowanie rzeczywistego przebiegu rozmowy „pacjent–lekarz”, przy jednoczesnym zachowaniu kontroli eksperckiej nad poprawnością kliniczną i strukturalną odpowiedzi, a także nad poprawnością rozumowania (\emph{reasoningu}) małego modelu językowego, jego zdolnością do interpretacji instrukcji zawartych w promptcie, przestrzegania reguł w nim zdefiniowanych oraz poprawnego generowania odpowiedzi w narzuconym formacie \emph{structured output}.
+Framework został zaprojektowany jako narzędzie działające całkowicie offline, w sposób powtarzalny i deterministyczny, bez wykorzystania rzeczywistych danych użytkowników. Zaproponowano dwa podejścia ewaluacyjne: \textbf{z referencją} oraz \textbf{bez referencji}, które zostaną szczegółowo omówione w kolejnych podrozdziałach. Oba podejścia mają charakter półautomatyczny: scenariusze dialogowe oraz odpowiedzi pacjenta są przygotowywane manualnie, natomiast tzw. \emph{golden answers} generowane są automatycznie przez model referencyjny (w tym przypadku duży model językowy z dobrym zrozumieniem danych medycznych jak GPT), a następnie podlegają manualnej weryfikacji. Taki układ umożliwia wierne odwzorowanie rzeczywistego przebiegu rozmowy „pacjent–lekarz”, przy jednoczesnym zachowaniu kontroli eksperckiej nad poprawnością kliniczną i strukturalną odpowiedzi, a także nad poprawnością rozumowania (\emph{reasoningu}) małego modelu językowego, jego zdolnością do interpretacji instrukcji zawartych w promptcie, przestrzegania reguł w nim zdefiniowanych oraz poprawnego generowania odpowiedzi w narzuconym formacie \emph{structured output}.
 
 Część odpowiedzialna za definicję scenariuszy pozostaje więc manualna, generacja referencji jest zautomatyzowana, a ich walidacja odbywa się z udziałem człowieka. Sam proces testowy – uruchamianie scenariuszy, rejestrowanie wyników i obliczanie metryk – jest w pełni zautomatyzowany. Dzięki temu proces ewaluacji pozostaje powtarzalny, zamknięty w obrębie środowiska badawczego oraz zgodny z wymaganiami lokalnego przetwarzania i ochrony danych medycznych.
 
@@ -36,7 +79,7 @@ Szczegółowa definicja metryk referencyjnych została przedstawiona w kolejnych
 
 Oba tryby działają na podobnych logach dialogowych i opierają się na wspólnym rdzeniu kontraktu danych (tj.\ identycznym formacie rejestracji przebiegu dialogu i odpowiedzi agenta). Różnią się natomiast warstwą oceny: zestawem metryk oraz kryteriami walidacji, które są specyficzne dla trybu referencyjnego lub bez referencyjji.
 
-\subsubsection{Struktura Logów Ewaluacyjnych (JSON)}
+\subsection{Struktura Logów Ewaluacyjnych (JSON)}
 
 Wyniki ewaluacji agentów medycznych są rejestrowane w ustrukturyzowanych plikach JSON, co umożliwia precyzyjną analizę techniczną i jakościową. Plik zawiera listę obiektów w kluczu \texttt{evaluations}, gdzie każdy wpis reprezentuje kompletną sesję testową konkretnego modelu. Poniżej przedstawiono schemat kluczowych sekcji logu (Listing \ref{lst:log_example_final}), ilustrujący jak system integruje dane o wydajności z jakością odpowiedzi.
 
@@ -103,7 +146,7 @@ Podstawowe komponenty struktury obejmują:
     \item \textbf{Resource Monitoring}: Rejestracja delty zużycia pamięci operacyjnej oraz poboru mocy (CPU/GPU delta), co jest kluczowe dla optymalizacji brzegowej.
 \end{itemize}
 
-\subsubsection{LLM jako sędzia: Protokół 5 Filarów}
+\subsection{LLM jako sędzia: Protokół 5 Filarów}
 
 W obliczu subiektywizmu metryk tekstowych w medycynie, wdrożono protokół \textit{LLM-as-a-Judge}. Wykorzystuje on wysokiej klasy model (np. GPT-4o-mini) do oceny agenta w skali 1--10 według pięciu krytycznych kryteriów:
 
@@ -115,7 +158,7 @@ W obliczu subiektywizmu metryk tekstowych w medycynie, wdrożono protokół \tex
 \item \textbf{Context Relevance} -- Weryfikacja pamięci operacyjnej modelu. Agent musi unikać redundancji i pamiętać fakty podane w poprzednich turach dialogu.
 \end{enumerate}
 
-\subsubsection{Zastosowane Narzędzia i Stos Technologiczny}
+\subsection{Zastosowane Narzędzia i Stos Technologiczny}
 Implementacja frameworku oraz logika agentowa zostały zrealizowane w języku \textbf{Python 3.x}, co zapewniło elastyczność w integracji modeli LLM z bibliotekami do analizy danych. Kluczowe komponenty stosu technologicznego obejmują:
 
 \begin{itemize}
@@ -127,9 +170,16 @@ Implementacja frameworku oraz logika agentowa zostały zrealizowane w języku \t
 
 Dzięki takiemu doborowi narzędzi, proces badawczy (Rys. \ref{rys:wytlumaczenie}) jest w pełni replikowalny i pozwala na precyzyjną ocenę wpływu optymalizacji na zachowanie modelu.
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\linewidth]{rysunki/eval/wytlumaczenie.png}
+    \caption{Szczegółowy raport sędziowski (GPT Judge) ilustrujący metodologię oceny jakościowej.}
+    \label{rys:wytlumaczenie_intro}
+\end{figure}
+
 \subsection{Ewaluacja z referencją} 
 
-Tryb \textit{referenced} wykorzystuje wcześniej przygotowane, pełne wielorundowe konwersacje pełniące rolę złotego standardu przebiegu rozmowy agenta. Docelowo konwersacje referencyjne powinny być opracowywane z ekspertem dziedzinowym oraz bazować na obserwacjach z realnych interakcji użytkowników.Na potrzeby niniejszych eksperymentów konwersacje referencyjne były konstruowane w trybie interakcyjnym z wykorzystaniem ChatGPT w roli pacjenta, natomiast po stronie agenta stosowany był dokładnie ten sam prompt oraz te same reguły \emph{structured output}, które później otrzymywały modele testowane. W każdej turze ręcznie wprowadzano odpowiedzi „pacjenta”, symulując realistyczny przebieg rozmowy, podczas gdy zachowanie agenta było w pełni determinowane przez zaprojektowany prompt i schemat decyzyjny.
+Tryb \textbf{z referencją} wykorzystuje wcześniej przygotowane, pełne wielorundowe konwersacje pełniące rolę złotego standardu przebiegu rozmowy agenta. Docelowo konwersacje referencyjne powinny być opracowywane z ekspertem dziedzinowym oraz bazować na obserwacjach z realnych interakcji użytkowników.Na potrzeby niniejszych eksperymentów konwersacje referencyjne były konstruowane w trybie interakcyjnym z wykorzystaniem ChatGPT w roli pacjenta, natomiast po stronie agenta stosowany był dokładnie ten sam prompt oraz te same reguły \emph{structured output}, które później otrzymywały modele testowane. W każdej turze ręcznie wprowadzano odpowiedzi „pacjenta”, symulując realistyczny przebieg rozmowy, podczas gdy zachowanie agenta było w pełni determinowane przez zaprojektowany prompt i schemat decyzyjny.
 
 Wygenerowane w ten sposób dialogi były następnie poddawane ręcznej weryfikacji i korekcie w celu zapewnienia spójności scenariusza, poprawności logicznej oraz ścisłej zgodności z przyjętymi schematami \emph{structured output}. Tak skonstruowane referencje zachowują tę samą dynamikę i ograniczenia, którym podlegają modele ewaluowane, a jednocześnie umożliwiają pełną kontrolę nad przebiegiem rozmowy oraz deterministyczność eksperymentów.
 
@@ -146,7 +196,7 @@ Ewaluacja jest realizowana per-runda: w każdej turze testowany model otrzymuje 
 
 \subsection{Ewaluacja bez referencji} 
 
-W trybie \textit{unreferenced} (reference-free), framework przełącza się w tryb pełnej symulacji. Zamiast statycznej odpowiedzi referencyjnej, wykorzystywany jest \textbf{Patient Simulator} (oparty na GPT-4o-mini), który dynamicznie reaguje na pytania badanego modelu. Pozwala to na badanie agenta w warunkach "otwartego świata", gdzie ścieżka dialogu nie jest sztywno narzucona.
+W trybie \textbf{bez referencji}, framework przełącza się w tryb pełnej symulacji. Zamiast statycznej odpowiedzi referencyjnej, wykorzystywany jest \textbf{Patient Simulator} (oparty na GPT-4o-mini), który dynamicznie reaguje na pytania badanego modelu. Pozwala to na badanie agenta w warunkach "otwartego świata", gdzie ścieżka dialogu nie jest sztywno narzucona.
 
 Główne metryki w tym trybie obejmują:
 \begin{itemize}
@@ -197,69 +247,120 @@ Kluczowym elementem analizowanego przypadku użycia była zdolność małego mod
     \item obsługę mechanizmów function callingu, umożliwiających bezpośrednią integrację z warstwą medyczną.
 \end{itemize}
 
-W pierwszym etapie selekcji, ze względu na specyfikę pracy bez mechanizmów wymuszania struktury (\textit{grammars}), zastosowano metodę \textbf{prób i błędów} w celu wyłonienia modeli wykazujących bazową stabilność w generowaniu JSON. Empirycznie potwierdzono, że modele posiadające natywne wsparcie dla mechanizmu \textbf{tool calling} (wywoływania funkcji) charakteryzują się znacznie większą szansą na poprawne generowanie odpowiedzi strukturalnych również w ogólnych zadaniach agentowych. Do końcowej ewaluacji wybrano modele o rozmiarze nieprzekraczającym 6 GB w wersji nieskwantyzowanej (z przedziału 1--8B parametrów), które przeszły pomyślnie wstępne testy składniowe. Do monitorowania ich wydajności wykorzystano wcześniej opisaną metodologię oraz platformę Neptune AI.
+W pierwszym etapie selekcji, ze względu na specyfikę pracy bez mechanizmów wymuszania struktury (\textit{grammars}), zastosowano metodę \textbf{prób i błędów} w celu wyłonienia modeli wykazujących bazową stabilność w generowaniu JSON. Empirycznie potwierdzono, że modele posiadające natywne wsparcie dla mechanizmu \textbf{tool calling} (wywoływania funkcji) charakteryzują się znacznie większą szansą na poprawne generowanie odpowiedzi strukturalnych również w ogólnych zadaniach agentowych. Do końcowej ewaluacji wybrano modele o rozmiarze nieprzekraczającym 6 GB w wersji nieskwantyzowanej (z przedziału 1--8B parametrów), które przeszły pomyślnie wstępne testy składniowe. Do monitorowania ich wydajności wykorzystano wcześniej opisaną metodologii oraz platformę Neptune AI (Rys. \ref{fig:neptune-dashboard}).
 
-\subsection{Wyniki analizy i Mobile Readiness Index}
-Analiza danych wydajnościowych pozwoliła na wyłonienie modeli najlepiej radzących sobie z wysokoryzykownym kontekstem medycznym. Wykorzystano wskaźnik \textbf{Mobile Readiness Index}, łączący jakość sędziowską z efektywnością energetyczną i latencją (Rys. \ref{fig:mobile-ready}).
-
-\begin{figure}[htbp]
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=1\linewidth]{rysunki/3.3.2.optymaizacja inferencji/final_plots/rozne_modele/all_models_latency_performance_chart_2025-10-09_21-35-23.png}
-    \caption{Porównanie wydajności modeli (latencja vs throughput) w logach Neptune AI}
-    \label{fig:model-comparison-analysis}
+    \includegraphics[width=0.95\linewidth]{"rysunki/eval/neptune ai".png}
+    \caption{Dashboard platformy Neptune AI prezentujący rezultaty serii ewaluacyjnej run\_070. Widoczna agregacja parametrów technicznych, zużycia zasobów oraz wyników jakościowych GPT Score dla różnych architektur.}
+    \label{fig:neptune-dashboard}
 \end{figure}
 
-Na podstawie przeprowadzonych testów oraz analizy wskaźnika \textit{Mobile Readiness Index}, wyłoniono grupę modeli o najwyższym potencjale wdrożeniowym. Szczegółowe parametry techniczne testowanych jednostek zestawiono w tabeli \ref{tab:model_details}.
+W celu wyłonienia modeli najlepiej radzących sobie z wysokoryzykownym kontekstem medycznym, przeprowadzono szczegółową analizę porównawczą, zestawiając jakość sędziowską z efektywnością energetyczną i latencją. 
+
+Na podstawie przeprowadzonych testów wyłoniono grupę modeli o najwyższym potencjale wdrożeniowym. Proces selekcji wspierany był przez wielowymiarową analizę radarową (Rys. \ref{fig:radar-analysis}), która pozwoliła na jednoczesną ocenę jakości merytorycznej (GPT Score), szybkości reakcji (Latency) oraz efektywności energetycznej. 
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{rysunki/eval/run_070_full/all_models_with_reference_2026-01-18_00-23-07_radar.png}
+    \caption{Wielowymiarowa analiza porównawcza modeli (Radar Chart). Wykres obrazuje kompromis między jakością merytoryczną (GPT Score) a wydajnością energetyczną i latencją.}
+    \label{fig:radar-analysis}
+\end{figure}
+
+Szczegółowe parametry techniczne testowanych jednostek zestawiono w tabeli \ref{tab:model_details}.
 
 \begin{table}[h!]
 \centering
 \caption{Szczegóły techniczne i profil energetyczny testowanych modeli}
 \label{tab:model_details}
-\begin{tabular}{|l|l|c|c|r|}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{|l|l|c|c|r|p{4cm}|}
 \hline
-\textbf{Model} & \textbf{Architektura} & \textbf{Rozmiar} & \textbf{Kwantyzacja} & \textbf{Moc Średnia (mW)} \\
+\textbf{Model} & \textbf{Architektura} & \textbf{Params} & \textbf{Rozmiar} & \textbf{Kwant.} & \textbf{Energia (mW)} \\
 \hline
-granite3.2:2b-instruct-q8\_0 & granite & 3.0 GB & Q8\_0 & 419 mW \\
+granite3.2:2b-instruct-q8:0 & granite & 2.5B & 3.0 GB & Q8\_0 & CPU: 409mW \newline GPU: 10mW \newline Total: 419mW \\
 \hline
-llama3.2:3b-instruct-q4\_K\_M & llama & 2.1 GB & Q4\_K\_M & 820 mW \\
+llama3.2:3b-instruct-q4:K\_M & llama & 3.2B & 2.1 GB & Q4\_K\_M & CPU: 781mW \newline GPU: 39mW \newline Total: 820mW \\
 \hline
-granite4:micro & granite & 2.1 GB & Q8\_0 & 3958 mW \\
+granite4:micro & granite & 0.4B & 2.1 GB & Q8\_0 & CPU: 3841mW \newline GPU: 117mW \newline Total: 3958mW \\
 \hline
-nemotron-mini:4b-instruct-q8\_0 & nemotron & 4.0 GB & Q8\_0 & 496 mW \\
+nemotron-mini:4b-instruct-q8:0 & nemotron & 4.0B & 4.0 GB & Q8\_0 & CPU: 467mW \newline GPU: 30mW \newline Total: 496mW \\
 \hline
-nemotron-mini:4b-instruct-q5\_K\_M & nemotron & 3.0 GB & Q5\_K\_M & 343 mW \\
+nemotron-mini:4b-instruct-q5:K\_M & nemotron & 4.0B & 3.0 GB & Q5\_K\_M & CPU: 319mW \newline GPU: 23mW \newline Total: 343mW \\
 \hline
-granite3-moe:3b-instruct-q5\_K\_M & granite & 2.5 GB & Q5\_K\_M & 575 mW \\
-\hline
-qwen2.5:3b-instruct-q4\_K\_M & qwen & 2.0 GB & Q4\_K\_M & 2781 mW \\
+qwen2.5:3b-instruct-q4:K\_M & qwen & 3.0B & 2.0 GB & Q4\_K\_M & CPU: 2763mW \newline GPU: 18mW \newline Total: 2781mW \\
 \hline
 \end{tabular}
-\subsection{Analiza zużycia zasobów i zjawisko Throttlingu}
-
-Analiza profilu energetycznego (Rys. \ref{fig:resource-comparison}) ujawniła istotne różnice w efektywności implementacji poszczególnych architektur. Zaobserwowano następujące zjawiska:
-
+}
+\end{table}
+Podsumowując, analiza danych pozwala na sformułowanie następujących wniosków:
 \begin{itemize}
-    \item \textbf{Anomalia energetyczna Granite 4:micro}: Model ten, mimo najmniejszej liczby parametrów, wykazuje najwyższy pobór mocy (ok. 3840 mW na CPU). Sugeruje to brak optymalizacji jąder obliczeniowych (\textit{compute kernels}) dla tej konkretnej architektury, co w warunkach mobilnych prowadzi do szybkiego nagrzewania urządzenia i ryzyka wystąpienia \textit{thermal throttling} (spadku taktowania procesora w celu ochrony przed przegrzaniem).
-    \item \textbf{Efektywność Granite 3.2 2B}: Model ten wykazuje najbardziej zrównoważony profil (ok. 400 mW), co czyni go idealnym kandydatem do długotrwałej pracy na zasilaniu bateryjnym.
-    \item \textbf{Obciążenie CPU vs GPU}: W większości przypadków (szczególnie przy Qwen 2.5) główny ciężar inferencji spoczywa na jednostkach CPU, co przekłada się na wyższą latencję w porównaniu do modeli optymalizowanych pod akceleratory GPU/NPU.
+    \item \textbf{Zwycięzca balansu}: Model \texttt{Granite 3.2 2B (Q8)} wykazuje optymalny stosunek jakości sędziowskiej (stabilny GPT Score > 7.5) do zużycia zasobów ($419$ mW). Jest to kluczowe, gdyż wiele szybszych modeli klasy 1B generuje odpowiedzi o niskiej wartości merytorycznej (GPT Score < 3), co czyni ich wydajność bezużyteczną w kontekście klinicznym.
+    \item \textbf{Krytyczny wpływ SWAP}: Modele przekraczające 3GB parametrów (np. Nemotron-mini) mimo wysokiej jakości, powodują agresywne wykorzystanie SWAP (Rys. \ref{fig:health-check}). Skutkuje to „szarpaniem” interfejsu użytkownika, co dyskwalifikuje je z płynnych zastosowań mobilnych mimo poprawnej merytoryki.
+    \item \textbf{Stabilność pomiarowa}: Stała stabilność CPU na poziomie 100\% (brak throttlingu) we wszystkich testach run\_070 potwierdza, że uzyskane wyniki latencji są rzetelne i nie wynikają z chwilowego przegrzania urządzenia, lecz z wydajności samej architektury modelu.
+    \item \textbf{Wpływ tool calling}: Modele z natywnym wsparciem wywoływania funkcji charakteryzują się znacznie stabilniejszymi wynikami w protokole 5 Filarów, rzadziej „gubią” strukturę JSON przy rosnącym oknie kontekstowym.
 \end{itemize}
 
-Wykorzystanie mechanizmu \textit{Sequential Cleanup} oraz monitoringu SWAP pozwoliło stwierdzić, że modele o rozmiarze powyżej 4GB (np. Nemotron-mini q8) powodują agresywne wykorzystanie pamięci wymiennej, co drastycznie obniża płynność interakcji (\textit{token generation latency}).
-Analiza wyników pozwala na sformułowanie następujących wniosków:
+\begin{enumerate}
+    \item \textbf{Wielowymiarowa Analiza Radarowa} (Rys. \ref{fig:radar-analysis}) – wizualizuje balans między czterema domenami: jakością (GPT Score), szybkością startową (Latency), rozmiarem modelu oraz efektywnością energetyczną. Pozwala odrzucić modele, które dominują w jednej kategorii (np. są bardzo małe), ale zawodzą w najważniejszej — poprawności odpowiedzi.
+    
+    \begin{figure}[htbp]
+        \centering
+        \includegraphics[width=0.85\linewidth]{rysunki/eval/run_070_full/all_models_with_reference_2026-01-18_00-23-07_radar.png}
+        \caption{Wielowymiarowa analiza porównawcza modeli (Radar Chart). Wykres obrazuje kompromis między jakością merytoryczną (GPT Score) a wydajnością energetyczną i latencją.}
+        \label{fig:radar-analysis}
+    \end{figure}
+    
+    \item \textbf{Analiza Wydajności: TPS vs Latencja} (Rys. \ref{fig:performance-analysis}) – wykres bąbelkowy pokazujący realną płynność pracy. Idealny kandydat mobilny znajduje się v lewym górnym rogu (niska latencja startowa, wysoka przepustowość tokenów na sekundę). Średnia wartość ~15 TPS dla modeli 2-3B jest uznawana za próg pełnego komfortu interakcji.
+    
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.9\linewidth]{rysunki/eval/run_070_full/all_models_all_optimizations_mobile_performance_analysis_2026-01-18_00-23-07.png}
+        \caption{Analiza wydajnościowa: Przepustowość (TPS) vs Latencja. Rozmiar bąbelka odpowiada fizycznemu rozmiarowi modelu na dysku.}
+        \label{fig:performance-analysis}
+    \end{figure}
+    
+    \item \textbf{Resource Health Check} (Rys. \ref{fig:health-check}) – trójdzielna diagnostyka (RAM, SWAP, Throttling). \textbf{Ważna uwaga metodologiczna:} Wszystkie pomiary wydajności przeprowadzono w środowisku deweloperskim na komputerze \textbf{MacBook Air}, co pozwala na ocenę potencjału modeli przed wdrożeniem na iOS. Diagnostyka ta pozwala zrozumieć kluczowe zjawiska:
+    \begin{itemize}
+        \item \textbf{RAM Usage (Wykres 1)}: Zestawienie realnego zapotrzebowania modelu z dwiema liniami granicznymi. \textbf{Limit MacBooka (16GB)} oraz \textbf{Limit iPhone'a (8GB)}. Słupki modeli przekraczających limit 8GB sygnalizują konieczność ekstremalnej kompresji (kwantyzacji) przed migracją na telefon.
+        \item \textbf{Memory Pressure / SWAP (Wykres 2)}: SWAP pełni rolę "bezpiecznika" systemowego. Odnotowane wartości GPU Power (widoczne w zagregowanych tabelach) wynikają z faktu, że architektura Apple Silicon automatycznie wykorzystuje akcelerację \textbf{Metal (GPU)} do operacji na tensorach, nawet jeśli nie została ona jawnie wymuszona przez użytkownika.
+        \item \textbf{Stabilność CPU (Wykres 3)}: Widoczna na wykresach \textbf{100\% stabilność} (brak throttlingu) przy jednoczesnym wysokim SWAP wynika z charakteru zadania. Inferencja LLM jest procesem \textbf{memory-bound} (ograniczonym przez przepustowość pamięci). Procesor nie przegrzewa się do progu throttlingu, ponieważ większość cykli spędza na "oczekiwaniu" na dane wczytywane z wolnej pamięci wirtualnej/SSD. Jest to stan niepożądany, gdyż nominalne zegary maskują drastyczne spowolnienie generacji tekstu.
+    \end{itemize}
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.85\linewidth]{rysunki/eval/run_070_full/resource_health_check_unified_2026-01-18_02-36-24.png}
+        \caption{Diagnostyka zdrowia systemu (Resource Health Check). Zestawienie użycia RAM (z uwzględnieniem limitów MacBook/iPhone), ciśnienia na SWAP oraz stabilności częstotliwości CPU.}
+        \label{fig:health-check}
+    \end{figure}
+\end{enumerate}
+\subsection{Dynamika użycia zasobów w czasie}
+Oprócz zagregowanych danych, kluczowe dla optymalizacji mobilnej jest zrozumienie, jak model obciąża system w miarę wzrostu okna kontekstowego. Analiza liniowych przebiegów pozwala na identyfikację wycieków pamięci lub momentów, w których system operacyjny zaczyna agresywnie korzystać z partycji wymiany (SWAP).
+
+W celu wizualizacji tego zjawiska zestawiono dwa kontrastujące profile dynamiki zasobów (Rys. \ref{fig:timeline-granite} oraz \ref{fig:timeline-llama}). Skupiono się na sekcji \textit{RAM \& Memory Pressure}, która obrazuje dwa kluczowe scenariusze:
 \begin{itemize}
-    \item \textbf{Zwycięzca efektywności}: Model \texttt{Granite 3.2 2B (Q8)} wykazuje optymalny stosunek jakości sędziowskiej do zużycia zasobów ($419$ mW), co czyni go faworytem do długotrwałej pracy na urządzeniach zasilanych bateryjnie.
-    \item \textbf{Wydajność vs Energia}: Modele takie jak \texttt{Qwen 2.5 3B} oferują wysoką precyzję logiczną, jednak ich zapotrzebowanie energetyczne ($2781$ mW) może limitować czas pracy aplikacji mobilnej.
-    \item \textbf{Wpływ tool calling}: Modele z natywnym wsparciem wywoływania funkcji (\texttt{Granite}, \texttt{Nemotron}) charakteryzują się znacznie stabilniejszymi wynikami w protokole 5 Filarów, szczególnie w kategorii \textit{Tool Call Correctness}.
+    \item \textbf{Scenariusz A: SWAP > RAM (Memory Spill)}: Stan krytyczny, w którym system przenosi dane na dysk SSD. Mimo stabilności CPU (100\%), realna generacja tekstu staje się skokowa. Jest to sytuacja, w której model "przelewa się" poza fizyczną pamięć urządzenia.
+    \item \textbf{Scenariusz B: RAM > SWAP (Status Zdrowy)}: Pożądany stan, gdzie wzrost RAM (związany z kontekstem) odbywa się przy minimalnym SWAP. Oznacza to, że model "mieści się" w pamięci, a wydajność ograniczają jedynie bramki logiczne procesora.
+    \item \textbf{Punkt Przecięcia (Crossover)}: Moment, w którym linia SWAP przecina linię RAM, wyznacza pragmatyczną granicę użyteczności urządzenia dla danego modelu.
 \end{itemize}
 
-Podsumowując, framework ewaluacyjny pozwolił na obiektywne przejście od szerokiej listy modeli open-source do wąskiej grupy "Mobile Ready", które gwarantują nie tylko poprawność medyczną, ale i użyteczność w restrykcyjnym środowisku brzegowym.
-
-\begin{figure}[htbp]
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=1\linewidth]{rysunki/3.3.2.optymaizacja inferencji/final_plots/()_category_winners_2025-09-19_02-56-51.png}
-    \caption{Klasyfikacja modeli pod kątem gotowości do wdrożenia mobilnego}
-    \label{fig:mobile-ready}
+    \includegraphics[width=0.85\linewidth]{rysunki/eval/run_070_full/throttling_timeline_granite3_2_2b-instruct-q8_0_2026-01-18_00-23-07.png}
+    \caption{Dynamika zasobów: Granite 3.2 2B (Q8). Widoczna wysoka stabilność użycia RAM oraz minimalne wykorzystanie SWAP nawet przy dłuższej konwersacji.}
+    \label{fig:timeline-granite}
 \end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.85\linewidth]{rysunki/eval/run_070_full/throttling_timeline_llama3_2_3b-instruct-q4_K_M_2026-01-18_00-23-07.png}
+    \caption{Dynamika zasobów: Llama 3.2 3B (Q4). Zaobserwować można liniowy wzrost zajętości pamięci RAM oraz stopniowe narastanie użycia SWAP (Memory Pressure) wraz z kolejnymi rundami dialogu.}
+    \label{fig:timeline-llama}
+\end{figure}
+
+Analiza ta pozwala stwierdzić, że mechanizm uwalniania pamięci (\textit{Resource Cleanup}) działa poprawnie, a system brzegowy utrzymuje pełną stabilność zegarów procesora nawet przy pełnym obciążeniu wszystkich rdzeni podczas inferencji. Jednakże większe modele (klasy 3B i wyżej) wykazują naturalną tendencję do "wypychania" mniej istotnych procesów systemowych do SWAP w miarę nasycania okna kontekstowego. Zjawisko to jest kluczowe przy projektowaniu interfejsu aplikacji mobilnej — nagłe narastanie SWAP może prowadzić do mikro-przycięć animacji (\textit{jank}), co dyskwalifikuje dany model z zastosowań wymagających najwyższej responsywności UI.
+
+Na podstawie powyższych danych, framework pozwolił na obiektywne przejście od szerokiej listy modeli open-source do wąskiej grupy, która gwarantuje bezpieczeństwo i użyteczność w restrykcyjnym środowisku brzegowym.
 
 \subsection{Wyniki jakościowe testów na urządzeniach mobilnych}
 W fazie walidacji końcowej model zwycięzca został uruchomiony na urządzeniu testowym (iPhone/iPad) przy użyciu frameworku \textit{flutter-llama}. Empiryczne testy potwierdziły, że mimo braku \textit{structured output enforcement} na poziomie silnika, modele takie jak Granite-3.2b wykazują zadziwiającą stabilność składniową nawet przy głębokim oknie kontekstowym (powyżej 8 rund dialogu).

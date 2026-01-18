@@ -500,50 +500,49 @@ class EvalModelsReferenced(BaseEvaluation):
         Returns:
             tuple: (wybrany_session_data, nazwa_modelu) lub (None, None) jeśli anulowano
         """
-        if not isinstance(session_data, list) or len(session_data) == 0:
-            print("❌ Brak danych modeli do wyświetlenia")
+        if not session_data:
+            print("Nie znaleziono danych modeli do wyświetlenia")
             return None, None
+            
+        # Wyciągnij unikalne prefiksy (rodziny modeli)
+        groups = self._group_models_by_prefix(session_data)
         
-        # Pogrupuj modele według prefiksu przed ostatnim '-'
-        model_groups = self._group_models_by_prefix(session_data)
-        
-        if not model_groups:
-            print("❌ Nie znaleziono grup modeli")
+        if not groups:
+            print("Nie znaleziono grup modeli")
             return None, None
             
         if not interactive:
-            print("✅ Automatycznie wybrano wszystkie modele (tryb nieinteraktywny)")
+            print("Automatycznie wybrano wszystkie modele (tryb nieinteraktywny)")
             return session_data, None
+            
+        print("\nWybierz grupę modeli:")
+        print("0. Wszystkie modele (All models)")
         
-        print(f"\n🔍 Wybierz grupę modeli:")
-        print("=" * 60)
-        print(" 0. Wszystkie modele")
-        
-        group_list = list(model_groups.items())
-        for i, (prefix, sessions) in enumerate(group_list, 1):
-            print(f" {i}. {prefix}")
-        
-        print("=" * 60)
-        
+        group_list = sorted(list(groups.keys()))
+        for i, group in enumerate(group_list):
+            print(f"{i+1}. {group}")
+            
         while True:
             try:
-                choice = input("\n🎯 Wybierz numer (0-{}): ".format(len(group_list))).strip()
+                choice = input("\nWybierz numer (0-{}): ".format(len(group_list))).strip()
+                if not choice:
+                    choice = "0"
                 
-                if choice == "0":
-                    print("✅ Wybrano wszystkie modele")
+                choice_int = int(choice)
+                if choice_int == 0:
+                    print("Wybrano wszystkie modele")
                     return session_data, None
-                else:
-                    choice_num = int(choice)
-                    if 1 <= choice_num <= len(group_list):
-                        selected_prefix, selected_sessions = group_list[choice_num - 1]
-                        print(f"✅ Wybrano grupę: {selected_prefix}")
-                        return selected_sessions, selected_prefix
-                    else:
-                        print(f"❌ Nieprawidłowy numer. Wybierz od 0 do {len(group_list)}")
+                elif 1 <= choice_int <= len(group_list):
+                    selected_prefix = group_list[choice_int-1]
+                    selected_sessions = groups[selected_prefix]
+                    print(f"Wybrano grupę: {selected_prefix}")
+                    return selected_sessions, selected_prefix
+                else: 
+                    print(f"Nieprawidłowy numer. Wybierz od 0 do {len(group_list)}")
             except ValueError:
-                print("❌ Wprowadź prawidłowy numer")
-            except KeyboardInterrupt:
-                print("\n⚠️ Przerwano - wybrano wszystkie modele")
+                print("Wprowadź prawidłowy numer")
+            except (KeyboardInterrupt, EOFError):
+                print("\nPrzerwano - wybrano wszystkie modele")
                 return session_data, None
 
     def all_models_plots(self, session_locations, timestamp, use_polish=True, interactive=True):
@@ -644,14 +643,14 @@ class EvalModelsReferenced(BaseEvaluation):
             
         # 5. Generate Resource Health Check (RAM/SWAP/Throttling) for all models
         try:
-            print("\n🩺 Generating resource health check diagnostics...")
+            print("\nGenerowanie diagnostyki Resource Health Check...")
             self.plot_resource_health_check(all_session_data, output_dir, timestamp)
         except Exception as e:
             print(f"❌ Error in plot_resource_health_check: {str(e)}")
         
         # 6. Generate individual throttling timelines for each model
         try:
-            print("\n📈 Generating individual throttling timelines...")
+            print("\nGenerowanie przebiegów czasowych (throttling timelines)...")
             for session in all_session_data:
                 self.plot_throttling_timeline(session, output_dir, timestamp)
         except Exception as e:
@@ -1803,7 +1802,7 @@ class EvalModelsReferenced(BaseEvaluation):
         return plot_path
 
     
-    def create_reference_response(self,tools_schema, max_rounds=10):
+    def create_reference_response(self,tools_schema, max_rounds=10, interactive=True):
         
         """
         Interaktywne tworzenie referencyjnej konwersacji z użyciem ChatGPT.
@@ -1815,6 +1814,8 @@ class EvalModelsReferenced(BaseEvaluation):
             print(f" Reference file already exists: {reference_file}")
             reference_data = self.load_json_file(reference_file)
             if reference_data and reference_data != {}:
+                if not interactive:
+                    return reference_file
                 overwrite = input(f" ❓ Reference already exists. Overwrite with new interactive session? (y/n): ").lower().strip()
                 if overwrite not in ['y', 'yes', 'tak']:
                     return reference_file
@@ -3024,11 +3025,11 @@ class EvalModelsReferenced(BaseEvaluation):
         import numpy as np
 
         # Calculate averages using centralized function
-        print(f"📊 DEBUG: plot_aggr_all_models_with_reference called")
+        print(f"DEBUG: plot_aggr_all_models_with_reference called")
         models_data, model_names, avg_scores, avg_latencies, model_sizes, model_params = self.calculate_averages(session_data, metadata, model_name_prefix)
         
         if models_data is None:
-            print("❌ DEBUG: models_data is None, returning early")
+            print("DEBUG: models_data is None, returning early")
             return None
 
         # Create separate visualizations instead of one combined plot
@@ -3108,7 +3109,7 @@ class EvalModelsReferenced(BaseEvaluation):
         )
         if category_winners_plot:
             saved_plots['category_winners'] = category_winners_plot
-            print(f"🏆 Category winners saved: {category_winners_plot}")
+            print(f"Category winners saved: {category_winners_plot}")
         
         # 6. Score Comparison
         score_plot = self._create_score_comparison(model_names, models_data, output_dir, output_file_name, use_polish)
@@ -3130,7 +3131,8 @@ class EvalModelsReferenced(BaseEvaluation):
             latex_content.append("\\centering")
             latex_content.append("\\caption{Szczegóły Modeli}")
             latex_content.append("\\label{tab:model_details}")
-            latex_content.append("\\begin{tabular}{|l|l|l|l|l|l|}")
+            latex_content.append("\\resizebox{\\linewidth}{!}{")
+            latex_content.append("\\begin{tabular}{|l|l|l|l|l|p{4cm}|}")
             latex_content.append("\\hline")
             latex_content.append("Model & Architektura & Parametry & Rozmiar & Kwantyzacja & Energia (mW) \\\\")
             latex_content.append("\\hline")
@@ -3152,7 +3154,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 
                 if avg_cpu > 0 or avg_gpu > 0:
                     gpu_str = f"{avg_gpu:.0f}" if avg_gpu > 0 else "0"
-                    energy_str = f"CPU: {avg_cpu:.0f}mW\\\\GPU: {gpu_str}mW\\\\Total: {avg_total:.0f}mW"
+                    energy_str = f"CPU: {avg_cpu:.0f}mW\\newline GPU: {gpu_str}mW\\newline Total: {avg_total:.0f}mW"
                 else:
                     energy_str = "Brak danych"
                 
@@ -3164,6 +3166,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 latex_content.append("\\hline")
             
             latex_content.append("\\end{tabular}")
+            latex_content.append("}")
             latex_content.append("\\end{table}")
             
             # Save to file
@@ -5001,7 +5004,7 @@ class EvalModelsReferenced(BaseEvaluation):
             ax2.axhline(y=100, color='gray', linestyle=':', alpha=0.5)
             ax2.set_ylim(0, 110)
             ax2.set_ylabel('% Maks. Częstotliwości')
-            ax2.set_title('🔥 Stabilność CPU (Thermal Throttling)', fontsize=10)
+            ax2.set_title('Stabilność CPU (Thermal Throttling)', fontsize=10)
         else:
             ax2.text(0.5, 0.5, "Brak danych o CPU", ha='center')
 
@@ -5012,7 +5015,7 @@ class EvalModelsReferenced(BaseEvaluation):
         ax3.plot(rounds_idx, gpu_util, 'd-', color='#9b59b6', label='GPU Util (%)', linewidth=2)
         ax3.set_ylabel('GPU %')
         ax3.set_ylim(0, 105)
-        ax3.set_title('⚡ Użycie GPU', fontsize=10)
+        ax3.set_title('Użycie GPU', fontsize=10)
         ax3.grid(True, alpha=0.3)
         ax3.legend()
 
@@ -5028,12 +5031,7 @@ class EvalModelsReferenced(BaseEvaluation):
 
     def plot_resource_health_check(self, session_data, output_dir, timestamp):
         """
-        Generuje wykres diagnostyczny pod kątem throttlingu (RAM Swap + CPU Frequency).
-        
-        Args:
-            session_data: Dane sesji
-            output_dir: Katalog zapisu
-            timestamp: Znacznik czasu
+        Generuje ujednolicony wykres diagnostyczny (RAM, Swap, CPU) z dwiema liniami limitu.
         """
         if not session_data:
             return
@@ -5041,101 +5039,96 @@ class EvalModelsReferenced(BaseEvaluation):
         models = []
         ram_used = []
         swap_used = []
-        ram_total = []
         cpu_freq_start = []
         cpu_freq_end = []
         cpu_freq_max = []
         
         for session in session_data:
             model_name = self._shorten_model_name(session.get('model_name', 'unknown'))
-            
-            # Pobierz dane z ostatniej rundy (najbardziej reprezentatywne dla stanu po obciążeniu)
             if 'rounds' in session and session['rounds']:
                 last_round = session['rounds'][-1]
                 if 'latency_breakdown' in last_round:
                     lb = last_round['latency_breakdown']
-                    
-                    # Memory Data
                     start_res = lb.get('start_resources', {})
                     mem = start_res.get('memory', {})
                     models.append(model_name)
                     ram_used.append(mem.get('ram_used_gb', 0))
                     swap_used.append(mem.get('swap_used_gb', 0))
-                    ram_total.append(mem.get('ram_total_gb', 16)) # Default 16GB
                     
-                    # CPU Freq Data
                     cpu = start_res.get('device', {}).get('cpu_freq', {})
                     cpu_end_data = lb.get('end_resources', {}).get('device', {}).get('cpu_freq', {})
-                    
                     cpu_freq_start.append(cpu.get('current', 0))
                     cpu_freq_max.append(cpu.get('max', 0))
                     cpu_freq_end.append(cpu_end_data.get('current', 0))
 
         if not models:
-            print("⚠️ Brak danych do wykresu Resource Health Check")
             return
 
         fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 14))
-        
-        # --- WYKRES 1: RAM Usage ---
         x = np.arange(len(models))
         width = 0.6
-        ax1.bar(x, ram_used, width, label='Pamięć RAM', color='#2ecc71', alpha=0.8)
-        if ram_total:
-            ax1.axhline(y=ram_total[0], color='black', linestyle='--', linewidth=2, label=f'Limit RAM ({ram_total[0]}GB)')
+
+        # --- Subplot 1: RAM Usage ---
+        # Fixed color for legend consistency
+        ax1.bar(x, ram_used, width, label='Użycie RAM', color='#2ecc71', alpha=0.8)
+        
+        # Dual Limit Lines
+        ax1.axhline(y=16, color='#2c3e50', linestyle='--', linewidth=2, label='Limit MacBook (16GB)')
+        ax1.axhline(y=8, color='#c0392b', linestyle='-.', linewidth=2, label='Limit iPhone (8GB)')
+        
         ax1.set_ylabel('Użycie RAM (GB)')
-        ax1.set_title('📊 RAM Usage per Model', fontsize=12, fontweight='bold')
+        ax1.set_title('Resource Health Check: RAM (MacBook Air vs iPhone)', fontsize=14, fontweight='bold')
         ax1.set_xticks(x)
         ax1.set_xticklabels(models, rotation=15, ha='right')
-        ax1.legend()
+        ax1.legend(loc='upper right', fontsize=10)
         ax1.grid(True, axis='y', alpha=0.3)
+        ax1.set_ylim(0, max(ram_used + [16]) * 1.1)
 
-        # --- WYKRES 2: SWAP Usage (The requested missing plot) ---
-        ax2.bar(x, swap_used, width, label='Użycie SWAP (Pamięć Wirtualna)', color='#e74c3c', hatch='//', alpha=0.8)
-        ax2.axhline(y=1.0, color='red', linestyle=':', alpha=0.5, label='Krytyczny poziom SWAP (1GB)')
+        # Highlight critical bars with a border instead of changing fill color
+        for i, ram in enumerate(ram_used):
+            if ram > 8.0:
+                ax1.bar(x[i], ram, width, color='#2ecc71', edgecolor='#c0392b', linewidth=2, alpha=0.9, label='Model > 8GB' if i == 0 else "")
+
+        # --- Subplot 2: SWAP Usage ---
+        ax2.bar(x, swap_used, width, label='SWAP (Pamięć Wirtualna)', color='#95a5a6', hatch='//', alpha=0.8)
+        # Standard system-level thresholds
+        ax2.axhline(y=1.0, color='#f1c40f', linestyle=':', label='Ostrzeżenie (1GB)')
+        ax2.axhline(y=2.0, color='#e67e22', linestyle=':', label='Wysokie Obciążenie (2GB)')
+        ax2.axhline(y=4.0, color='#c0392b', linestyle='--', label='Krytyczne Obciążenie (4GB)')
+        
         ax2.set_ylabel('Użycie SWAP (GB)')
-        ax2.set_title('🚨 SWAP Memory Pressure (Higher = Worse)', fontsize=12, fontweight='bold')
+        ax2.set_title('Obciążenie Pamięci: SWAP / SSD Dysk', fontsize=12, fontweight='bold')
         ax2.set_xticks(x)
         ax2.set_xticklabels(models, rotation=15, ha='right')
-        ax2.legend()
+        ax2.legend(loc='upper right', fontsize=9)
         ax2.grid(True, axis='y', alpha=0.3)
         
-        # Ostrzeżenie tekstowe jeśli SWAP > 0.5GB
         for i, swap in enumerate(swap_used):
-            if swap > 0.5:
-                ax2.text(i, swap + 0.1, f'{swap:.2f} GB', ha='center', color='red', fontweight='bold')
+            if swap > 1.0:
+                ax2.text(i, swap + 0.1, f'{swap:.1f} GB', ha='center', color='#c0392b', fontweight='bold')
 
-        # --- WYKRES 3: CPU Throttling (Frequency Stability) ---
-        # Normalize to % of max freq
+        # --- Subplot 3: CPU Stability ---
         freq_start_pct = [s/m*100 if m else 0 for s, m in zip(cpu_freq_start, cpu_freq_max)]
         freq_end_pct = [e/m*100 if m else 0 for e, m in zip(cpu_freq_end, cpu_freq_max)]
         
         width_bar = 0.35
-        ax3.bar(x - width_bar/2, freq_start_pct, width_bar, label='Częst. Startowa', color='#3498db')
-        ax3.bar(x + width_bar/2, freq_end_pct, width_bar, label='Częst. Końcowa', color='#f1c40f')
+        ax3.bar(x - width_bar/2, freq_start_pct, width_bar, label='Taktowanie Start', color='#3498db')
+        ax3.bar(x + width_bar/2, freq_end_pct, width_bar, label='Taktowanie Koniec', color='#f1c40f')
+        ax3.axhline(y=100, color='red', linestyle=':', label='Częstotliwość Nominalna (100%)')
         
-        ax3.axhline(y=100, color='red', linestyle=':', label='Maksymalna Częst.')
-        
-        ax3.set_ylabel('% Maks. Częstotliwości CPU')
-        ax3.set_title('🔥 Thermal Throttling: CPU Frequency Drop', fontsize=12, fontweight='bold')
+        ax3.set_ylabel('% Maks. Częstotliwości')
+        ax3.set_title('Stabilność CPU (Brak Throttlingu = 100%)', fontsize=12, fontweight='bold')
         ax3.set_xticks(x)
         ax3.set_xticklabels(models, rotation=15, ha='right')
         ax3.set_ylim(0, 115)
-        ax3.legend()
+        ax3.legend(loc='upper right', fontsize=9)
         ax3.grid(True, axis='y', alpha=0.3)
-        
-        # Ostrzeżenie o spadkach
-        for i, (start, end) in enumerate(zip(freq_start_pct, freq_end_pct)):
-            drop = start - end
-            if drop > 10: # Jeśli spadek > 10%
-                ax2.text(i, end + 5, f'-{drop:.1f}% SPADEK', ha='center', color='red', fontweight='bold')
 
         plt.tight_layout()
-        
-        plot_path = os.path.join(output_dir, f"resource_health_check_{timestamp}.png")
+        plot_path = os.path.join(output_dir, f"resource_health_check_unified_{timestamp}.png")
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
-        print(f"🩺 Resource Health Check plot saved: {plot_path}")
+        print(f"Updated Unified Resource Health Check saved: {plot_path}")
 
     def plot_mobile_analysis_visualizations(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
         """
@@ -5436,11 +5429,11 @@ class EvalModelsReferenced(BaseEvaluation):
             if use_polish:
                 ax2.set_xlabel('Średnia latencja (ms)')
                 ax2.set_ylabel('Przepustowość (tokeny/sekundę)')
-                ax2.set_title('Korelacja TPS vs Latencja (Rozmiar bąbelka ∝ Rozmiar modelu)')
+                ax2.set_title('Analiza Wydajności: TPS vs Latencja (Rozmiar ∝ Rozmiar modelu)')
             else:
                 ax2.set_xlabel('Average Latency (ms)')
                 ax2.set_ylabel('Throughput (tokens/sec)')
-                ax2.set_title('TPS vs Latency Correlation (Bubble size ∝ Model Size)')
+                ax2.set_title('Performance Analysis: TPS vs Latency (Bubble size ∝ Model Size)')
             ax2.grid(True, alpha=0.3)
             # Legend is redundant here since bar chart above identifies models
             # Add legend for bubble sizes
@@ -5630,26 +5623,26 @@ class EvalModelsReferenced(BaseEvaluation):
         
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
         title_suffix = f" - {model_name_prefix}" if model_name_prefix else ""
-        fig.suptitle(f'🏆 CATEGORY WINNERS ANALYSIS\nBest Models per Mobile Criteria (Referenced Evaluation){title_suffix}', 
+        fig.suptitle(f'ANALIZA ZWYCIĘZCÓW KATEGORII\nNajlepsze modele wg kryteriów mobilnych (Referenced Evaluation){title_suffix}', 
                     fontsize=16, fontweight='bold')
         
         # 1. GPT Judge Score Winner
         
         gpt_score = best_gpt[1].get('gpt_judge_score', 0) * 100  # Convert to percentage
-        ax1.bar(['Winner'], [gpt_score], 
+        ax1.bar(['Zwycięzca'], [gpt_score], 
                color='#2E8B57', alpha=0.8, width=0.5)
-        ax1.set_title(f'[TARGET] GPT JUDGE WINNER\n{best_gpt[0].replace(":", "_")}', fontweight='bold')
-        ax1.set_ylabel('GPT Judge Score (%)')
+        ax1.set_title(f'[CEL] ZWYCIĘZCA GPT JUDGE\n{best_gpt[0].replace(":", "_")}', fontweight='bold')
+        ax1.set_ylabel('Wynik GPT Judge (%)')
         ax1.text(0, gpt_score + 2, 
                 f'{gpt_score:.1f}%', ha='center', fontweight='bold', fontsize=14)
         ax1.set_ylim(0, 100)
         
         # 2. Latency Winner (Speed)
         latency_s = best_latency[1].get('avg_latency_ms', 0) / 1000  # Default to 0 if missing
-        ax2.bar(['Winner'], [latency_s], 
+        ax2.bar(['Zwycięzca'], [latency_s], 
                color='#FFD700', alpha=0.8, width=0.5)
-        ax2.set_title(f'[TARGET] LATENCY WINNER (Fastest)\n{best_latency[0].replace(":", "_")}', fontweight='bold')
-        ax2.set_ylabel('Latency per Round (s)')
+        ax2.set_title(f'[CEL] ZWYCIĘZCA LATENCJI (Najszybszy)\n{best_latency[0].replace(":", "_")}', fontweight='bold')
+        ax2.set_ylabel('Latencja na rundę (s)')
         if latency_s > 0:
             ax2.text(0, latency_s + 0.5, 
                     f'{latency_s:.1f}s', ha='center', fontweight='bold', fontsize=14)
@@ -5660,10 +5653,10 @@ class EvalModelsReferenced(BaseEvaluation):
         size_gb = best_size[1].get('model_size_gb')
         if size_gb is None:
             size_gb = 0.0  # Default to 0.0 if missing
-        ax3.bar(['Winner'], [size_gb], 
+        ax3.bar(['Zwycięzca'], [size_gb], 
                color='#4169E1', alpha=0.8, width=0.5)
-        ax3.set_title(f'[DISK] SIZE WINNER (Smallest)\n{best_size[0].replace(":", "_")}', fontweight='bold')
-        ax3.set_ylabel('Model Size (GB)')
+        ax3.set_title(f'[DYSK] ZWYCIĘZCA ROZMIARU (Najmniejszy)\n{best_size[0].replace(":", "_")}', fontweight='bold')
+        ax3.set_ylabel('Rozmiar modelu (GB)')
         if size_gb > 0:
             ax3.text(0, size_gb + 0.1, 
                     f'{size_gb:.1f}GB', ha='center', fontweight='bold', fontsize=14)
@@ -5672,10 +5665,10 @@ class EvalModelsReferenced(BaseEvaluation):
         
         # 4. Golden Model (Mobile Score)
         mobile_score = best_mobile[1].get('mobile_score', 0)  # Default to 0 if missing
-        ax4.bar(['Winner'], [mobile_score],    
+        ax4.bar(['Zwycięzca'], [mobile_score],    
                color='#FF6347', alpha=0.8, width=0.5)
-        ax4.set_title(f'[TROPHY] GOLDEN MODEL (Overall Mobile Score)\n{best_mobile[0].replace(":", "_")}', fontweight='bold')
-        ax4.set_ylabel('Mobile Readiness Score')
+        ax4.set_title(f'[PUCHAR] ZŁOTY MODEL (Ranking Mobilny)\n{best_mobile[0].replace(":", "_")}', fontweight='bold')
+        ax4.set_ylabel('Wynik Gotowości Mobilnej')
         if mobile_score > 0:
             ax4.text(0, mobile_score + 2, 
                     f'{mobile_score:.0f}/100', ha='center', fontweight='bold', fontsize=14)
@@ -5721,15 +5714,15 @@ class EvalModelsReferenced(BaseEvaluation):
         mobile_score_display = f"{mobile_score:.0f}/100" if mobile_score is not None else "N/A"
         
         golden_details = f"""
-[TROPHY] GOLDEN MODEL DETAILS:
-• Family: [{model_metadata.get('architecture', 'unknown')}]
-• Parameters: {params_str}
-• Size: {size_display}
-• Quantization: {best_mobile[1].get('quantization_level', 'N/A')}
-• GPT Judge Score: {gpt_score_display}
-• Latency: {latency_display}
-• Mobile Score: {mobile_score_display}
-• Total Rounds: {best_mobile[1].get('total_rounds', 0)}
+SZCZEGÓŁY ZŁOTEGO MODELU:
+• Rodzina: [{model_metadata.get('architecture', 'unknown')}]
+• Parametry: {params_str}
+• Rozmiar: {size_display}
+• Kwantyzacja: {best_mobile[1].get('quantization_level', 'N/A')}
+• Wynik GPT Judge: {gpt_score_display}
+• Latencja: {latency_display}
+• Wynik Mobilny: {mobile_score_display}
+• Liczba rund: {best_mobile[1].get('total_rounds', 0)}
         """
         
         fig.text(0.02, 0.02, golden_details, fontsize=11, fontfamily='monospace',
@@ -5845,22 +5838,21 @@ class EvalModelsReferenced(BaseEvaluation):
         # Log Recovery Logic for Viz Mode
         if mode == "viz_only" and not os.path.exists(log_file):
             print(f"⚠️ Local log file not found: {log_file}")
-            recover_choice = input("🔎 Would you like to recover this log from Neptune? [y/n]: ").lower().strip()
-            if recover_choice in ["y", "yes", "tak"]:
-                run_id = input("🆔 Enter Neptune Run ID (e.g., EDGE-123): ").strip()
-                if run_id:
-                    success = self.neptune.recover_log(run_id, log_file)
-                    if not success:
-                        print("❌ Failed to recover log. Visualization might fail or represent empty data.")
-                else:
-                    print("⏭️ No Run ID provided, skipping recovery.")
+            # Only ask if we are NOT in an automated pipeline or if explicitly requested
+            # For now, let's skip it in automated viz_only to avoid hanging
+            # recover_choice = input("🔎 Would you like to recover this log from Neptune? [y/n]: ").lower().strip()
+            # if recover_choice in ["y", "yes", "tak"]:
+            #     ...
+            print("💡 Recovery from Neptune skipped in automated mode. Check if log_file exists.")
         
         print(f" All models run number: {run_number}")
         if self.agent_type in EvalModelsReferenced._cached_references:
             reference_file = EvalModelsReferenced._cached_references[self.agent_type]
             print(f" Using cached reference for {self.agent_type}: {reference_file}")
         else:
-            reference_file = self.create_reference_response(tools_schema=tool, max_rounds=10)
+            # Skip interactive reference creation in non-eval modes
+            interactive_ref = (mode not in ["viz_only", "logs_only"])
+            reference_file = self.create_reference_response(tools_schema=tool, max_rounds=10, interactive=interactive_ref)
             EvalModelsReferenced._cached_references[self.agent_type] = reference_file
         self.tools = tool
         self.cot_prompt = self.read_txt(self.MULTI_TURN_GLOBAL_CONFIG.get('cot_prompt_path'))
