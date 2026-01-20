@@ -3,7 +3,7 @@
 
 source_path: "examples/desktop/source"
 inference_params_path: "examples/desktop/config/inference_params.yaml"
-evaluator_model: "gpt-4o-mini"
+evaluator_model: "GPT-4o"
 ollama_host: "http://localhost:11434"
 
 agents:

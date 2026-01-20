@@ -1968,7 +1968,7 @@ class BaseEvaluation:
     #     ],
     #     "created": 1757065343,
     #     "id": "chatcmpl-CCNFXfpCeY9s79btoce71rvxvWQI4",
-    #     "model": "gpt-4o-mini-2024-07-18",
+    #     "model": "GPT-4o-2024-07-18",
     #     "object": "chat.completion",
     #     "service_tier": "default",
     #     "system_fingerprint": "fp_8bda4d3a2c",

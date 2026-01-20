@@ -3,7 +3,7 @@
     {
       "session_timestamp": "2025-12-29_17-40-32",
       "model_name": "granite3.2:2b-instruct-q8_0",
-      "evaluator_model_name": "gpt-4o-mini",
+      "evaluator_model_name": "GPT-4o",
       "evaluation_type": "referenced",
       "optimisations": [
         {}
@@ -1440,7 +1440,7 @@
     {
       "session_timestamp": "2025-12-29_17-45-53",
       "model_name": "llama3.2:3b-instruct-q4_K_M",
-      "evaluator_model_name": "gpt-4o-mini",
+      "evaluator_model_name": "GPT-4o",
       "evaluation_type": "referenced",
       "optimisations": [
         {}

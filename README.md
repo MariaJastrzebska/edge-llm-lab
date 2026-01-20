@@ -132,7 +132,7 @@ Create a configuration file for your evaluation setup:
 # config/my_evaluation.yaml
 source_path: "data"
 inference_params_path: "config/inference_params.yaml"
-evaluator_model: "gpt-4o-mini"
+evaluator_model: "GPT-4o"
 ollama_host: "http://localhost:11434"
 
 agents:

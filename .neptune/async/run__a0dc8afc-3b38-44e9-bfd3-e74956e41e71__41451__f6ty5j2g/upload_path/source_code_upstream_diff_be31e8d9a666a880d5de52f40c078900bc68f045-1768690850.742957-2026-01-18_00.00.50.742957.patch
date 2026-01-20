@@ -8035,7 +8035,7 @@ index 0000000..fd5a143
 +\end{itemize}
 +
 +\paragraph{GPT Judge (5 Pillar Protocol)}
-+Ocena dokonywana przez wyższy model (np. GPT-4o-mini) w skali 1-10:
++Ocena dokonywana przez wyższy model (np. GPT-4o) w skali 1-10:
 +\begin{itemize}
 +    \item \textbf{JSON Correctness} – poprawność składniowa i zgodność ze schematem.
 +    \item \textbf{Tool Call Correctness} – trafność wyboru narzędzia i argumentów.
@@ -8362,7 +8362,7 @@ index 0000000..eb1bdca
 +    {
 +      "session_timestamp": "2025-12-29_17-40-32",
 +      "model_name": "granite3.2:2b-instruct-q8_0",
-+      "evaluator_model_name": "gpt-4o-mini",
++      "evaluator_model_name": "GPT-4o",
 +      "evaluation_type": "referenced",
 +      "optimisations": [ {} ],
 +      "parameters": {
@@ -8421,7 +8421,7 @@ index 0000000..eb1bdca
 +
 +\subsubsection{LLM jako sędzia: Protokół 5 Filarów}
 +
-+W obliczu subiektywizmu metryk tekstowych w medycynie, wdrożono protokół \textit{LLM-as-a-Judge}. Wykorzystuje on wysokiej klasy model (np. GPT-4o-mini) do oceny agenta w skali 1--10 według pięciu krytycznych kryteriów:
++W obliczu subiektywizmu metryk tekstowych w medycynie, wdrożono protokół \textit{LLM-as-a-Judge}. Wykorzystuje on wysokiej klasy model (np. GPT-4o) do oceny agenta w skali 1--10 według pięciu krytycznych kryteriów:
 +
 +\begin{enumerate}
 +\item \textbf{JSON Correctness} -- Weryfikacja zgodności ze schematem Pydantic. Błąd struktury w systemie medycznym uniemożliwia automatyczną analizę danych.
@@ -8462,7 +8462,7 @@ index 0000000..eb1bdca
 +
 +\subsection{Ewaluacja bez referencji} 
 +
-+W trybie \textit{unreferenced} (reference-free), framework przełącza się w tryb pełnej symulacji. Zamiast statycznej odpowiedzi referencyjnej, wykorzystywany jest \textbf{Patient Simulator} (oparty na GPT-4o-mini), który dynamicznie reaguje na pytania badanego modelu. Pozwala to na badanie agenta w warunkach "otwartego świata", gdzie ścieżka dialogu nie jest sztywno narzucona.
++W trybie \textit{unreferenced} (reference-free), framework przełącza się w tryb pełnej symulacji. Zamiast statycznej odpowiedzi referencyjnej, wykorzystywany jest \textbf{Patient Simulator} (oparty na GPT-4o), który dynamicznie reaguje na pytania badanego modelu. Pozwala to na badanie agenta w warunkach "otwartego świata", gdzie ścieżka dialogu nie jest sztywno narzucona.
 +
 +Główne metryki w tym trybie obejmują:
 +\begin{itemize}

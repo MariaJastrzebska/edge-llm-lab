@@ -3,7 +3,7 @@
         {
             "session_timestamp": "2025-12-28_22-56-27",
             "model_name": "nemotron-mini:4b-instruct-q5_K_M",
-            "evaluator_model_name": "gpt-4o-mini",
+            "evaluator_model_name": "GPT-4o",
             "evaluation_type": "referenced",
             "optimisations": [
                 {}
@@ -1192,7 +1192,7 @@
         {
             "session_timestamp": "2025-12-28_23-00-03",
             "model_name": "granite3-moe:3b-instruct-q5_K_M",
-            "evaluator_model_name": "gpt-4o-mini",
+            "evaluator_model_name": "GPT-4o",
             "evaluation_type": "referenced",
             "optimisations": [
                 {}
@@ -2381,7 +2381,7 @@
         {
             "session_timestamp": "2025-12-28_23-01-39",
             "model_name": "hf.co/ibm-granite/granite-4.0-micro-GGUF:Q5_K_M",
-            "evaluator_model_name": "gpt-4o-mini",
+            "evaluator_model_name": "GPT-4o",
             "evaluation_type": "referenced",
             "optimisations": [
                 {}
@@ -3570,7 +3570,7 @@
         {
             "session_timestamp": "2025-12-28_23-03-13",
             "model_name": "llama3.2:3b-instruct-q4_K_M",
-            "evaluator_model_name": "gpt-4o-mini",
+            "evaluator_model_name": "GPT-4o",
             "evaluation_type": "referenced",
             "optimisations": [
                 {}
@@ -4759,7 +4759,7 @@
         {
             "session_timestamp": "2025-12-28_23-21-47",
             "model_name": "nemotron-mini:4b-instruct-q5_K_M",
-            "evaluator_model_name": "gpt-4o-mini",
+            "evaluator_model_name": "GPT-4o",
             "evaluation_type": "referenced",
             "optimisations": [
                 {}
@@ -6167,7 +6167,7 @@
         {
             "session_timestamp": "2025-12-28_23-45-33",
             "model_name": "llama3.2:3b-instruct-q4_K_M",
-            "evaluator_model_name": "gpt-4o-mini",
+            "evaluator_model_name": "GPT-4o",
             "evaluation_type": "referenced",
             "optimisations": [
                 {}

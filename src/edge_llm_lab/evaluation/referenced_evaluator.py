@@ -2882,19 +2882,15 @@ class EvalModelsReferenced(BaseEvaluation):
                         if throughput is not None and throughput > 0:
                             models_data[model_name_item]['throughput'].append(throughput)
                     
-                    # Extract energy data from resource_differences (delta values)
-                    resource_differences = latency.get('resource_differences', {})
-                    energy_diff = resource_differences.get('energy', {})
-                    cpu_delta = energy_diff.get('cpu_power_delta_mw')
-                    gpu_delta = energy_diff.get('gpu_power_delta_mw')
+                    # Extract energy data from end_resources (active power draw during inference)
+                    end_resources = latency.get('end_resources', {})
+                    energy_info = end_resources.get('energy', {})
                     
-                    # Use absolute values for power consumption (delta is usually negative)
-                    cpu_power_mw = abs(cpu_delta) if cpu_delta is not None else 0
-                    gpu_power_mw = abs(gpu_delta) if gpu_delta is not None else 0
+                    cpu_power_mw = energy_info.get('cpu_power_mw', 0)
+                    gpu_power_mw = energy_info.get('gpu_power_mw', 0)
                     
                     # Debug energy data for radar
-                    
-                    print(f"DEBUG CALCULATE_AVERAGES ENERGY: Model={model_name_item}, Round={round_idx}, CPU_delta={cpu_delta}, GPU_delta={gpu_delta}, CPU_abs={cpu_power_mw}, GPU_abs={gpu_power_mw}")
+                    print(f"DEBUG CALCULATE_AVERAGES ENERGY (active): Model={model_name_item}, Round={round_idx}, CPU={cpu_power_mw}mW, GPU={gpu_power_mw}mW")
                     
                     models_data[model_name_item]['cpu_power'].append(cpu_power_mw)
                     models_data[model_name_item]['gpu_power'].append(gpu_power_mw)
@@ -2978,11 +2974,12 @@ class EvalModelsReferenced(BaseEvaluation):
                     'quantization_level': model_metadata.get('quantization_level', 'Unknown')
                 }
                 
-                # Add average energy data for radar chart
+                # Add average energy data for radar chart and big table
                 models_data[model_name]['avg_cpu_power'] = avg_cpu_power
                 models_data[model_name]['avg_gpu_power'] = avg_gpu_power
                 models_data[model_name]['total_power'] = avg_cpu_power + avg_gpu_power
-                print(f"DEBUG CALCULATE_AVERAGES FINAL: Model={model_name}, CPU_power_list={models_data[model_name]['cpu_power'][:5]}..., GPU_power_list={models_data[model_name]['gpu_power'][:5]}..., avg_cpu={avg_cpu_power}, avg_gpu={avg_gpu_power}, total_power={models_data[model_name]['total_power']}")
+                models_data[model_name]['avg_throughput'] = np.mean(data['throughput']) if data['throughput'] else 0
+                models_data[model_name]['avg_memory'] = np.mean(data['memory_usage']) if data.get('memory_usage') else 0
                 
                 # Prepare parameters for display
                 parameters_copy = self.MULTI_TURN_GLOBAL_CONFIG.copy() if isinstance(self.MULTI_TURN_GLOBAL_CONFIG, dict) else {}
@@ -2990,11 +2987,86 @@ class EvalModelsReferenced(BaseEvaluation):
                     parameters_copy.pop(key, None)
                 model_params.append(parameters_copy)
 
+        # Generate comprehensive multi-model metrics table (LaTeX)
+        self.generate_multi_model_metrics_table(models_data, model_names, session_data[0].get('session_timestamp') if session_data else "latest")
+
         if not model_names:
             print("❌ No valid model data found for visualization")
             return None, None, None, None, None, None
         
+        # Generate the master metrics table requested by the user
+        self.generate_master_metrics_table(models_data, model_names)
+        
         return models_data, model_names, avg_scores, avg_latencies, model_sizes, model_params
+
+    def generate_master_metrics_table(self, models_data, model_names):
+        """Generates a comprehensive LaTeX table with all key metrics for all models."""
+        import os
+        try:
+            output_dir = os.path.dirname(self.report_path) if hasattr(self, 'report_path') else "output"
+            os.makedirs(output_dir, exist_ok=True)
+            table_path = os.path.join(output_dir, "master_metrics_table.tex")
+            
+            with open(table_path, 'w', encoding='utf-8') as f:
+                f.write("\\begin{table}[!ht]\n\\centering\n")
+                f.write("\\caption{Zbiorcze zestawienie metryk sędziowskich, wydajnościowych i energetycznych}\n")
+                f.write("\\label{tab:master_metrics}\n")
+                f.write("\\resizebox{\\linewidth}{!}{\n")
+                f.write("\\begin{tabular}{|l|c|c|c|c|r|}\n\\hline\n")
+                f.write("\\textbf{Model} & \\textbf{GPT Score} & \\textbf{Latencja (ms)} & \\textbf{TPS} & \\textbf{RAM (GB)} & \\textbf{Energia (Total mW)} \\\\\n\\hline\n")
+                
+                for name in model_names:
+                    d = models_data[name]
+                    safe_name = name.replace("_", "\\_").replace(":", ":")
+                    gpt = d.get('avg_gpt_score', 0)
+                    lat = d.get('avg_latency', 0)
+                    tps = d.get('avg_throughput', [])
+                    avg_tps = np.mean(tps) if tps else 0
+                    mem = d.get('memory_usage', [])
+                    avg_mem = np.mean(mem) if mem else 0
+                    power = (np.mean(d.get('cpu_power', [0])) + np.mean(d.get('gpu_power', [0])))
+                    
+                    f.write(f"{safe_name} & {gpt:.2f} & {lat:.0f} & {avg_tps:.1f} & {avg_mem:.2f} & {power:.0f}mW \\\\\n\\hline\n")
+                
+                f.write("\\end{tabular}\n}\n\\end{table}\n")
+            print(f"📊 Master metrics table saved: {table_path}")
+        except Exception as e:
+            print(f"❌ Failed to generate master metrics table: {e}")
+
+    def generate_multi_model_metrics_table(self, models_data, model_names, timestamp):
+        """Generates a comprehensive LaTeX table with all key metrics for all models."""
+        import os
+        
+        output_dir = os.path.dirname(self.report_path) if hasattr(self, 'report_path') else "output"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        table_path = os.path.join(output_dir, f"multi_model_metrics_{timestamp}.tex")
+        
+        with open(table_path, 'w', encoding='utf-8') as f:
+            f.write("\\begin{table}[!ht]\n\\centering\n")
+            f.write("\\caption{Zbiorcze zestawienie metryk wydajnościowych i jakościowych dla testowanych modeli}\n")
+            f.write("\\label{tab:multi_model_metrics}\n")
+            f.write("\\resizebox{\\linewidth}{!}{\n")
+            f.write("\\begin{tabular}{|l|c|c|c|c|c|r|}\n\\hline\n")
+            f.write("\\textbf{Model} & \\textbf{GPT Score} & \\textbf{Latencja (ms)} & \\textbf{TPS} & \\textbf{Pamięć (GB)} & \\textbf{Energia (mW)} \\\\\n\\hline\n")
+            
+            for name in model_names:
+                data = models_data[name]
+                gpt = data.get('avg_gpt_score', 0)
+                lat = data.get('avg_latency', 0)
+                tps = data.get('avg_throughput', 0)
+                mem = data.get('avg_memory', 0)
+                power = data.get('total_power', 0)
+                cpu = data.get('avg_cpu_power', 0)
+                gpu = data.get('avg_gpu_power', 0)
+                
+                # Format latext row
+                safe_name = name.replace("_", "\\_").replace(":", ":")
+                f.write(f"{safe_name} & {gpt:.2f} & {lat:.0f} & {tps:.1f} & {mem:.2f} & CPU: {cpu:.0f} \\\\ GPU: {gpu:.0f} \\\\ Total: {power:.0f} \\\\\n\\hline\n")
+                
+            f.write("\\end{tabular}\n}\n\\end{table}\n")
+            
+        print(f"📊 Comprehensive LaTeX table saved: {table_path}")
 
 
     def plot_aggr_all_models_with_reference(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
@@ -3221,28 +3293,30 @@ class EvalModelsReferenced(BaseEvaluation):
         
         # Calculate energy efficiency (lower power = better)
         # Get total_power from models_data (already calculated in calculate_averages)
-        total_power = []
-        if models_data:
-            for model_name, model_data in models_data.items():
-                power = model_data.get('total_power', 0)
-                total_power.append(power)
-                print(f"DEBUG RADAR POWER: Model={model_name}, total_power={power}")
+        # Define mobile-friendly limits based on actual data with safety margins
+        # Using max * 1.5 ensures nothing is exactly in the center (0) unless it's genuinely terrible.
+        MAX_LATENCY_LIMIT = max(avg_latencies) * 1.5 if avg_latencies else 1000
+        MAX_SIZE_LIMIT = max(model_sizes) * 1.5 if model_sizes else 10
         
-        print(f"DEBUG RADAR TOTAL_POWER LIST: {total_power}")
+        # Calculate energy limits
+        total_powers = []
+        for m in model_names:
+            p_list = models_data[m].get('cpu_power', [0])
+            g_list = models_data[m].get('gpu_power', [0])
+            total_powers.append(np.mean(p_list) + np.mean(g_list))
+        MAX_POWER_LIMIT = max(total_powers) * 1.5 if total_powers else 5000
         
-        # Handle case where all models have same power or no power data
-        if total_power and len(set(total_power)) > 1:
-            MIN_TOTAL_POWER = min(total_power)
-            MAX_TOTAL_POWER = max(total_power)
-        elif total_power and len(set(total_power)) == 1:
-            # All models have same power - create small range for visualization
-            base_power = total_power[0]
-            MIN_TOTAL_POWER = max(0, base_power - 1)
-            MAX_TOTAL_POWER = base_power + 1
-        else:
-            # No power data - use default range
-            MIN_TOTAL_POWER = 0
-            MAX_TOTAL_POWER = 1000
+        # Consistent labels min/max for textual display
+        MIN_MOBILE_LATENCY_MS = min(avg_latencies) if avg_latencies else 0
+        MAX_MOBILE_LATENCY_MS = max(avg_latencies) if avg_latencies else 1000
+        MIN_MOBILE_SIZE_GB = min(model_sizes) if model_sizes else 0
+        MAX_MOBILE_SIZE_GB = max(model_sizes) if model_sizes else 10
+        MIN_TOTAL_POWER = min(total_powers) if total_powers else 0
+        MAX_TOTAL_POWER = max(total_powers) if total_powers else 1000
+        
+        # Calculate GPT Score range for proper scaling
+        MIN_GPT_SCORE = min(avg_scores)
+        MAX_GPT_SCORE = max(avg_scores)
         
         print(f"DEBUG SCALES: Latency range {MIN_MOBILE_LATENCY_MS:.1f}ms - {MAX_MOBILE_LATENCY_MS:.1f}ms")
         print(f"DEBUG SCALES: Size range {MIN_MOBILE_SIZE_GB:.1f}GB - {MAX_MOBILE_SIZE_GB:.1f}GB")
@@ -3268,37 +3342,24 @@ class EvalModelsReferenced(BaseEvaluation):
             # gpt_score_scaled = (avg_scores[i] - 5) / 5  # Map 5-10 to 0-1
             # But user asked for absolute 0-10.
             
-            # Latency: scale between min-max (lower latency = better = closer to edge)
+            # Latency: scale relative to 0 (closer to 0ms = better = closer to edge)
             latency_ms = avg_latencies[i]
-            if MAX_MOBILE_LATENCY_MS > MIN_MOBILE_LATENCY_MS:
-                latency_scaled = 1 - ((latency_ms - MIN_MOBILE_LATENCY_MS) / 
-                                   (MAX_MOBILE_LATENCY_MS - MIN_MOBILE_LATENCY_MS))
-                latency_scaled = max(0, min(1, latency_scaled))
-            else:
-                latency_scaled = 1.0
+            latency_scaled = 1 - (latency_ms / MAX_LATENCY_LIMIT)
+            latency_scaled = max(0, min(1, latency_scaled))
             
-            # Model size: scale between min-max (smaller size = better = closer to edge)
+            # Model size: scale relative to 0 (smaller = better = closer to edge)
             size_gb = model_sizes[i]
-            if MAX_MOBILE_SIZE_GB > MIN_MOBILE_SIZE_GB:
-                size_scaled = 1 - ((size_gb - MIN_MOBILE_SIZE_GB) / 
-                                (MAX_MOBILE_SIZE_GB - MIN_MOBILE_SIZE_GB))
-                size_scaled = max(0, min(1, size_scaled))
-            else:
-                size_scaled = 1.0
+            size_scaled = 1 - (size_gb / MAX_SIZE_LIMIT)
+            size_scaled = max(0, min(1, size_scaled))
             
-            # Energy efficiency: scale between min-max (lower power = better = closer to edge)
-            # Use total_power calculated in calculate_averages()
+            # Energy efficiency: scale relative to 0 (lower power = better = closer to edge)
             model_power = 0
             if models_data and model in models_data:
-                model_data = models_data[model]
-                model_power = model_data.get('total_power', 0)
+                # Use the calculated total power from the list
+                model_power = total_powers[i]
             
-            if MAX_TOTAL_POWER > MIN_TOTAL_POWER:
-                power_scaled = 1 - ((model_power - MIN_TOTAL_POWER) / 
-                                 (MAX_TOTAL_POWER - MIN_TOTAL_POWER))
-                power_scaled = max(0, min(1, power_scaled))
-            else:
-                power_scaled = 1.0
+            power_scaled = 1 - (model_power / MAX_POWER_LIMIT)
+            power_scaled = max(0, min(1, power_scaled))
             
             values = [gpt_score_scaled, latency_scaled, size_scaled, power_scaled]
             values += values[:1]  # Close the loop
@@ -3309,7 +3370,7 @@ class EvalModelsReferenced(BaseEvaluation):
             # Use consistent color for this model
             color = model_color_map[model]
             ax.plot(angles, values, linewidth=2, linestyle='solid', label=model, color=color)
-            # Removed fill - it was incorrectly calculated
+            ax.fill(angles, values, color=color, alpha=0.1)
         
         # Set labels and title
         ax.set_xticks(angles[:-1])
@@ -3431,13 +3492,28 @@ class EvalModelsReferenced(BaseEvaluation):
             use_polish = True
             
         if use_polish:
-            ax.set_xlabel('Średnia latencja (ms) → Niżej lepiej')
-            ax.set_ylabel('Średni wynik GPT (0-10) → Wyżej lepiej')
-            ax.set_title('Wydajność modelu vs Latencja\n(Rozmiar bąbelka ∝ Rozmiar modelu)')
+            ax.set_xlabel('Płynność (Przepustowość TPS) → Prawo lepiej')
+            ax.set_ylabel('Jakość (Wynik GPT 0-10) → Góra lepiej')
+            ax.set_title('Zależność Jakości od Przepustowości (Bubble ∝ Size)')
         else:
-            ax.set_xlabel('Average Latency (ms) → Lower is better')
-            ax.set_ylabel('Average GPT Score (0-10) → Higher is better')
-            ax.set_title('Model Performance vs Latency\n(Bubble size ∝ Model Size)')
+            ax.set_xlabel('Throughput (TPS) → Right is better')
+            ax.set_ylabel('Quality (GPT Score 0-10) → Up is better')
+            ax.set_title('Quality vs Throughput (Bubble ∝ Size)')
+        
+        # Extract throughputs from models_data
+        throughputs = []
+        for name in model_names:
+            t_list = models_data[name].get('throughput', [0])
+            throughputs.append(np.mean(t_list) if t_list else 0)
+            
+        # Rework scatter plotting with TPS instead of Latency
+        ax.clear()  # Clear previous plots
+        for i, (tps, score, size, color) in enumerate(zip(throughputs, avg_scores, bubble_sizes, scatter_colors)):
+            ax.scatter(
+                tps, score, s=size, c=[color], alpha=0.7,
+                edgecolors='black', linewidth=0.5
+            )
+        
         ax.grid(True, linestyle='--', alpha=0.6)
         
         # Set axis limits with padding for 0-10 scale
@@ -3551,7 +3627,7 @@ class EvalModelsReferenced(BaseEvaluation):
             if model_name_prefix is not None:
                 # For shortened names (e.g., "q2_K"), reconstruct full name with prefix
                 full_name = f"{model_name_prefix}-{name}"
-                full_name = full_name.replace("_", ":",1)
+                full_name = full_name.replace("_", ":", 1)
                 print(f"Full name short: {full_name}")
             else:
                 # For full model names, convert underscores to colons
@@ -4173,17 +4249,14 @@ class EvalModelsReferenced(BaseEvaluation):
                         all_round_latencies.append(total_latency)
                     
                     # Extract energy data from resource_differences (delta values)
-                    resource_differences = round_data.get('resource_differences', {})
-                    energy_diff = resource_differences.get('energy', {})
-                    # Handle null values properly
-                    cpu_delta = energy_diff.get('cpu_power_delta_mw')
-                    gpu_delta = energy_diff.get('gpu_power_delta_mw')
-                    cpu_power_mw = abs(cpu_delta) if cpu_delta is not None else 0
-                    gpu_power_mw = abs(gpu_delta) if gpu_delta is not None else 0
+                    end_resources = latency_breakdown.get('end_resources', {})
+                    energy_info = end_resources.get('energy', {})
                     
-                    # Debug energy data
-                    if cpu_power_mw > 0 or gpu_power_mw > 0:
-                        print(f"DEBUG LATENCY PERFORMANCE ENERGY: CPU={cpu_power_mw}mW, GPU={gpu_power_mw}mW (delta: {cpu_delta}, {gpu_delta})")
+                    cpu_power_mw = energy_info.get('cpu_power_mw', 0)
+                    gpu_power_mw = energy_info.get('gpu_power_mw', 0)
+                    
+                    # Debug energy data for radar
+                    print(f"DEBUG CALCULATE_AVERAGES ENERGY (active): Model={model_name}, Round={round_data.get('round', 'N/A')}, CPU={cpu_power_mw}mW, GPU={gpu_power_mw}mW")
                     
                     all_cpu_power.append(cpu_power_mw)
                     all_gpu_power.append(gpu_power_mw)
@@ -5189,12 +5262,22 @@ class EvalModelsReferenced(BaseEvaluation):
                 all_gpu_power = []
                 all_throughputs = []
                 
+                # Initialize lists for models_data entry
+                models_data[model_name] = {
+                    'latencies': [],
+                    'gpt_scores': [],
+                    'cpu_power': [],
+                    'gpu_power': [],
+                    'throughput': [],
+                    'memory_usage': []
+                }
+
                 for round_data in rounds:
                     # Get latency
                     if isinstance(round_data, dict) and 'latency_breakdown' in round_data:
                         latency = round_data['latency_breakdown'].get('total_ms', 0)
                         if isinstance(latency, (int, float)) and latency > 0:
-                            latencies.append(latency)
+                            models_data[model_name]['latencies'].append(latency)
                         
                         # Get token throughput (Tokens per second)
                         tokens_data = round_data['latency_breakdown'].get('tokens', {})
@@ -5207,7 +5290,7 @@ class EvalModelsReferenced(BaseEvaluation):
                                 tps = tokens_data.get('throughput', 0)
                                 
                             if isinstance(tps, (int, float)) and tps > 0:
-                                all_throughputs.append(tps)
+                                models_data[model_name]['throughput'].append(tps)
                     
                     # Get GPT judge score
                     if isinstance(round_data, dict) and 'metrics' in round_data:
@@ -5222,29 +5305,38 @@ class EvalModelsReferenced(BaseEvaluation):
                             gpt_score = gpt_data
                             
                         if gpt_score is not None:
-                            gpt_scores.append(gpt_score)
+                            models_data[model_name]['gpt_scores'].append(gpt_score)
                     
-                    # Get energy data from resource_differences (delta values)
-                    if isinstance(round_data, dict) and 'resource_differences' in round_data:
-                        resource_differences = round_data.get('resource_differences', {})
-                        energy_diff = resource_differences.get('energy', {})
+                    # Extract energy data from end_resources (active power draw during inference)
+                    end_resources = round_data.get('latency_breakdown', {}).get('end_resources', {})
+                    if not end_resources:
+                        # Try direct from round_data if nested failed
+                        end_resources = round_data.get('end_resources', {})
                         
-                        # Handle null values properly
-                        cpu_delta = energy_diff.get('cpu_power_delta_mw')
-                        gpu_delta = energy_diff.get('gpu_power_delta_mw')
-                        
-                        # Use absolute values, handle null as 0
-                        cpu_power_mw = abs(cpu_delta) if cpu_delta is not None else 0
-                        gpu_power_mw = abs(gpu_delta) if gpu_delta is not None else 0
-                        
-                        # Debug energy data
-                        if cpu_power_mw > 0 or gpu_power_mw > 0:
-                            print(f"DEBUG ENERGY for {model_name}: CPU={cpu_power_mw}mW, GPU={gpu_power_mw}mW (delta: {cpu_delta}, {gpu_delta})")
-                        
-                        all_cpu_power.append(cpu_power_mw)
-                        all_gpu_power.append(gpu_power_mw)
+                    energy_info = end_resources.get('energy', {})
+                    cpu_power_mw = energy_info.get('cpu_power_mw', 0)
+                    gpu_power_mw = energy_info.get('gpu_power_mw', 0)
+                    
+                    # Store as absolute power
+                    models_data[model_name]['cpu_power'].append(cpu_power_mw)
+                    models_data[model_name]['gpu_power'].append(gpu_power_mw)
+                    
+                    # Memory usage for health check table
+                    mem_usage = round_data.get('metrics', {}).get('memory_used_gb', 0)
+                    if not mem_usage:
+                        mem_usage = end_resources.get('memory', {}).get('ram_used_gb', 0)
+                    if mem_usage:
+                        models_data[model_name]['memory_usage'].append(mem_usage)
                 
+                # Calculate averages for models_data entry
+                latencies = models_data[model_name]['latencies']
+                gpt_scores = models_data[model_name]['gpt_scores']
+                all_cpu_power = models_data[model_name]['cpu_power']
+                all_gpu_power = models_data[model_name]['gpu_power']
+                all_throughputs = models_data[model_name]['throughput']
+
                 if not latencies:  # Skip if no valid latency data
+                    del models_data[model_name] # Remove entry if no valid data
                     continue
                 
                 # Define metadata_model_name for lookup
