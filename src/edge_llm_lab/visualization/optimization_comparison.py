@@ -1,5 +1,5 @@
 """
-📊 OPTIMIZATION COMPARISON: Compare latency across different optimization methods for a single model
+ OPTIMIZATION COMPARISON: Compare latency across different optimization methods for a single model
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -260,7 +260,7 @@ def _generate_optimization_table_image_single_language(session_data, model_name,
     plt.savefig(table_path, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close()
     
-    print(f"✅ Table image ({language}) saved: {table_path}")
+    print(f" Table image ({language}) saved: {table_path}")
     return table_path
 
 
@@ -385,7 +385,7 @@ def _plot_optimization_comparison_single_language(
     language='en'
 ):
     """
-    📊 Generate optimization comparison plot in a specific language.
+     Generate optimization comparison plot in a specific language.
     
     Args:
         session_data: Dict mapping optimisation key -> session dict (with 'optimisation' and 'rounds')
@@ -748,7 +748,7 @@ def _plot_optimization_comparison_single_language(
     with open(plot_path.replace('.png', '.json'), 'w') as f:
         json.dump(data_export, f, indent=2)
     plt.close()
-    print(f"✅ Optimization comparison plot ({language}) saved: {plot_path}")
+    print(f" Optimization comparison plot ({language}) saved: {plot_path}")
     return plot_path
 
 
@@ -761,7 +761,7 @@ def plot_optimization_comparison(
     output_file_name,
 ):
     """
-    📊 Compare performance and quality metrics across different optimization methods for a single model.
+     Compare performance and quality metrics across different optimization methods for a single model.
     Generates both Polish and English versions.
     
     Args:
@@ -1021,7 +1021,7 @@ def plot_gartner_style_energy_analysis(session_data, model_name, plotting_sessio
     plt.savefig(plot_path, dpi=300, bbox_inches='tight')
     plt.close()
     
-    print(f"✅ Gartner-style energy analysis plot saved: {plot_path}")
+    print(f" Gartner-style energy analysis plot saved: {plot_path}")
     return plot_path
 
 

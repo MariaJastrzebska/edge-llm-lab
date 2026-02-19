@@ -20,7 +20,7 @@ from model_preparation.pydantic_models.pydantic_models import (
     SymptomAnalysisCOT
 )
 
-# Import English models
+# Import modeli angielskich
 from model_preparation.pydantic_models.pydantic_models_en import (
     ConstantData as ConstantDataEN,
     Symptom as SymptomEN,
@@ -108,7 +108,7 @@ def main():
         SymptomAnalysisCOT
     ]
     
-    # English models  
+    # Modele angielskie
     selected_models_en = [
         ConstantDataEN,
         SymptomEN,
@@ -129,35 +129,35 @@ def main():
 
     # Generuj schematy dla obu języków
     for language, models in all_models:
-        print(f"\n🌍 Generating schemas for {language.upper()}...")
+        print(f"\n Generowanie schematów dla {language.upper()}...")
         
         for model in models:
             model_name = model.__name__
             suffix = f"_{language}" if language == "en" else ""
             
-            # Full schema in schemas_long
+            # Pełny schemat w schemas_long
             full_output_file = os.path.join(schemas_long_path, f"{model_name.lower()}{suffix}_schema.json")
             save_schema(model, full_output_file)
             
-            # Minimal schema in schemas
+            # Schemat minimalny w schemas
             min_output_file = os.path.join(schemas_path, f"{model_name.lower()}{suffix}_schema.json")
             save_min_schema(model, min_output_file)
             
             all_model_names.append(f"{model_name}{suffix}")
 
-    # Generate index file with all models
+
     model_index = {
         "models": {
             "polish": [model.__name__ for model in selected_models_pl],
             "english": [f"{model.__name__}_en" for model in selected_models_en]
         },
-        "description": "Medical models index (full in schemas_long, optimized in schemas) - Polish and English versions"
+        "description": "Indeks modeli medycznych (pełne w schemas_long, zoptymalizowane w schemas) - wersje polska i angielska"
     }
     with open(os.path.join(schemas_long_path, "model_index.json"), "w", encoding="utf-8") as f:
         json.dump(model_index, f, ensure_ascii=False, indent=2)
 
-    print(f"\n✅ Schema generation completed for both languages!")
-    print(f"📊 Generated {len(all_model_names)} schemas total")
+    print(f"\n Generowanie schematów zakończone!")
+    print(f" Wygenerowano łącznie {len(all_model_names)} schematów")
 
 if __name__ == "__main__":
     main()

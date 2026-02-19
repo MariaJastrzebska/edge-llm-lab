@@ -48,7 +48,7 @@ def delete_model(model_name):
     try:
         print(f"🗑️ Deleting model: {model_name}")
         client.delete(model_name)
-        print(f"✅ Deleted {model_name}")
+        print(f" Deleted {model_name}")
         return True
     except Exception as e:
         print(f"⚠️ Error deleting model {model_name}: {e}")
@@ -117,7 +117,7 @@ def load_models_for_agent(agent_type: str, base_path: str = None) -> List[str]:
                 # Backward compatibility - jeśli to tylko string
                 active_models.append(model)
         
-        print(f"📋 Loaded {len(active_models)} active models for {agent_type}:")
+        print(f"  Loaded {len(active_models)} active models for {agent_type}:")
         for model in active_models:
             print(f"  • {model}")
             
@@ -325,7 +325,7 @@ def mark_model_as_tested(agent_type: str, model_name: str, base_path: str = None
             if isinstance(model, dict) and model.get('name') == model_name:
                 model['tested'] = True
                 model_found = True
-                print(f"✅ Marked {model_name} as tested: true")
+                print(f" Marked {model_name} as tested: true")
                 break
         
         if not model_found:
@@ -376,7 +376,7 @@ def get_untested_models(agent_type: str, base_path: str = None) -> List[str]:
                 if not model.get('tested', False):
                     untested_models.append(model['name'])
         
-        print(f"📋 Found {len(untested_models)} untested models for {agent_type}:")
+        print(f"  Found {len(untested_models)} untested models for {agent_type}:")
         for model in untested_models:
             print(f"  • {model}")
             
@@ -436,32 +436,32 @@ def check_model_in_results(agent_type: str, model_name: str, base_path: str = No
                     model_info = evaluation.get("model_info", {})
                     if (model_info.get("name") == model_name or 
                         model_info.get("normalized_name") == model_name):
-                        print(f"✅ Model {model_name} found in unreferenced evaluations: {os.path.basename(json_file)}")
+                        print(f" Model {model_name} found in unreferenced evaluations: {os.path.basename(json_file)}")
                         return True
             
             # Sprawdź strukturę dla referenced (lista evaluations)
             if evaluation_type == "unreferenced":
                 completed_models = results.get("completed_models", {})
                 if model_name in completed_models:
-                    print(f"✅ Model {model_name} found in unreferenced completed models: {os.path.basename(json_file)}")
+                    print(f" Model {model_name} found in unreferenced completed models: {os.path.basename(json_file)}")
                     return True
             
             # Sprawdź starą strukturę dla unreferenced (backwards compatibility)
             if evaluation_type == "unreferenced" and "models" in results:
                 if model_name in results["models"]:
-                    print(f"✅ Model {model_name} found in old unreferenced structure: {os.path.basename(json_file)}")
+                    print(f" Model {model_name} found in old unreferenced structure: {os.path.basename(json_file)}")
                     return True
             
             # Sprawdź starą strukturę (backwards compatibility)
             models_tested = results.get('models_tested', [])
             if model_name in models_tested:
-                print(f"✅ Model {model_name} found in results: {os.path.basename(json_file)}")
+                print(f" Model {model_name} found in results: {os.path.basename(json_file)}")
                 return True
                 
             # Sprawdź też w all_results
             all_results = results.get('all_results', {})
             if model_name in all_results:
-                print(f"✅ Model {model_name} found in all_results: {os.path.basename(json_file)}")
+                print(f" Model {model_name} found in all_results: {os.path.basename(json_file)}")
                 return True
                 
         except Exception as e:
@@ -513,7 +513,7 @@ def get_truly_untested_models(agent_type: str, base_path: str = None, evaluation
                         models_to_test.append(model_name)
                         print(f"⚠️ Model {model_name} ma tested: true ale BRAK wyników w JSON - będzie przetestowany")
         
-        print(f"\n📋 Found {len(models_to_test)} models with tested: true but missing JSON results for {agent_type}:")
+        print(f"\n  Found {len(models_to_test)} models with tested: true but missing JSON results for {agent_type}:")
         for model in models_to_test:
             print(f"  • {model} (tested: true but no JSON results)")
             
@@ -537,7 +537,7 @@ def get_truly_untested_models(agent_type: str, base_path: str = None, evaluation
         
     #     # Test metadata loading
     #     if models:
-    #         print(f"\n🔍 Testing metadata for {agent}:")
+    #         print(f"\n Testing metadata for {agent}:")
     #         models_meta = load_models_with_metadata(agent)
     #         for model_meta in models_meta:
     #             print(f"  {model_meta['name']}: {model_meta['size_gb']:.1f}GB")

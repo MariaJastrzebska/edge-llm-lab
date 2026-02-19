@@ -241,7 +241,7 @@ class EvalModelsReferenced(BaseEvaluation):
             # Użyj stałej ścieżki do pliku w katalogu log/ zamiast konkretnego runu
             log_file_params_test = session_locations["log_file"].replace("model/", "log/").replace(".json", "_inference_params_test.jsonl")
             if os.path.exists(log_file_params_test):
-                print("\n📊 Generating inference parameters comparison plots...")
+                print("\n Generating inference parameters comparison plots...")
                 params_data = self.load_json_file(log_file_params_test)
                 if params_data and params_data.get('evaluations'):
                     # Przygotuj dane dla plot_inference_parameters_comparison
@@ -578,24 +578,24 @@ class EvalModelsReferenced(BaseEvaluation):
         selected_session_data, selected_model_name = self.display_models_and_get_selection(all_session_data, interactive=interactive)
         
         if selected_session_data is None:
-            print("❌ Anulowano generowanie wykresów")
+            print("Anulowano generowanie wykresów")
             return
         
         # Sprawdź czy można skrócić nazwy modeli
-        print(f"🔍 DEBUG: selected_model_name = {selected_model_name}")
+        print(f" DEBUG: selected_model_name = {selected_model_name}")
         if selected_model_name is None:  # Wybrano wszystkie modele - zostaw pełne nazwy
             all_session_data = selected_session_data
             model_name = None  # Brak wspólnego prefiksu dla wielu modeli
-            print(f"🔍 DEBUG: Wybrano wszystkie modele, model_name = {model_name}")
+            print(f" DEBUG: Wybrano wszystkie modele, model_name = {model_name}")
         else:  # Wybrano konkretną grupę (prefix)
             # Przefiltruj all_session_data według wybranego prefiksu
             filtered_session_data = self._filter_sessions_by_prefix(all_session_data, selected_model_name)
             
             # DEBUG: Pokaż co zostało wybrane
-            print(f"\n🔍 DEBUG: Wybrano prefix: {selected_model_name}")
-            print(f"🔍 DEBUG: Liczba sesji po filtrze: {len(filtered_session_data)}")
+            print(f"\n DEBUG: Wybrano prefix: {selected_model_name}")
+            print(f" DEBUG: Liczba sesji po filtrze: {len(filtered_session_data)}")
             if filtered_session_data:
-                print(f"🔍 DEBUG: Przykładowy model: {filtered_session_data[0].get('model_name', 'unknown')}")
+                print(f" DEBUG: Przykładowy model: {filtered_session_data[0].get('model_name', 'unknown')}")
             
             # Sprawdź czy można skrócić nazwy
             new_sess, model_name = self.if_quantisation_comparison(filtered_session_data)
@@ -605,7 +605,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 all_session_data = filtered_session_data
                 model_name = selected_model_name
 
-        print(f"🔍 DEBUG FINAL: model_name = {model_name}")
+        print(f" DEBUG FINAL: model_name = {model_name}")
         # Generate ONE set of plots with ALL models and ALL optimizations
         
         # 3. Generate model comparison plot (ALL models, ALL optimizations)
@@ -621,7 +621,7 @@ class EvalModelsReferenced(BaseEvaluation):
             model_name_prefix = model_name,
  
         )
-        print(f"📊 Comparison plot saved to: {comparison_plot_path}")
+        print(f" Comparison plot saved to: {comparison_plot_path}")
         
         # 4. Generate mobile analysis visualizations (ALL models, ALL optimizations)
         mobile_plots = self.plot_mobile_analysis_visualizations(
@@ -639,14 +639,14 @@ class EvalModelsReferenced(BaseEvaluation):
         
         # Category winners are already generated inside plot_mobile_analysis_visualizations
         if isinstance(mobile_plots, dict) and 'category_winners' in mobile_plots:
-            print(f"🏆 Category winners saved to: {mobile_plots['category_winners']}")
+            print(f" Category winners saved to: {mobile_plots['category_winners']}")
             
         # 5. Generate Resource Health Check (RAM/SWAP/Throttling) for all models
         try:
             print("\nGenerowanie diagnostyki Resource Health Check...")
             self.plot_resource_health_check(all_session_data, output_dir, timestamp)
         except Exception as e:
-            print(f"❌ Error in plot_resource_health_check: {str(e)}")
+            print(f"Error in plot_resource_health_check: {str(e)}")
         
         # 6. Generate individual throttling timelines for each model
         try:
@@ -654,7 +654,7 @@ class EvalModelsReferenced(BaseEvaluation):
             for session in all_session_data:
                 self.plot_throttling_timeline(session, output_dir, timestamp)
         except Exception as e:
-            print(f"❌ Error in plot_throttling_timeline: {str(e)}")
+            print(f"Error in plot_throttling_timeline: {str(e)}")
             
 
     @staticmethod
@@ -674,7 +674,7 @@ class EvalModelsReferenced(BaseEvaluation):
             Dict: {group_name: plot_path}
         """
         if not session_data:
-            print("❌ No session data available")
+            print("No session data available")
             return {}
         
         # Przygotuj dane dla wszystkich optymalizacji
@@ -1132,7 +1132,7 @@ class EvalModelsReferenced(BaseEvaluation):
         import os
         
         if not group_optimizations and not baseline_data:
-            print(f"❌ No data for group: {group_name}")
+            print(f"No data for group: {group_name}")
             return None
         
         # Twórz wykres - STAŁY ROZMIAR z 5 wykresami
@@ -1315,7 +1315,7 @@ class EvalModelsReferenced(BaseEvaluation):
         import os
         
         if not session_data:
-            print("❌ No session data available")
+            print("No session data available")
             return None
         
         # Przygotuj dane dla wszystkich optymalizacji
@@ -1373,7 +1373,7 @@ class EvalModelsReferenced(BaseEvaluation):
             }
         
         if not all_optimizations:
-            print("❌ No valid optimization data found")
+            print("No valid optimization data found")
             return None
         
         # Twórz wykres z dodatkowym subplotem dla zasobów - STAŁY ROZMIAR z 5 wykresami
@@ -1598,7 +1598,7 @@ class EvalModelsReferenced(BaseEvaluation):
         import os
         
         if not parameter_results:
-            print("❌ No parameter results available")
+            print("No parameter results available")
             return None
         
         # Przygotuj dane dla wykresów
@@ -1798,7 +1798,7 @@ class EvalModelsReferenced(BaseEvaluation):
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print(f"✅ Inference parameters plot saved: {plot_path}")
+        print(f" Inference parameters plot saved: {plot_path}")
         return plot_path
 
     
@@ -1820,7 +1820,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 if overwrite not in ['y', 'yes', 'tak']:
                     return reference_file
             else:
-                print(" ⚠️ Reference file is empty. Starting new interactive session...")
+                print("   Reference file is empty. Starting new interactive session...")
 
 
         
@@ -1892,13 +1892,13 @@ class EvalModelsReferenced(BaseEvaluation):
         try:
             # Walidacja przed zapisem
             if not conversation or len(conversation) < 2:
-                # print(f"❌ Cannot save reference - conversation too short: {len(conversation)} messages")
+                # print(f"Cannot save reference - conversation too short: {len(conversation)} messages")
                 return None
                 
             # Sprawdź czy są odpowiedzi od assistanta
             assistant_responses = [m for m in conversation if m.get('role') == 'assistant']
             if not assistant_responses:
-                print(f"❌ Cannot save reference - no assistant responses found")
+                print(f"Cannot save reference - no assistant responses found")
                 return None
             
             reference_data = {
@@ -1909,10 +1909,10 @@ class EvalModelsReferenced(BaseEvaluation):
             }
             reference_data = self.pretty_json(reference_data, 'json')
             self.save_json_file(reference_data, reference_file)
-            print(f"✅ Reference saved: {reference_file}")
+            print(f" Reference saved: {reference_file}")
             return reference_file
         except Exception as e:
-            print(f"❌ Error saving reference: {e}")
+            print(f"Error saving reference: {e}")
             return None
 
 
@@ -2050,7 +2050,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 try:
                     judge_response = json.loads(judge_response)
                 except json.JSONDecodeError as e:
-                    print(f" ❌ Failed to parse GPT Judge response as JSON: {e}")
+                    print(f" Failed to parse GPT Judge response as JSON: {e}")
                     print(f" Response was: {judge_response[:200]}...")
                     raise
             
@@ -2476,7 +2476,7 @@ class EvalModelsReferenced(BaseEvaluation):
 
         
         # Load existing log data
-        log_data = self.load_json_file(log_file) or {"evaluations": []}  # ✅ Zawsze dict!
+        log_data = self.load_json_file(log_file) or {"evaluations": []}  #  Zawsze dict!
 
         rounds = [self.RoundNumber.ZERO, self.RoundNumber.ONE,
                   self.RoundNumber.TWO, self.RoundNumber.THREE, 
@@ -2529,18 +2529,18 @@ class EvalModelsReferenced(BaseEvaluation):
             if session_data.get("rounds") and len(session_data["rounds"]) > 0:
                 # Add session to log data
                 log_data["evaluations"].append(session_data)
-                print(f"✅ Session added with {len(session_data['rounds'])} rounds")
+                print(f" Session added with {len(session_data['rounds'])} rounds")
             else:
-                print(f"⚠️ Skipping session save - no rounds completed")
+                print(f"  Skipping session save - no rounds completed")
                 return None
 
             # Atomic save - only write if everything succeeded
             self.save_json_file(log_data, log_file)
-            print(f"✅ All data safely logged to: {log_file}")
+            print(f" All data safely logged to: {log_file}")
 
         except Exception as e:
-            print(f"❌ Failed to save log data: {e}")
-            print("⚠️  Evaluation completed but log not saved - data preserved in memory")
+            print(f"Failed to save log data: {e}")
+            print("   Evaluation completed but log not saved - data preserved in memory")
         # return {
         #     "session_timestamp": session_data["session_timestamp"],
         #     "run_number": str(session_data["model_run_number"]),
@@ -2603,7 +2603,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 all_latency.append(latency)
 
         if not all_metrics:
-            print("❌ No metrics data found for model aggregation plot")
+            print("No metrics data found for model aggregation plot")
             return None
 
         # Oblicz średnie metryk
@@ -2764,7 +2764,7 @@ class EvalModelsReferenced(BaseEvaluation):
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
 
-        print(f"✅ Model aggregation plot saved: {plot_path}")
+        print(f" Model aggregation plot saved: {plot_path}")
         return plot_path
 
     def calculate_averages(self, session_data, metadata, model_name_prefix=None):
@@ -2895,11 +2895,11 @@ class EvalModelsReferenced(BaseEvaluation):
                     models_data[model_name_item]['cpu_power'].append(cpu_power_mw)
                     models_data[model_name_item]['gpu_power'].append(gpu_power_mw)
         else:
-            print("❌ session_data must be a list for all models comparison")
+            print("session_data must be a list for all models comparison")
             return None
         
         if not models_data:
-            print("❌ No valid model data found")
+            print("No valid model data found")
             return None
 
         # Calculate averages and prepare data for visualization
@@ -2960,9 +2960,9 @@ class EvalModelsReferenced(BaseEvaluation):
                              size_gb = sess.get('metadata', {}).get('model_size_gb', 0)
                              if size_gb > 0: break
                 
-                print(f"🔍 DEBUG MODEL SIZE: model_name={model_name}, full_model_name={full_model_name}")
-                print(f"🔍 DEBUG MODEL SIZE: model_metadata keys={model_metadata.keys() if model_metadata else 'EMPTY'}")
-                print(f"🔍 DEBUG MODEL SIZE: size_gb={size_gb}")
+                print(f" DEBUG MODEL SIZE: model_name={model_name}, full_model_name={full_model_name}")
+                print(f" DEBUG MODEL SIZE: model_metadata keys={model_metadata.keys() if model_metadata else 'EMPTY'}")
+                print(f" DEBUG MODEL SIZE: size_gb={size_gb}")
                 
                 model_sizes.append(size_gb)
                 
@@ -2991,7 +2991,7 @@ class EvalModelsReferenced(BaseEvaluation):
         self.generate_multi_model_metrics_table(models_data, model_names, session_data[0].get('session_timestamp') if session_data else "latest")
 
         if not model_names:
-            print("❌ No valid model data found for visualization")
+            print("No valid model data found for visualization")
             return None, None, None, None, None, None
         
         # Generate the master metrics table requested by the user
@@ -3029,9 +3029,9 @@ class EvalModelsReferenced(BaseEvaluation):
                     f.write(f"{safe_name} & {gpt:.2f} & {lat:.0f} & {avg_tps:.1f} & {avg_mem:.2f} & {power:.0f}mW \\\\\n\\hline\n")
                 
                 f.write("\\end{tabular}\n}\n\\end{table}\n")
-            print(f"📊 Master metrics table saved: {table_path}")
+            print(f" Master metrics table saved: {table_path}")
         except Exception as e:
-            print(f"❌ Failed to generate master metrics table: {e}")
+            print(f"Failed to generate master metrics table: {e}")
 
     def generate_multi_model_metrics_table(self, models_data, model_names, timestamp):
         """Generates a comprehensive LaTeX table with all key metrics for all models."""
@@ -3066,7 +3066,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 
             f.write("\\end{tabular}\n}\n\\end{table}\n")
             
-        print(f"📊 Comprehensive LaTeX table saved: {table_path}")
+        print(f" Comprehensive LaTeX table saved: {table_path}")
 
 
     def plot_aggr_all_models_with_reference(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
@@ -3127,7 +3127,7 @@ class EvalModelsReferenced(BaseEvaluation):
         plt.savefig(plot1_path, dpi=300, bbox_inches='tight')
         plt.close()
         saved_plots['latency_bars'] = plot1_path
-        print(f"📊 Latency bars saved: {plot1_path}")
+        print(f" Latency bars saved: {plot1_path}")
         
         # 2. Scatter plot: Performance vs Model Size
         if any(size > 0 for size in model_sizes):
@@ -3147,7 +3147,7 @@ class EvalModelsReferenced(BaseEvaluation):
         
         # 3. Radar chart for multiple metrics (also works for single model)
         if len(model_names) >= 1:
-            print(f"🎯 DEBUG: Generating radar chart for {len(model_names)} model(s): {model_names}")
+            print(f" DEBUG: Generating radar chart for {len(model_names)} model(s): {model_names}")
             fig3 = plt.figure(figsize=(10, 10))
             ax3 = fig3.add_subplot(111, polar=True)
             # Radar chart needs raw session data, not processed data
@@ -3162,13 +3162,13 @@ class EvalModelsReferenced(BaseEvaluation):
             plt.savefig(plot3_path, dpi=300, bbox_inches='tight')
             plt.close()
             saved_plots['radar'] = plot3_path
-            print(f"🎯 Radar chart saved: {plot3_path}")
+            print(f" Radar chart saved: {plot3_path}")
         
         # 4. Create LaTeX table
         latex_table_path = self._create_latex_table(model_names, models_data, output_dir, f"{output_file_name}_table.tex")
         if latex_table_path:
             saved_plots['latex_table'] = latex_table_path
-            print(f"📋 LaTeX table saved: {latex_table_path}")
+            print(f"  LaTeX table saved: {latex_table_path}")
         
         # 5. Generate category winners analysis
         category_winners_plot = self._create_category_winners_analysis_referenced(
@@ -3249,7 +3249,7 @@ class EvalModelsReferenced(BaseEvaluation):
             return table_path
             
         except Exception as e:
-            print(f"❌ Error creating LaTeX table: {str(e)}")
+            print(f"Error creating LaTeX table: {str(e)}")
             return None
 
     def _create_radar_chart(self, ax, session_data, metadata, model_name_prefix=None):
@@ -3258,7 +3258,7 @@ class EvalModelsReferenced(BaseEvaluation):
         models_data, model_names, avg_scores, avg_latencies, model_sizes, model_params = self.calculate_averages(session_data, metadata, model_name_prefix)
         
         if models_data is None:
-            print("❌ No data for radar chart")
+            print("No data for radar chart")
             return
         
         # Debug info
@@ -3365,7 +3365,7 @@ class EvalModelsReferenced(BaseEvaluation):
             values += values[:1]  # Close the loop
             
             # Debug radar values - uncommented to diagnose the "all maximum" issue
-            print(f"🎯 DEBUG RADAR VALUES: Model={model}, GPT_raw={avg_scores[i]:.3f}, GPT_scaled={gpt_score_scaled:.3f}, Latency={latency_ms:.0f}ms→{latency_scaled:.2f}, Size={model_sizes[i]:.1f}GB→{size_scaled:.2f}, Power={model_power:.0f}mW→{power_scaled:.2f}")
+            print(f" DEBUG RADAR VALUES: Model={model}, GPT_raw={avg_scores[i]:.3f}, GPT_scaled={gpt_score_scaled:.3f}, Latency={latency_ms:.0f}ms→{latency_scaled:.2f}, Size={model_sizes[i]:.1f}GB→{size_scaled:.2f}, Power={model_power:.0f}mW→{power_scaled:.2f}")
             
             # Use consistent color for this model
             color = model_color_map[model]
@@ -3431,12 +3431,12 @@ class EvalModelsReferenced(BaseEvaluation):
         """Create a scatter plot of performance vs latency with model size as bubble size."""
         # GUARD: Check for empty data
         if not model_names or not avg_scores or not model_sizes or not avg_latencies:
-            print("⚠️ Skipping scatter plot: Missing data")
+            print("  Skipping scatter plot: Missing data")
             return
             
         # GUARD: Check for empty data
         if not model_names or not avg_scores or not model_sizes or not avg_latencies:
-            print("⚠️ Skipping scatter plot: Missing data")
+            print("  Skipping scatter plot: Missing data")
             return
 
         # GUARD to prevent plotting if arrays are effectively empty
@@ -3444,7 +3444,7 @@ class EvalModelsReferenced(BaseEvaluation):
             return
         # GUARD: Check for empty data
         if not model_names or not avg_scores or not model_sizes or not avg_latencies:
-            print("⚠️ Skipping scatter plot: Missing data")
+            print("  Skipping scatter plot: Missing data")
             return
 
         # GUARD: Check if we have valid non-zero data for plotting
@@ -3572,7 +3572,7 @@ class EvalModelsReferenced(BaseEvaluation):
 
     def _create_latency_bars(self, ax, model_names, avg_latencies, model_sizes, model_name=None):
         """Create a bar chart of average latencies sorted by model size."""
-        print(f"📊 DEBUG: _create_latency_bars called with {len(model_names)} models: {model_names}")
+        print(f" DEBUG: _create_latency_bars called with {len(model_names)} models: {model_names}")
         # Sort by model size for better visualization
         sorted_indices = sorted(range(len(model_names)), key=lambda i: model_sizes[i])
         names = [model_names[i] for i in sorted_indices]
@@ -3797,7 +3797,7 @@ class EvalModelsReferenced(BaseEvaluation):
         path = os.path.join(output_dir, f"{filename_prefix}_scores.png")
         plt.savefig(path, dpi=300)
         plt.close()
-        print(f"📊 Score comparison saved: {path}")
+        print(f" Score comparison saved: {path}")
         return path
 
     def _create_resource_comparison(self, model_names, models_data, output_dir, filename_prefix, use_polish=True):
@@ -4105,12 +4105,12 @@ class EvalModelsReferenced(BaseEvaluation):
             gpt_data = valid_metrics['gpt_judge']
             judge_text += f"Ogólna ocena: {gpt_data.get('original_score', 0.0):.1f}/10\n\n"
             
-            print(f"🔍 DEBUG: gpt_data keys: {gpt_data.keys()}")
-            print(f"🔍 DEBUG: 'criteria_scores' in gpt_data: {'criteria_scores' in gpt_data}")
+            print(f" DEBUG: gpt_data keys: {gpt_data.keys()}")
+            print(f" DEBUG: 'criteria_scores' in gpt_data: {'criteria_scores' in gpt_data}")
 
             if 'criteria_scores' in gpt_data:
                 criteria_scores = gpt_data['criteria_scores']
-                print(f"🔍 DEBUG: criteria_scores keys: {criteria_scores.keys()}")
+                print(f" DEBUG: criteria_scores keys: {criteria_scores.keys()}")
                 category_names = {
                     'json_correctness': 'JSON Correctness',
                     'tool_call_correctness': 'Tool Calls',
@@ -4134,7 +4134,7 @@ class EvalModelsReferenced(BaseEvaluation):
                             ['  ' + line for line in wrapped_reason.split('\n')])
                         judge_text += f"• {name}: {score_value}/10\n{indented_reason}\n\n"
             else:
-                print("⚠️ DEBUG: 'criteria_scores' NOT FOUND in gpt_data!")
+                print("  DEBUG: 'criteria_scores' NOT FOUND in gpt_data!")
 
         ax3.text(0.0, 0.95, judge_text, transform=ax3.transAxes, fontsize=6,
                  verticalalignment='top', fontfamily='monospace',
@@ -4176,7 +4176,7 @@ class EvalModelsReferenced(BaseEvaluation):
         plt.savefig(plot_path, dpi=300, bbox_inches='tight')
         plt.close()
 
-        print(f"✅ Single round plot saved: {plot_path}")
+        print(f" Single round plot saved: {plot_path}")
         return plot_path
 
     def plot_latency_breakdown_timeline(self, session_data, agent_type, plotting_session_timestamp, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
@@ -4754,7 +4754,7 @@ class EvalModelsReferenced(BaseEvaluation):
         if isinstance(session_data, list):
             all_sessions = [s for s in session_data if isinstance(s, dict)]
             if not all_sessions:
-                print("⚠️ all_sessions is empty or invalid")
+                print("  all_sessions is empty or invalid")
                 return None
             
             # Build per-model round latency map
@@ -4776,7 +4776,7 @@ class EvalModelsReferenced(BaseEvaluation):
                     model_round_latencies[model_name] = per_round
             
             if not model_round_latencies:
-                print("⚠️ No valid latency data in all_sessions")
+                print("  No valid latency data in all_sessions")
                 return None
             
             try:
@@ -4873,7 +4873,7 @@ class EvalModelsReferenced(BaseEvaluation):
                 print(f"📈 Latency Timeline Analysis saved (multi-model): {plot_path}")
                 return plot_path
             except Exception as e:
-                print(f"❌ Error creating multi-model latency timeline analysis: {str(e)}")
+                print(f"Error creating multi-model latency timeline analysis: {str(e)}")
                 import traceback
                 traceback.print_exc()
                 return None
@@ -4891,7 +4891,7 @@ class EvalModelsReferenced(BaseEvaluation):
             
             for i, round_data in enumerate(rounds_data, 1):
                 if not isinstance(round_data, dict):
-                    print(f"⚠️ Skipping invalid round data at index {i}")
+                    print(f"  Skipping invalid round data at index {i}")
                     continue
                     
                 # Get latency breakdown, default to empty dict if not present
@@ -4913,17 +4913,17 @@ class EvalModelsReferenced(BaseEvaluation):
                     avg_round_latencies[round_num] = np.mean(latencies)
             
             if not avg_round_latencies:
-                print("⚠️ No valid latency data found in any rounds")
+                print("  No valid latency data found in any rounds")
                 return None
                 
             model_round_latencies[model_name] = avg_round_latencies
         else:
-            print("⚠️ Unexpected session_data format for latency timeline")
+            print("  Unexpected session_data format for latency timeline")
             return None
         
         # Check if we have any valid data to plot
         if not model_round_latencies:
-            print("⚠️ No valid latency data found to create timeline analysis")
+            print("  No valid latency data found to create timeline analysis")
             return None
         
         try:
@@ -4957,7 +4957,7 @@ class EvalModelsReferenced(BaseEvaluation):
                             p = np.poly1d(z)
                             ax1.plot(rounds, p(rounds), "--", alpha=0.5, color=colors[i])
                         except Exception as e:
-                            print(f"⚠️ Could not add trend line for {model_name}: {str(e)}")
+                            print(f"  Could not add trend line for {model_name}: {str(e)}")
             
             ax1.set_xlabel('Round Number', fontweight='bold')
             ax1.set_ylabel('Latency (ms)', fontweight='bold')
@@ -4968,7 +4968,7 @@ class EvalModelsReferenced(BaseEvaluation):
             # 2. Heatmap - latency by round (single model)
             all_rounds = sorted(avg_round_latencies.keys())
             if not all_rounds:
-                print("⚠️ No valid round data for heatmap")
+                print("  No valid round data for heatmap")
                 return None
             
             # Create matrix with just one row for the single model
@@ -5016,7 +5016,7 @@ class EvalModelsReferenced(BaseEvaluation):
             return plot_path
             
         except Exception as e:
-            print(f"❌ Error creating latency timeline analysis: {str(e)}")
+            print(f"Error creating latency timeline analysis: {str(e)}")
             import traceback
             traceback.print_exc()
             return None
@@ -5205,7 +5205,7 @@ class EvalModelsReferenced(BaseEvaluation):
 
     def plot_mobile_analysis_visualizations(self, session_data, optimisation_type, agent_type, plotting_session_timestamp, metadata, output_dir, output_file_name, use_polish=True, model_name_prefix=None):
         """
-        🏆 MOBILE-FOCUSED ANALYSIS: Golden Model Selection for Mobile Deployment
+         MOBILE-FOCUSED ANALYSIS: Golden Model Selection for Mobile Deployment
         Analyzes model performance from a mobile deployment perspective.
         
         Args:
@@ -5225,7 +5225,7 @@ class EvalModelsReferenced(BaseEvaluation):
         from datetime import datetime
         
         if not session_data:
-            print("❌ No session data provided for mobile analysis")
+            print("No session data provided for mobile analysis")
             return None
             
         
@@ -5509,7 +5509,7 @@ class EvalModelsReferenced(BaseEvaluation):
                                      c=scatter_colors,
                                      alpha=0.6)
             else:
-                 print("⚠️ Skipping scatter plot in mobile analysis: empty data arrays")
+                 print("  Skipping scatter plot in mobile analysis: empty data arrays")
                  return None
                  
             if model_name_prefix is not None:
@@ -5585,7 +5585,7 @@ class EvalModelsReferenced(BaseEvaluation):
             return mobile_plots
             
         except Exception as e:
-            print(f"❌ Error generating mobile analysis: {str(e)}")
+            print(f"Error generating mobile analysis: {str(e)}")
             import traceback
             traceback.print_exc()
             return {}
@@ -5844,11 +5844,11 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
                     models_set.add(model_name)
             
             models_list = sorted(list(models_set))
-            print(f"🔍 Found models in logs: {models_list}")
+            print(f" Found models in logs: {models_list}")
             return models_list
             
         except Exception as e:
-            print(f"⚠️ Error reading models from logs: {e}")
+            print(f"  Error reading models from logs: {e}")
             return []
 
     def get_existing_optimizations_from_logs(self, log_file):
@@ -5866,13 +5866,13 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
                     opt_str = str(eval_session.get('optimisation', {}))
                     existing_optimizations.add(opt_str)
             
-            print(f"🔍 Found {len(existing_optimizations)} existing optimizations in logs:")
+            print(f" Found {len(existing_optimizations)} existing optimizations in logs:")
             for opt in sorted(existing_optimizations):
                 print(f"   {opt}")
             
             return existing_optimizations
         except Exception as e:
-            print(f"⚠️ Error reading logs: {e}")
+            print(f"  Error reading logs: {e}")
             return set()
 
     def pipeline_eval_model(self, mode: Literal["logs_only", "logs_and_viz", "viz_only"] = "logs_and_viz", use_cache: bool = True, optimisations_choice: Literal["selected", "test"] = "selected", inference_params=False, use_polish: bool = True, stage_name: str = "evaluation", generate_comparison: bool = True, generate_per_round: bool = True, generate_per_model: bool = True, generate_aggr_over_rounds: bool = True, neptune_tags_list: Optional[list] = None, pipeline_run_number: int = None, pipeline_timestamp: str = None):
@@ -5988,18 +5988,18 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
             successful_evaluations = 0
             for optimization in optimisations:
                 session_data["optimisation"] = optimization
-                print(f"🔧 Testing optimization: {optimization}")
+                print(f"  Testing optimization: {optimization}")
                 try:
                     if inference_params and inference_param_combinations:
                         for inference_param in inference_param_combinations:
-                            print(f"🔧 Testing inference parameter: {inference_param}")
+                            print(f"  Testing inference parameter: {inference_param}")
                             self.evaluate_all_rounds(session_data, session_locations, optimization, inference_param, log_file_params_test)
                     else:
-                        print(f"🔧 Testing optimization without inference parameters")
+                        print(f"  Testing optimization without inference parameters")
                         self.evaluate_all_rounds(session_data, session_locations, optimization)
 
                 except Exception as e:
-                    print(f"❌ Error evaluating all rounds: {e}")
+                    print(f"Error evaluating all rounds: {e}")
 
                 successful_evaluations += 1
             print(f" Ewaluacja modelu zakończona!")
@@ -6021,52 +6021,52 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
                 print(f"📉 Single run mode: Restricting visualization to current model: {self.model_name}")
             
             if not list_of_models:
-                print("❌ No models found in logs for visualization")
+                print("No models found in logs for visualization")
                 list_of_models = [self.model_name]  # Fallback to current model
             
             
             
             if generate_per_round:
                 try:
-                    print("\n📊 Generating per-round plots...")
+                    print("\n Generating per-round plots...")
                     self.per_round_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
                 except Exception as e:
                     print(f"⚠️ Error generating per-round plots: {e}")
             else:
-                print("⏭️ Skipping per-round plots")
+                print("Skipping per-round plots")
                 
             if generate_aggr_over_rounds:
                 try:
-                    print("\n📊 Generating aggr_over_rounds plots...")
+                    print("\n Generating aggr_over_rounds plots...")
                     self.per_model_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
                 except Exception as e:
                     print(f"⚠️ Error in aggr_over_rounds plots: {e}")
             else:
-                print("⏭️ Skipping aggr_over_rounds plots")
+                print("Skipping aggr_over_rounds plots")
                 
             if generate_per_model:
                 try:
-                    print("\n📊 Generating per-model plots...")
+                    print("\n Generating per-model plots...")
                     self.per_model_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models, use_polish=use_polish)
                 except Exception as e:
                     print(f"⚠️ Error generating per-model plots: {e}")
             else:
-                print("⏭️ Skipping per-model plots")
+                print("Skipping per-model plots")
                 
             if generate_all_models:
                 try:
-                    print("\n📊 Generating all-models plots...")
+                    print("\n Generating all-models plots...")
                     self.all_models_plots(session_locations=session_locations, timestamp=timestamp, use_polish=use_polish, interactive=False)
                 except Exception as e:
                     print(f"⚠️ Error generating all-models plots: {e}")
             else:
-                print("⏭️ Skipping all-models plots")
+                print("Skipping all-models plots")
             
             # Plot inference parameters comparison if test data exists
             # Użyj stałej ścieżki do pliku w katalogu log/ zamiast konkretnego runu
             log_file_params_test = session_locations["log_file"].replace("model/", "log/").replace(".json", "_inference_params_test.jsonl")
             if os.path.exists(log_file_params_test):
-                print("\n📊 Generating inference parameters comparison plots...")
+                print("\n Generating inference parameters comparison plots...")
                 params_data = self.load_json_file(log_file_params_test)
                 if params_data and params_data.get('evaluations'):
                     # Przygotuj dane dla plot_inference_parameters_comparison
@@ -6214,14 +6214,14 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
             self.log_metrics_to_neptune(session_locations)
 
             self.neptune.stop()
-            print("✅ Neptune upload completed")
+            print(" Neptune upload completed")
             
         # Cleanup unused all_models run folder if not used for comparison
         if not generate_comparison and os.path.exists(all_models_run_folder):
             try:
                 # Check if empty (ignoring hidden files)
                 if not any(f for f in os.listdir(all_models_run_folder) if not f.startswith('.')):
-                     print(f"🧹 Removing unused all_models run folder: {all_models_run_folder}")
+                     print(f"  Removing unused all_models run folder: {all_models_run_folder}")
                      os.rmdir(all_models_run_folder)
             except Exception as e:
                 print(f"⚠️ Failed to remove unused all_models folder: {e}")
@@ -6230,7 +6230,7 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
                  
     def log_metrics_to_neptune(self, session_locations):
         """Parses local logs and uploads scalar metrics to Neptune for comparison."""
-        print("📊 Logging scalar metrics to Neptune...")
+        print(" Logging scalar metrics to Neptune...")
         log_file = session_locations["log_file"]
         
         # Load logs
@@ -6313,7 +6313,7 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
              if gpu_energies:
                  self.neptune.run["metrics/avg_gpu_power_mw"] = sum(gpu_energies) / len(gpu_energies)
                  
-             print("✅ Scalar metrics logged to Neptune.")
+             print(" Scalar metrics logged to Neptune.")
                  
         except Exception as e:
             print(f"⚠️ Failed to log metrics to Neptune: {e}")
@@ -6321,7 +6321,7 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
 
     def generate_best_models_summary(self, session_locations, timestamp, use_polish=True):
         """Generates a summary of best performing models and uploads to Neptune."""
-        print("\n🏆 Generating Best Models Summary...")
+        print("\n Generating Best Models Summary...")
         log_file = session_locations["log_file"]
         all_models_log_file = log_file.replace(f"{self.agent_type}_evaluation_results", f"all_models_{self.agent_type}_evaluation_results")
         
@@ -6396,10 +6396,10 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
         
         leaderboard_path = os.path.join(session_locations["all_models_run_folder"], f"leaderboard_{timestamp}.md")
         with open(leaderboard_path, "w") as f:
-            f.write(f"# 🏆 Model Leaderboard - {timestamp}\n\n")
+            f.write(f"#  Model Leaderboard - {timestamp}\n\n")
             f.write(md_table)
             
-        print(f"✅ Leaderboard saved to: {leaderboard_path}")
+        print(f" Leaderboard saved to: {leaderboard_path}")
         
         # Upload to Neptune
         if self.neptune.run:
@@ -6723,8 +6723,8 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
         
         
 
-        print(f"📊 Optimization plan:")
-        print(f"   🔹 Individual optimizations: {len(individual_optimizations)}")
+        print(f" Optimization plan:")
+        print(f"    Individual optimizations: {len(individual_optimizations)}")
         print(f"   🔹 Combination optimizations: {len(selected_optimisation)}")
 
         
@@ -6768,7 +6768,7 @@ if __name__ == "__main__":
     from edge_llm_lab.utils.base_eval import Agent
     agent_type_enum = Agent.CONSTANT_DATA_EN
     
-    print("\n🔍 KONFIGURACJA EWALUACJI")
+    print("\n KONFIGURACJA EWALUACJI")
     print("="*50)
     
     execution_mode = input("Tryb: [1] Logi [2] Logi+viz [3] Viz: ")
@@ -6814,7 +6814,7 @@ if __name__ == "__main__":
     
     only_tested_true = mode_choice == "2"
     
-    print(f"\n✅ KONFIGURACJA:")
+    print(f"\n KONFIGURACJA:")
     print(f"   Modele: {'Tested:true bez wyników' if only_tested_true else 'Wszystkie'}")
     print(f"   Tryb: {mode}")
     print(f"   Optymalizacje: {optimisations_choice}")
@@ -6827,10 +6827,10 @@ if __name__ == "__main__":
     )
     
     if not models_to_evaluate:
-        print(f"❌ Brak modeli do testowania")
+        print(f"Brak modeli do testowania")
         exit(1)
         
-    print(f"📊 Znaleziono {len(models_to_evaluate)} modeli do testowania")
+    print(f" Znaleziono {len(models_to_evaluate)} modeli do testowania")
 
     # Testuj modele
     best_model = None
@@ -6840,12 +6840,12 @@ if __name__ == "__main__":
         print("="*50)
 
         if not BaseEvaluation.check_model_availability(model_name, install_choice=install_choice):
-            print(f"⏭️ Pomijam {model_name}")
+            print(f"Pomijam {model_name}")
             continue
             
         evaluator = EvalModelsReferenced(model_name=model_name, agent=agent_type_enum)
         
-        print(f"🔍 Testowanie {model_name}...")
+        print(f" Testowanie {model_name}...")
         evaluator.pipeline_eval_model(
             mode=mode,
             use_cache=True,
@@ -6856,8 +6856,8 @@ if __name__ == "__main__":
         del evaluator
 
 
-    print(f"\n✅ EWALUACJA ZAKOŃCZONA!")
-    print(f"📊 Wyniki: examples/desktop/output/agents/{agent_type_enum.value}/referenced/")
+    print(f"\n EWALUACJA ZAKOŃCZONA!")
+    print(f" Wyniki: examples/desktop/output/agents/{agent_type_enum.value}/referenced/")
 
 
 

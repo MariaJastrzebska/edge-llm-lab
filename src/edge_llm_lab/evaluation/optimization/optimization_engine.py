@@ -14,7 +14,7 @@ class OptimizationEngine:
         """Runs the Optuna study."""
         print(f"🚀 Starting Optuna optimization: {self.study_name}")
         self.study.optimize(objective_func, n_trials=n_trials)
-        print("✅ Optimization finished.")
+        print(" Optimization finished.")
         print(f"Best trial: {self.study.best_trial.params}")
         return self.study.best_trial.params
 

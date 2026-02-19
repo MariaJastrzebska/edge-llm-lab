@@ -108,7 +108,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
                 doctor_question=doctor_question
             )
         except FileNotFoundError:
-            print(f"⚠️ Patient simulation prompt not found: {prompt_file}")
+            print(f"  Patient simulation prompt not found: {prompt_file}")
             # Fallback to Polish prompt
             return ""
 
@@ -149,12 +149,12 @@ class EvalModelsUnreferenced(BaseEvaluation):
             if not isinstance(current_info, dict):
                 current_info = {}
             
-            print(f"  🔍 Parsed - Status: {status}, Question: '{doctor_question}'")
+            print(f"   Parsed - Status: {status}, Question: '{doctor_question}'")
             
             return status, doctor_question, current_info
                 
         except Exception as e:
-            print(f"  ⚠️ Error parsing response: {e} from {llm_response}")
+            print(f"    Error parsing response: {e} from {llm_response}")
             
         return "INCOMPLETE", "", {}
 
@@ -469,7 +469,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
             # Sprawdź czy zakończono
             if round_result["status"] == "COMPLETE":
                 completed = True
-                print(f"  ✅ Completed in {round_num} rounds")
+                print(f"   Completed in {round_num} rounds")
                 break
         
         # Określ typ pacjenta i wynik testu
@@ -552,7 +552,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
     ) -> Dict:
         """Ewaluuje wszystkich pacjentów dla modelu (jak evaluate_all_rounds w referenced)"""
         
-        print(f"\n📋 Starting unreferenced evaluation for {self.model_name}")
+        print(f"\n  Starting unreferenced evaluation for {self.model_name}")
         
         # Pobierz pliki pacjentów
         successful_dir = os.path.join(self.patient_dir, "successful")
@@ -577,7 +577,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
                     patient_files.append((file, expected_file, "unsuccessful"))
         
         if not patient_files:
-            print("❌ No patient files found!")
+            print("No patient files found!")
             return {}
         
         print(f"📁 Found {len(patient_files)} patient files")
@@ -614,7 +614,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
                 )
                 
                 # APPEND DO LOGU PO KAŻDYM PACJENCIE
-                print(f"💾 Saving patient {i}/{len(patient_files)} to log...")
+                print(f"  Saving patient {i}/{len(patient_files)} to log...")
                 try:
                     # Wczytaj istniejący log lub stwórz nowy
                     log_data = self.load_json_file(log_file) if os.path.exists(log_file) else {"evaluations": []}
@@ -645,13 +645,13 @@ class EvalModelsUnreferenced(BaseEvaluation):
                     
                     # Zapisz atomowo
                     self.save_json_file(log_data, log_file)
-                    print(f"✅ Patient {i}/{len(patient_files)} saved to log")
+                    print(f" Patient {i}/{len(patient_files)} saved to log")
                     
                 except Exception as save_error:
-                    print(f"⚠️ Could not save patient {i} to log: {save_error}")
+                    print(f"  Could not save patient {i} to log: {save_error}")
                 
             except Exception as e:
-                print(f"❌ Error testing patient {patient_file}: {e}")
+                print(f"Error testing patient {patient_file}: {e}")
                 traceback.print_exc()
         
         # Oblicz metryki agregowane
@@ -684,10 +684,10 @@ class EvalModelsUnreferenced(BaseEvaluation):
             
             # Zapisz atomowo
             self.save_json_file(log_data, log_file)
-            print(f"✅ All data safely logged to: {log_file}")
+            print(f" All data safely logged to: {log_file}")
             
         except Exception as e:
-            print(f"❌ Failed to save log data: {e}")
+            print(f"Failed to save log data: {e}")
         
         # Stwórz wykres podsumowujący dla modelu
         self.plot_model_summary(session_data, model_run_folder, timestamp)
@@ -851,7 +851,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
         plt.savefig(plot_path, dpi=100, bbox_inches='tight')
         plt.close()
         
-        print(f"  📊 Saved patient plot: {plot_path}")
+        print(f"   Saved patient plot: {plot_path}")
     
     def plot_model_summary(self, session_data, output_dir: str, timestamp: str):
         """Tworzy wykres podsumowujący dla całego modelu"""
@@ -970,7 +970,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
         plt.savefig(plot_path, dpi=150, bbox_inches='tight')
         plt.close()
         
-        print(f"📊 Saved model summary plot: {plot_path}")
+        print(f" Saved model summary plot: {plot_path}")
 
     def get_models_from_logs(self, log_file):
         """Pobiera listę wszystkich modeli z pliku logów"""
@@ -985,11 +985,11 @@ class EvalModelsUnreferenced(BaseEvaluation):
                     models_set.add(model_name)
             
             models_list = sorted(list(models_set))
-            print(f"🔍 Found models in logs: {models_list}")
+            print(f" Found models in logs: {models_list}")
             return models_list
             
         except Exception as e:
-            print(f"⚠️ Error reading models from logs: {e}")
+            print(f"  Error reading models from logs: {e}")
             return []
 
     def get_optimisations(self):
@@ -1003,11 +1003,11 @@ class EvalModelsUnreferenced(BaseEvaluation):
         
         combination_optimizations = []  # Pusta lista dla unreferenced
         
-        print(f"📊 Optimization plan for unreferenced:")
-        print(f"   🔹 Individual optimizations: {len(individual_optimizations)}")
-        print(f"   🔹 Najlepsza metoda: Flash Attention + Continuous Batching")
-        print(f"   🔹 Uzasadnienie: Najniższa latencja (50-60ms), stabilna wydajność, najwyższa jakość generacji")
-        print(f"   🔹 Combination optimizations: {len(combination_optimizations)}")
+        print(f" Optimization plan for unreferenced:")
+        print(f"    Individual optimizations: {len(individual_optimizations)}")
+        print(f"    Najlepsza metoda: Flash Attention + Continuous Batching")
+        print(f"    Uzasadnienie: Najniższa latencja (50-60ms), stabilna wydajność, najwyższa jakość generacji")
+        print(f"    Combination optimizations: {len(combination_optimizations)}")
         
         return individual_optimizations, combination_optimizations
 
@@ -1277,11 +1277,11 @@ class EvalModelsUnreferenced(BaseEvaluation):
         )
         
         if session_results:
-            print(f"\n✅ Evaluation completed successfully!")
+            print(f"\n Evaluation completed successfully!")
             print(f"   Test Pass Rate: {session_results['aggregated_metrics']['overall']['test_pass_rate']:.1%}")
             print(f"   Output: {session_locations['model_output_directory']}")
         else:
-            print(f"\n❌ Evaluation failed!")
+            print(f"\nEvaluation failed!")
         
         return session_results
 
@@ -1346,7 +1346,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
             list_of_models = self.get_models_from_logs(session_locations["log_file"])
             
             if not list_of_models:
-                print("❌ No models found in logs for visualization")
+                print("No models found in logs for visualization")
                 list_of_models = [self.model_name]  # Fallback to current model
             
             self.per_patient_plots(session_locations=session_locations, timestamp=timestamp, list_of_models=list_of_models)
@@ -1363,7 +1363,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
             
             # Run evaluation for each optimization (dla unreferenced powinna być tylko jedna)
             for optimization in optimisations_to_use:
-                print(f"🔧 Testing optimization: {optimization}")
+                print(f"  Testing optimization: {optimization}")
                 session_data_copy = session_data.copy()
                 session_data_copy["optimisation"] = optimization
                 self.evaluate_all_patients_with_optimisation(session_data_copy, session_locations, optimization)
@@ -1380,7 +1380,7 @@ class EvalModelsUnreferenced(BaseEvaluation):
             
             # Run evaluation for each optimization
             for optimization in optimisations_to_use:
-                print(f"🔧 Testing optimization: {optimization}")
+                print(f"  Testing optimization: {optimization}")
                 session_data_copy = session_data.copy()
                 session_data_copy["optimisation"] = optimization
                 self.evaluate_all_patients_with_optimisation(session_data_copy, session_locations, optimization)
@@ -1402,56 +1402,56 @@ if __name__ == "__main__":
     agent_type_enum = Agent.CONSTANT_DATA_EN  # Auto-select CONSTANT_DATA_EN
     
     # === WSZYSTKIE PYTANIA NA POCZĄTKU ===
-    print("\n🔍 KONFIGURACJA GLOBALNYCH USTAWIEŃ")
+    print("\n KONFIGURACJA GLOBALNYCH USTAWIEŃ")
     print("="*50)
     
     # 1. Wybór modeli do testowania
-    print("\n📋 WYBÓR MODELI DO TESTOWANIA:")
+    print("\n  WYBÓR MODELI DO TESTOWANIA:")
     print("1. Wszystkie modele z config.yaml")
     print("2. Tylko modele z tested: true bez wyników w logach")
     mode_choice = input("Wybierz tryb: 1 - Wszystkie modele z config, 2 - Tylko tested: true bez wyników: ")
     
     # 2. Czy automatycznie pobierać modele
-    print("\n📦 POBIERANIE MODELI:")
+    print("\n POBIERANIE MODELI:")
     auto_install = input("Czy automatycznie pobierać brakujące modele? (y/n): ").lower().strip()
     install_choice = "y" if auto_install in ["y", "yes", "tak"] else "n"
     
     # 3. Tryb działania
-    print("\n⚙️ TRYB DZIAŁANIA:")
+    print("\n  TRYB DZIAŁANIA:")
     print("1. Same logi (bez wizualizacji)")
     print("2. Logi + wizualizacje")
     print("3. Same wizualizacje (bez logowania)")
     execution_mode = input("Wybierz tryb: 1 - Same logi, 2 - Logi+viz, 3 - Same viz: ")
     
     print("\n" + "="*50)
-    print("✅ KONFIGURACJA ZAKOŃCZONA")
+    print(" KONFIGURACJA ZAKOŃCZONA")
     print("="*50)
     
     # Określ tryb na podstawie execution_mode
     if execution_mode == "1":
         mode = "logs_only"  # Same logi
-        print("🔧 Tryb: Same logi (bez wizualizacji)")
+        print("  Tryb: Same logi (bez wizualizacji)")
     elif execution_mode == "2":
         mode = "logs_and_viz"  # Logi + viz (domyślne zachowanie)
-        print("🔧 Tryb: Logi + wizualizacje")
+        print("  Tryb: Logi + wizualizacje")
     else:
         mode = "viz_only"   # Same viz
-        print("🔧 Tryb: Same wizualizacje")
+        print("  Tryb: Same wizualizacje")
     
     # Pobierz modele do testowania
     if mode_choice == "1":
         models_to_evaluate = EvalModelsUnreferenced.get_truly_untested_models(agent_type_enum.value, "unreferenced", only_tested_true=False)
-        print("📋 Tryb: Wszystkie modele z config")
+        print("  Tryb: Wszystkie modele z config")
     else:
         models_to_evaluate = EvalModelsUnreferenced.get_truly_untested_models(agent_type_enum.value, "unreferenced", only_tested_true=True)
-        print("📋 Tryb: Tylko tested: true bez wyników")
+        print("  Tryb: Tylko tested: true bez wyników")
     
     if not models_to_evaluate:
-        print(f"❌ Brak modeli do testowania dla agenta {agent_type_enum.value}")
+        print(f"Brak modeli do testowania dla agenta {agent_type_enum.value}")
         exit(1)
         
     total_models = len(models_to_evaluate)
-    print(f"📊 Znaleziono {total_models} modeli do testowania")
+    print(f" Znaleziono {total_models} modeli do testowania")
 
     # === PĘTLA PRZEZ MODELE ===
     best_model = None
@@ -1462,11 +1462,11 @@ if __name__ == "__main__":
 
         # Sprawdź dostępność modelu (używaj globalnego ustawienia)
         if not BaseEvaluation.check_model_availability(model_name, install_choice=install_choice):
-            print(f" ⏭️  Pomijam model {model_name}...")
+            print(f"  Pomijam model {model_name}...")
             continue
             
-        print(f" ✅ Using model: {model_name}")
-        print(f" ✅ Using agent: {agent_type_enum}")  
+        print(f"  Using model: {model_name}")
+        print(f"  Using agent: {agent_type_enum}")  
         
         # Inicjalizuj evaluator dla tego modelu
         unreferenced_model_evaluator = EvalModelsUnreferenced(
@@ -1475,7 +1475,7 @@ if __name__ == "__main__":
             )
         
         # Uruchom ewaluację
-        print(f"🔍 Running unreferenced evaluation for {model_name} and {agent_type_enum}")
+        print(f" Running unreferenced evaluation for {model_name} and {agent_type_enum}")
         unreferenced_model_evaluator.pipeline_eval_model(mode=mode)  # Użyj wybranego trybu!
         current_best = unreferenced_model_evaluator.get_the_most_accurate_model()
         if not best_model:
@@ -1486,16 +1486,16 @@ if __name__ == "__main__":
         try:
             from model_config_loader import mark_model_as_tested
             mark_model_as_tested(agent_type_enum.value, model_name)
-            print(f" 💾 Model {model_name} oznaczony jako tested: true")
+            print(f"   Model {model_name} oznaczony jako tested: true")
         except Exception as e:
-            print(f" ⚠️ Nie udało się oznaczyć modelu jako tested: {e}")
+            print(f"   Nie udało się oznaczyć modelu jako tested: {e}")
 
     # === NAJLEPSZY MODEL ===
     if not best_model:
-        print("❌ Nie znaleziono żadnego działającego modelu!")
+        print("Nie znaleziono żadnego działającego modelu!")
         exit(1)
         
-    print(f"\n🏆 NAJLEPSZY MODEL: {best_model}")
+    print(f"\n NAJLEPSZY MODEL: {best_model}")
     print("="*60)
     
-    print("\n✅ EWALUACJA ZAKOŃCZONA!")
+    print("\n EWALUACJA ZAKOŃCZONA!")

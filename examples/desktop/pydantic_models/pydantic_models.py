@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field, ConfigDict, validator
 from enum import Enum
 from datetime import date, datetime
 
-# Modele Pydantic (bez zmian w sekcji podstawowej)
+# Modele Pydantic
 class BloodTypeEnum(str, Enum):
     A_POS = "A+"
     A_NEG = "A-"
@@ -88,7 +88,7 @@ class MedScreeningInputStatus(str, Enum):
     COMPLETE = "complete"
     SKIPPED = "skipped"
 
-# Finalne modele danych
+# Główne modele danych
 class ConstantData(BaseModel):
     name: Optional[str] = Field(None, description="Imię pacjenta - opcjonalne", max_length=100)
     gender: Literal["M", "F", "Other"] = Field(..., description="Płeć pacjenta - obowiązkowe")
@@ -122,7 +122,7 @@ class Symptom(BaseModel):
     frequency: Optional[str] = Field(None, description="Częstotliwość - opcjonalne", max_length=50)
     onset_date: Optional[date] = Field(None, description="Data wystąpienia - opcjonalne")
 
-# Modele Setup (do iteracyjnego zbierania danych)
+# Modele do zbierania danych
 class ConstantDataSetup(BaseModel):
     name: Optional[str] = Field(None, description="Imię pacjenta - opcjonalne", max_length=100)
     gender: Optional[Literal["M", "F", "Other"]] = Field(None, description="Płeć pacjenta - obowiązkowe")
@@ -158,7 +158,7 @@ class SymptomSetup(BaseModel):
     frequency: Optional[str] = Field(None, description="Częstotliwość - opcjonalne", max_length=50)
     onset_date: Optional[date] = Field(None, description="Data wystąpienia - opcjonalne")
 
-# Modele COT (Chain of Thought)
+# Modele Chain of Thought (COT)
 class ThoughtStep(BaseModel):
     thought: str = Field(
         ...,
@@ -180,7 +180,7 @@ class MissingInfo(BaseModel):
     field: str = Field(..., description="Brakująca informacja, np. 'height'", max_length=50)
     question: str = Field(..., description="Pytanie do użytkownika, np. 'Jaki jest twój wzrost?'", max_length=200)
 
-# Modele analizy COT z iteracyjnym podejściem
+# Modele analizy COT
 class ConstantDataAnalysisCOT(BaseModel):
     thoughts: List[ThoughtStep] = Field(..., description="Etapy analizy krok po kroku")
     status: MedScreeningInputStatus = Field(..., description="Status: 'incomplete' jeśli brakuje danych obowiązkowych, 'complete' gdy wszystkie są zebrane, 'skipped' jeśli pominięto")

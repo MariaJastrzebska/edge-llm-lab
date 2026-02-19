@@ -206,7 +206,7 @@ class BaseEvaluation:
                     else:
                         break
                 except Exception as e:
-                    print(f"⚠️ Could not remove folder {current_path}: {e}")
+                    print(f"  Could not remove folder {current_path}: {e}")
                     break
         
         
@@ -341,7 +341,7 @@ class BaseEvaluation:
                         if evaluation.get("rounds") and len(evaluation["rounds"]) > 0:
                             cleaned_evaluations.append(evaluation)
                         else:
-                            print(f"⚠️ Skipping evaluation with empty rounds: {evaluation.get('model_info', {}).get('name', 'unknown')}")
+                            print(f"  Skipping evaluation with empty rounds: {evaluation.get('model_info', {}).get('name', 'unknown')}")
                     data["evaluations"] = cleaned_evaluations
                 
                 with open(file_path, 'w', encoding='utf-8') as f:
@@ -380,7 +380,7 @@ class BaseEvaluation:
 
         self.save_json_file(existing_data, log_file, append=False)
         print(
-            f"✅ Evaluation data appended to: {log_file} (total evaluations: {len(existing_data['evaluations'])})")
+            f" Evaluation data appended to: {log_file} (total evaluations: {len(existing_data['evaluations'])})")
 
 
     @staticmethod
@@ -651,8 +651,8 @@ class BaseEvaluation:
             return (content, cache_key) if lazy_cache else content
 
         except Exception as e:
-            print(f"❌ Błąd API OpenAI: {e}")
-            print(f"❌ Exception type: {type(e)}")
+            print(f"Błąd API OpenAI: {e}")
+            print(f"Exception type: {type(e)}")
             import traceback
             traceback.print_exc()
             return None  # Return None instead of error string
@@ -735,7 +735,7 @@ class BaseEvaluation:
     @staticmethod
     def select_agent():
         """Wybór agenta z menu 1-5"""
-        print("\n📋 Wybierz typ agenta do testowania:")
+        print("\n  Wybierz typ agenta do testowania:")
         print("1. CONSTANT_DATA - zbieranie stałych danych medycznych (PL)")
         print("2. CONSTANT_DATA_EN - zbieranie stałych danych medycznych (EN)")
         print("3. FLUCTUATING_DATA - dane zmienne w czasie")
@@ -753,11 +753,11 @@ class BaseEvaluation:
         }
 
         if agent_choice not in agent_map:
-            print(" ❌ Nieprawidłowy wybór agenta! Używam domyślny CONSTANT_DATA_EN.")
+            print(" Nieprawidłowy wybór agenta! Używam domyślny CONSTANT_DATA_EN.")
             return Agent.CONSTANT_DATA_EN
 
         selected_agent = agent_map[agent_choice]
-        print(f"✅ Wybrany agent: {selected_agent.value}")
+        print(f" Wybrany agent: {selected_agent.value}")
         return selected_agent
 
     @staticmethod
@@ -787,15 +787,15 @@ class BaseEvaluation:
                         name = str(model)
                     available_model_names.append(name)
         except Exception as e:
-            print(f" ❌ Błąd sprawdzania modeli: {e}")
+            print(f" Błąd sprawdzania modeli: {e}")
             return False
             
         if model_name in available_model_names:
-            print(f" ✅ Model {model_name} już jest zainstalowany!")
+            print(f"  Model {model_name} już jest zainstalowany!")
             return True
             
         # Model nie jest zainstalowany
-        print(f" ❌ Model {model_name} nie jest zainstalowany!")
+        print(f" Model {model_name} nie jest zainstalowany!")
         if install_choice is None:
             install_choice = input(f"Zainstalować {model_name}? (y/n): ").lower().strip()
         
@@ -824,21 +824,21 @@ class BaseEvaluation:
                             available_model_names.append(name)
                     
                     if model_name in available_model_names:
-                        print(f" ✅ Model {model_name} zainstalowany!")
+                        print(f"  Model {model_name} zainstalowany!")
                         return True
                     else:
-                        print(f" ❌ Model {model_name} nie został zainstalowany poprawnie!")
+                        print(f" Model {model_name} nie został zainstalowany poprawnie!")
                         return False
                         
                 except Exception as verify_error:
-                    print(f" ❌ Błąd weryfikacji instalacji {model_name}: {verify_error}")
+                    print(f" Błąd weryfikacji instalacji {model_name}: {verify_error}")
                     return False
                     
             except Exception as e:
-                print(f" ❌ Błąd instalacji {model_name}: {e}")
+                print(f" Błąd instalacji {model_name}: {e}")
                 return False
         else:
-            print(" ⏭️  Pomijam ten model...")
+            print("  Pomijam ten model...")
             return False
 
     @staticmethod
@@ -920,7 +920,7 @@ class BaseEvaluation:
             result = response.json()
   
         except Exception as e:
-            print(f"❌ Error in llama-server request: {e}")
+            print(f"Error in llama-server request: {e}")
             raise
         
         # Model odpowiada zgodnie z promptem - zwracamy jego naturalną odpowiedź
@@ -1107,24 +1107,24 @@ class BaseEvaluation:
                     is_correct = (self.model_name in loaded_model_path or os.path.basename(loaded_model_path) in self.model_name)
 
                 if is_correct:
-                    print(f"✅ Reusing existing llama-server with correct model: {loaded_model_path}")
+                    print(f" Reusing existing llama-server with correct model: {loaded_model_path}")
                     return self.get_llama_response(tools_schema, context, optimisations=optimisations)
                 else:
-                    print(f"⚠️ Existing llama-server has different model loaded: {loaded_model_path}. Target: {model_path}. Restarting...")
+                    print(f"  Existing llama-server has different model loaded: {loaded_model_path}. Target: {model_path}. Restarting...")
                     self._kill_llama_server_processes()
         except requests.exceptions.RequestException as e:
-            print(f"❌ Error checking llama-server: {e}")
+            print(f"Error checking llama-server: {e}")
 
         # Start a new llama-server
         if model_path and self.start_local_llama_server(model_path, optimisations=optimisations):
-            print("✅ Started new llama-server. Waiting 5s for stability...")
+            print(" Started new llama-server. Waiting 5s for stability...")
             time.sleep(5)  # Add stability buffer
             try:
                 return self.get_llama_response(tools_schema, context, optimisations=optimisations)
             except Exception as e:
-                print(f"❌ llama-server call failed after start: {e}")
+                print(f"llama-server call failed after start: {e}")
         else:
-            print("❌ Could not start llama-server")
+            print("Could not start llama-server")
         
         # Fallback to Ollama API is commented out per user request
         # print("🔄 Fallback to Ollama API is disabled")
@@ -1161,7 +1161,7 @@ class BaseEvaluation:
     #             optimisations["--cache-type-k"] = kv_cache
     #             optimisations["--cache-type-v"] = kv_cache
     #         else:
-    #             print(f"❌ No optimal KV cache type found for {kv_cache}")
+    #             print(f"No optimal KV cache type found for {kv_cache}")
         
     #     for param, value in optimisations.items():
     #         print(f"Optimisation: {param} = {value}")
@@ -1210,7 +1210,7 @@ class BaseEvaluation:
         self._kill_llama_server_processes()
 
         print(f"🦙 Starting llama-server on port {self.LLAMA_SERVER_PORT}")
-        print(f"📦 Model: {model_path}")
+        print(f" Model: {model_path}")
         
         # Base command
         cmd = [
@@ -1236,9 +1236,9 @@ class BaseEvaluation:
         #     if kv_cache:
         #         optimisations["--cache-type-k"] = kv_cache
         #         optimisations["--cache-type-v"] = kv_cache
-        #         print(f"🔧 Using KV cache type: {kv_cache}")
+        #         print(f"  Using KV cache type: {kv_cache}")
         #     else:
-        #         print("⚠️  No optimal KV cache type found, using defaults")
+        #         print("   No optimal KV cache type found, using defaults")
         
         # Add optimization parameters
         if optimisations:
@@ -1273,7 +1273,7 @@ class BaseEvaluation:
                 if self.llama_server_process.poll() is not None:
                     stderr_output = self.llama_server_process.stderr.read()
                     stdout_output = self.llama_server_process.stdout.read()
-                    print(f"\n❌ llama-server process crashed!")
+                    print(f"\nllama-server process crashed!")
                     print(f"Exit code: {self.llama_server_process.returncode}")
                     if stderr_output:
                         print(f"STDERR:\n{stderr_output[:2000]}")
@@ -1288,7 +1288,7 @@ class BaseEvaluation:
                     )
                     if response.status_code == 200:
                         load_time = time.time() - start_time
-                        print(f"✅ Server started successfully in {load_time:.1f}s")
+                        print(f" Server started successfully in {load_time:.1f}s")
                         return True
                 except (requests.RequestException, ConnectionError):
                     pass
@@ -1300,7 +1300,7 @@ class BaseEvaluation:
                 time.sleep(1)
                 
         except Exception as e:
-            print(f"\n❌ Failed to start server: {str(e)}")
+            print(f"\nFailed to start server: {str(e)}")
             if hasattr(self, 'llama_server_process'):
                 self.llama_server_process.kill()
             return False
@@ -1347,17 +1347,17 @@ class BaseEvaluation:
                         print(f"🦙 Killing llama-server process {pid} ({command})")
                         os.kill(int(pid), signal.SIGTERM)
                     except Exception as e:
-                        print(f"⚠️ SIGTERM failed for {pid}: {e}")
+                        print(f"  SIGTERM failed for {pid}: {e}")
                     # If still alive, force kill
                     try:
                         subprocess.run(["kill", "-9", pid], capture_output=True)
                     except Exception as e:
-                        print(f"⚠️ SIGKILL failed for {pid}: {e}")
+                        print(f"  SIGKILL failed for {pid}: {e}")
                 else:
                     # Skip non llama-server processes (e.g. our Python client)
                     print(f"↩️ Skipping non llama-server process {pid}: {command}")
         except Exception as e:
-            print(f"⚠️ Failed to enumerate/kill llama-server processes: {e}")
+            print(f"  Failed to enumerate/kill llama-server processes: {e}")
     @staticmethod
     def get_next_run_number_for_path(base_dir: str) -> int:
         """Get next run number for model and all_models directories - returns (model_run, all_models_run).
@@ -1510,7 +1510,7 @@ class BaseEvaluation:
                 # Recursively try parent model
                 return self.get_model_path_from_ollama(details['parent_model'])
                 
-            print(f"⚠️ Could not find blob path for {model_name}")
+            print(f"  Could not find blob path for {model_name}")
             return None
             
         except Exception as e:
@@ -1592,13 +1592,13 @@ class BaseEvaluation:
         # CRITICAL: Metadata is SACRED - never overwrite if it exists
         if metadata_data.get("model", {}).get(self.model_name):  
             cached_metadata = metadata_data["model"][self.model_name]
-            print(f"✅ Model metadata already cached for {self.model_name} - NEVER overwriting")
+            print(f" Model metadata already cached for {self.model_name} - NEVER overwriting")
             
             # Warn if metadata has invalid values (but don't fix them)
             if cached_metadata.get('model_size_gb', 0) == 0.0:
-                print(f"⚠️ WARNING: Cached metadata for {self.model_name} has model_size_gb=0.0")
-                print(f"⚠️ This likely means metadata was saved when model was not in Ollama")
-                print(f"⚠️ To fix: restore old models_metadata.json or delete this entry and re-run with model in Ollama")
+                print(f"  WARNING: Cached metadata for {self.model_name} has model_size_gb=0.0")
+                print(f"  This likely means metadata was saved when model was not in Ollama")
+                print(f"  To fix: restore old models_metadata.json or delete this entry and re-run with model in Ollama")
             
             return cached_metadata, metadata_data
         
@@ -1609,8 +1609,8 @@ class BaseEvaluation:
         try:
             self.OLLAMA_CLIENT.show(self.model_name)
         except Exception as e:
-            print(f"⚠️ WARNING: Model {self.model_name} not in Ollama - skipping metadata fetch")
-            print(f"⚠️ Metadata will be fetched when model is available")
+            print(f"  WARNING: Model {self.model_name} not in Ollama - skipping metadata fetch")
+            print(f"  Metadata will be fetched when model is available")
             # Return dummy metadata to prevent crashes
             dummy_metadata = {
                 'architecture': 'Unknown',
@@ -1631,7 +1631,7 @@ class BaseEvaluation:
         
         current_model_metadata = self.extract_and_norma_model_param_from_ollama()
         metadata_data["model"][self.model_name] = current_model_metadata
-        print(f"💾 Saving metadata for {self.model_name} (this will NEVER be overwritten)")
+        print(f"  Saving metadata for {self.model_name} (this will NEVER be overwritten)")
         print(f"All metadata after update:")
         print(metadata_data)
         self.save_json_file(metadata_data, metadata_file)
@@ -1682,7 +1682,7 @@ class BaseEvaluation:
         
         # Check cached metadata first to avoid unnecessary ollama calls
         if hasattr(self, 'models_metadata') and self.models_metadata and self.model_name in self.models_metadata:
-             print(f"✅ Found cached metadata for {self.model_name}")
+             print(f" Found cached metadata for {self.model_name}")
              return self.models_metadata[self.model_name]
              
         model_details = {}
@@ -1693,7 +1693,7 @@ class BaseEvaluation:
             show_output = result.stdout
             print(f"Step 1: ollama show output: {show_output}")
         except Exception as e:
-            print(f"⚠️ Could not run 'ollama show {self.model_name}': {e}. Using placeholders.")
+            print(f"  Could not run 'ollama show {self.model_name}': {e}. Using placeholders.")
             show_output = ""
 
         import re
@@ -1744,7 +1744,7 @@ class BaseEvaluation:
                             print(f"Step 2: model_size_bytes if B: {model_size_bytes}")
                         break
         except Exception as e:
-            print(f"⚠️ Could not run 'ollama list': {e}")
+            print(f"  Could not run 'ollama list': {e}")
         
         print(f"Step 3: normalized model_size_bytes: {model_size_bytes}")
 
@@ -1864,7 +1864,7 @@ class BaseEvaluation:
         config_file = os.path.abspath(os.path.join(base_path, "..", "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
         
         if not os.path.exists(config_file):
-            print(f"⚠️ Config file not found: {config_file}")
+            print(f"  Config file not found: {config_file}")
             return []
         
         try:
@@ -1912,15 +1912,15 @@ class BaseEvaluation:
                         model_name = evaluation.get("model_info", {}).get("name")
                         if model_name:
                             tested_models.add(model_name)
-                print(f"📊 Tested models: {tested_models}")
-                print(f"📊 Znaleziono {len(tested_models)} modeli z wynikami w {evaluation_type} log")
+                print(f" Tested models: {tested_models}")
+                print(f" Znaleziono {len(tested_models)} modeli z wynikami w {evaluation_type} log")
             except Exception as e:
-                print(f"⚠️ Błąd odczytu loga: {e}")
+                print(f"  Błąd odczytu loga: {e}")
         
         # Zwróć modele które nie mają wyników
         untested_models = [model for model in all_models if model not in tested_models]
         
-        print(f"📋 Modeli do testowania ({evaluation_type}): {len(untested_models)}/{len(all_models)}")
+        print(f"  Modeli do testowania ({evaluation_type}): {len(untested_models)}/{len(all_models)}")
         for model in untested_models:
             print(f"  • {model}")
         # Jeśli podano konfiguracje optymalizacji, stwórz kombinacje model + optymalizacja
@@ -2314,13 +2314,13 @@ class BaseEvaluation:
                 "total_power_mw": (cpu_power + gpu_power) if cpu_power is not None and gpu_power is not None else (cpu_power if cpu_power is not None else None)
             }
         except subprocess.TimeoutExpired:
-            print("⚠️ powermetrics timeout - skipping energy monitoring")
+            print("  powermetrics timeout - skipping energy monitoring")
             energy_info = {"cpu_power_mw": None, "gpu_power_mw": None, "total_power_mw": None}
         except subprocess.CalledProcessError as e:
-            print(f"⚠️ powermetrics failed (may need sudo password): {e}")
+            print(f"  powermetrics failed (may need sudo password): {e}")
             energy_info = {"cpu_power_mw": None, "gpu_power_mw": None, "total_power_mw": None}
         except Exception as e:
-            print(f"⚠️ Energy monitoring error: {e}")
+            print(f"  Energy monitoring error: {e}")
             energy_info = {"cpu_power_mw": None, "gpu_power_mw": None, "total_power_mw": None}
 
         return {"memory": memory_info, "energy": energy_info, "device": device_info}

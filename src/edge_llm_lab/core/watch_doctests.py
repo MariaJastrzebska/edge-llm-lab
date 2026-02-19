@@ -54,7 +54,7 @@ def run_doctests():
         except Exception as e:
             print(f"Błąd w pliku {file}: {e}")
     # Always show a one-line summary after each run
-    status = "✅" if total_failures == 0 else "❌"
+    status = "" if total_failures == 0 else "❌"
     print(f"{status} Summary: {total_tests} tests, {total_failures} failures")
 
 if __name__ == "__main__":

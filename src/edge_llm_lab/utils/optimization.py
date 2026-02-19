@@ -327,9 +327,9 @@ def get_optimisations(kv_cache: Optional[str] = None) -> Tuple[List[Dict], List[
         },
     ]
     
-    print(f"📊 Optimization plan:")
-    print(f"   🔹 Individual optimizations (test mode): {len(individual_optimizations)}")
-    print(f"   🔹 Selected optimizations (production mode): {len(selected_optimisation)}")
+    print(f" Optimization plan:")
+    print(f"    Individual optimizations (test mode): {len(individual_optimizations)}")
+    print(f"    Selected optimizations (production mode): {len(selected_optimisation)}")
     
     return individual_optimizations, selected_optimisation
 

@@ -104,3 +104,4 @@ temp/
 *.tmp
 
 .neptune/
+examples/desktop/llama.cpp/

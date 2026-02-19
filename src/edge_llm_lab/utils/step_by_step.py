@@ -4,7 +4,7 @@ if __name__ == "__main__":
     from base_eval import BaseEvaluation, Agent
     
     # === KONFIGURACJA GLOBALNYCH USTAWIEŃ ===
-    print("\n🔍 KONFIGURACJA STEP-BY-STEP EVALUATION")
+    print("\n KONFIGURACJA STEP-BY-STEP EVALUATION")
     print("="*60)
     
     # Użyj stałego agenta
@@ -12,18 +12,18 @@ if __name__ == "__main__":
     print(f"🤖 Agent: {agent_type_enum.value}")
     
     # 1. Wybór modeli do testowania
-    print("\n📋 WYBÓR MODELI DO TESTOWANIA:")
+    print("\n  WYBÓR MODELI DO TESTOWANIA:")
     print("1. Wszystkie modele z config.yaml")
     print("2. Tylko modele z tested: true bez wyników w logach")
     mode_choice = input("Wybierz tryb: 1 - Wszystkie modele z config, 2 - Tylko tested: true bez wyników: ")
     
     # 2. Czy automatycznie pobierać modele
-    print("\n📦 POBIERANIE MODELI:")
+    print("\n POBIERANIE MODELI:")
     auto_install = input("Czy automatycznie pobierać brakujące modele? (y/n): ").lower().strip()
     install_choice = "y" if auto_install in ["y", "yes", "tak"] else "n"
     
     print("\n" + "="*60)
-    print("✅ KONFIGURACJA ZAKOŃCZONA")
+    print(" KONFIGURACJA ZAKOŃCZONA")
     print("="*60)
     
     # Najlepsza optymalizacja z analizy
@@ -39,34 +39,34 @@ if __name__ == "__main__":
     # Pobierz modele do testowania
     if mode_choice == "1":
         models_to_evaluate = EvalModelsReferenced.get_truly_untested_models(agent_type_enum.value, "referenced", only_tested_true=False)
-        print("📋 Tryb: Wszystkie modele z config")
+        print("  Tryb: Wszystkie modele z config")
     else:
         models_to_evaluate = EvalModelsReferenced.get_truly_untested_models(agent_type_enum.value, "referenced", only_tested_true=True)
-        print("📋 Tryb: Tylko tested: true bez wyników")
+        print("  Tryb: Tylko tested: true bez wyników")
     
     if not models_to_evaluate:
         print(f"❌ Brak modeli do testowania dla agenta {agent_type_enum.value}")
         exit(1)
         
     total_models = len(models_to_evaluate)
-    print(f"📊 Znaleziono {total_models} modeli do testowania")
+    print(f" Znaleziono {total_models} modeli do testowania")
 
     # === PĘTLA PRZEZ MODELE ===
     for i, model_name in enumerate(models_to_evaluate, 1):
         print(f"\n{'='*80}")
-        print(f"🎯 MODEL {i}/{total_models}: {model_name}")
+        print(f" MODEL {i}/{total_models}: {model_name}")
         print(f"{'='*80}")
 
         # Sprawdź dostępność modelu (używaj globalnego ustawienia)
         if not BaseEvaluation.check_model_availability(model_name, install_choice=install_choice):
-            print(f"⏭️  Pomijam model {model_name}...")
+            print(f" Pomijam model {model_name}...")
             continue
             
-        print(f"✅ Model dostępny: {model_name}")
-        print(f"✅ Agent: {agent_type_enum.value}")
+        print(f" Model dostępny: {model_name}")
+        print(f" Agent: {agent_type_enum.value}")
         
         # === REFERENCED EVALUATION ===
-        print(f"\n🔍 REFERENCED EVALUATION - {model_name}")
+        print(f"\n REFERENCED EVALUATION - {model_name}")
         print(f"-" * 60)
         
         try:
@@ -82,7 +82,7 @@ if __name__ == "__main__":
                 optimisations=best_optimization
             )
             
-            print(f"✅ Referenced evaluation zakończona dla {model_name}")
+            print(f" Referenced evaluation zakończona dla {model_name}")
             del referenced_evaluator  # Zwolnij pamięć
             
         except Exception as e:
@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 optimisations=best_optimization
             )
             
-            print(f"✅ Unreferenced evaluation zakończona dla {model_name}")
+            print(f" Unreferenced evaluation zakończona dla {model_name}")
             del unreferenced_evaluator  # Zwolnij pamięć
             
         except Exception as e:
@@ -116,18 +116,18 @@ if __name__ == "__main__":
         try:
             from model_config_loader import mark_model_as_tested
             mark_model_as_tested(agent_type_enum.value, model_name)
-            print(f"💾 Model {model_name} oznaczony jako tested: true")
+            print(f"  Model {model_name} oznaczony jako tested: true")
         except Exception as e:
-            print(f"⚠️ Nie udało się oznaczyć modelu jako tested: {e}")
+            print(f"  Nie udało się oznaczyć modelu jako tested: {e}")
         
         print(f"🎉 Model {model_name} zakończony - referenced + unreferenced")
 
     # === PODSUMOWANIE ===
     print(f"\n{'='*80}")
-    print(f"🏆 EWALUACJA STEP-BY-STEP ZAKOŃCZONA!")
+    print(f" EWALUACJA STEP-BY-STEP ZAKOŃCZONA!")
     print(f"{'='*80}")
-    print(f"📊 Przetestowano {total_models} modeli")
-    print(f"🔧 Każdy model: Referenced → Unreferenced")
+    print(f" Przetestowano {total_models} modeli")
+    print(f"  Każdy model: Referenced → Unreferenced")
     print(f"⚡ Optymalizacje: Baseline + Flash Attention + Continuous Batching")
     print(f"📝 Tryb: Tylko logi (bez wizualizacji)")
     print(f"\n💡 Aby wygenerować wizualizacje, uruchom:")

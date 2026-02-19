@@ -47,7 +47,7 @@ def load_models_for_agent(agent_type: str, base_path: str = None) -> List[str]:
                 # Backward compatibility - jeśli to tylko string
                 active_models.append(model)
         
-        print(f"📋 Loaded {len(active_models)} active models for {agent_type}:")
+        print(f"  Loaded {len(active_models)} active models for {agent_type}:")
         for model in active_models:
             print(f"  • {model}")
             
@@ -188,7 +188,7 @@ def load_models_with_metadata(agent_type: str, base_path: str = None) -> List[Di
     models = load_models_for_agent(agent_type, base_path)
     models_with_meta = []
     
-    print(f"🔍 Fetching metadata for {len(models)} models...")
+    print(f" Fetching metadata for {len(models)} models...")
     
     for model_name in models:
         ollama_info = get_ollama_model_info(model_name)
@@ -202,7 +202,7 @@ def load_models_with_metadata(agent_type: str, base_path: str = None) -> List[Di
         
         models_with_meta.append(model_data)
         
-        status = "✅" if ollama_info else "❌"
+        status = "" if ollama_info else "❌"
         size_info = f"({ollama_info.get('size_gb', 0):.1f}GB)" if ollama_info else "(not found)"
         print(f"  {status} {model_name} {size_info}")
     
