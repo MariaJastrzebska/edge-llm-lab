@@ -1,0 +1,42 @@
+# Custom optimizations configuration
+# This file defines specific llama-server optimizations to test
+
+optimizations:
+  # Baseline - no optimizations
+  - {}
+  
+  # GPU offloading
+  - --n-gpu-layers: -1
+  
+  # KV Cache optimization
+  - --cache-type-k: "q8_0"
+    --cache-type-v: "q8_0"
+  
+  # Flash Attention
+  - --flash-attn: null
+  
+  # Continuous Batching
+  - --cont-batching: null
+  
+  # Combined: KV Cache + Flash Attention
+  - --cache-type-k: "q8_0"
+    --cache-type-v: "q8_0"
+    --flash-attn: null
+  
+  # Mobile-friendly: Conservative settings
+  - --threads: 2
+    --batch-size: 8
+    --ubatch-size: 8
+    --cache-type-k: "q4_0"
+    --cache-type-v: "q4_0"
+  
+  # Desktop high-performance
+  - --n-gpu-layers: -1
+    --cache-type-k: "f16"
+    --cache-type-v: "f16"
+    --flash-attn: null
+    --cont-batching: null
+    --threads: 8
+    --batch-size: 32
+    --ubatch-size: 32
+

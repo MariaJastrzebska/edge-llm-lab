@@ -1,0 +1,12 @@
+{
+  "patient_type": "successful",
+  "expected_data": {
+    "name": "Anna",
+    "gender": "female",
+    "height": "162",
+    "blood_type": "B+",
+    "date_of_birth": "1992-08-08"
+  },
+  "expected_status": "COMPLETE",
+  "max_rounds": 10
+}

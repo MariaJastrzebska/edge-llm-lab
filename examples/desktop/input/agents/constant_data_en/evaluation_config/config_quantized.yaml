@@ -1,0 +1,30 @@
+models_to_evaluate:
+  # === Phase 2: Quantization Analysis (Q2 - Q8) ===
+
+  # # 1. Granite 3.2 2B (IBM)
+  # - name: granite3.2:2b-instruct-q2_K
+  #   description: IBM Granite 3.2 2B (Q2_K)
+  #   family: granite
+  #   quantization: quantised
+  #   tested: false
+  # - name: granite3.2:2b-instruct-q4_K_M
+  #   description: IBM Granite 3.2 2B (Q4_K_M)
+  #   family: granite
+  #   quantization: quantised
+  #   tested: false
+  # - name: granite3.2:2b-instruct-q6_K
+  #   description: IBM Granite 3.2 2B (Q6_K)
+  #   family: granite
+  #   quantization: quantised
+  #   tested: false
+  # - name: granite3.2:2b-instruct-q8_0
+  #   description: IBM Granite 3.2 2B (Q8_0)
+  #   family: granite
+  #   quantization: quantised
+  #   tested: false
+
+
+agent_config:
+  agent_type: constant_data_en
+  max_rounds: 10
+  timeout_sec: 3000

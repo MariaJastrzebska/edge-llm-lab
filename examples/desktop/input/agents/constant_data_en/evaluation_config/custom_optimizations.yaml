@@ -1,0 +1,147 @@
+selected:
+  - {}  # Baseline
+
+test:
+  # ========== NOWE OPTYMALIZACJE DO PRZETESTOWANIA ==========
+  - "--n-gpu-layers": 99  # Wszystko na GPU (safe: jeśli model ma <99 warstw)
+  - "--n-gpu-layers": -1  # Wszystko na GPU (auto-detect: może być szybsze)
+
+  # {"--split-mode": "none"}  # Brak podziału (domyślne dla Metal)
+  # {"--split-mode": "layer"}  # Podział warstwowy (rzadko używane na Metal)
+  # {"--split-mode": "row"}  # Podział wierszowy (rzadko używane na Metal)
+  
+  # # KV Cache Quantization (kwantyzacja dla oszczędności pamięci)
+  # {"--cache-type-k": "q8_0"}  # 8-bit quantization dla K cache
+  # {"--cache-type-v": "q8_0"}  # 8-bit quantization dla V cache
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0"}  # Oba 8-bit
+  # {"--cache-type-k": "q4_0"}  # 4-bit quantization dla K cache
+  # {"--cache-type-v": "q4_0"}  # 4-bit quantization dla V cache
+  # {"--cache-type-k": "q4_0", "--cache-type-v": "q4_0"}  # Oba 4-bit
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q4_0"}  # Mieszane: K=8bit, V=4bit
+  # {"--cache-type-k": "q4_0", "--cache-type-v": "q8_0"}  # Mieszane: K=4bit, V=8bit
+  
+  # # Context & Attention Management (jeszcze nietestowane)
+  # {"--keep": 512}  # Zachowaj 512 tokenów w kontekście
+  # {"--keep": 1024}  # Zachowaj 1024 tokeny
+  # {"--no-context-shift": null}  # Wyłącz przesuwanie kontekstu
+  
+  # # RoPE (Rotary Position Embedding) optimizations
+  # {"--rope-scaling": "linear"}  # Liniowe skalowanie RoPE
+  # {"--rope-scaling": "yarn"}  # YaRN skalowanie
+  # {"--rope-scale": 0.5}  # Zmniejsz skalę RoPE
+  # {"--rope-scale": 2.0}  # Zwiększ skalę RoPE
+  # {"--rope-freq-base": 10000}  # Bazowa częstotliwość RoPE
+  # {"--rope-freq-scale": 0.5}  # Skalowanie częstotliwości
+  
+  # # Group Attention (GQA optimization)
+  # {"--grp-attn-n": 1}  # Group attention N=1
+  # {"--grp-attn-n": 2}  # Group attention N=2
+  # {"--grp-attn-w": 256}  # Group attention width 256
+  # {"--grp-attn-w": 512}  # Group attention width 512
+  
+  # # Cache Management (zaawansowane)
+  # {"--defrag-thold": 0.1}  # Niska wartość defragmentacji
+  # {"--defrag-thold": 0.5}  # Średnia wartość defragmentacji
+  # {"--cache-reuse": 4}  # Ponowne użycie cache dla 4 zapytań
+  # {"--cache-reuse": 8}  # Ponowne użycie cache dla 8 zapytań
+  
+  # # Memory Management
+  # {"--mlock": null}  # Zablokuj model w RAM (zapobiega swappingowi)
+  
+  # # GPU Optimization (Metal na Mac M1/M2/M3)
+  # {"--n-gpu-layers": 0}  # Baseline: Wszystko na CPU
+  # {"--n-gpu-layers": 10}  # 10 warstw na GPU (Metal)
+  # {"--n-gpu-layers": 20}  # 20 warstw na GPU (Metal)
+  # {"--n-gpu-layers": 32}  # 32 warstwy na GPU (Metal)
+  
+  # # CPU Affinity & Priority (dla mobilnych urządzeń)
+  # {"--prio": 0}  # Normalny priorytet
+  # {"--prio": 1}  # Wysoki priorytet
+  # {"--poll": 50}  # Polling co 50ms
+  # {"--poll": 100}  # Polling co 100ms
+  # {"--numa": null}  # Włącz NUMA support
+  
+  # # CPU Masks (zaawansowane CPU affinity)
+  # {"--cpu-mask": "0-3"}  # Użyj rdzeni 0-3
+  # {"--cpu-mask": "0-1"}  # Użyj tylko 2 rdzeni
+  # {"--cpu-range": "0-7"}  # Zakres CPU 0-7
+  # {"--cpu-strict": 1}  # Ścisłe CPU affinity
+  
+  # ========== ZAKOMENTOWANE - JUŻ PRZETESTOWANE ==========
+  
+  # # Podstawowe optymalizacje KV Cache - każda osobno
+  # {"--flash-attn": null}  # Flash Attention
+  # {"--cont-batching": null}  # Continuous Batching
+  
+  # # Mobilne optymalizacje pamięci i wydajności
+  # {"--no-kv-offload": null}  # Wyłączenie KV offload dla mobile bez GPU
+  # {"--no-mmap": null}  # Wyłączenie memory mapping dla constrained memory
+  # {"--threads": 1}  # Single thread dla bardzo ograniczonych urządzeń
+  # {"--threads": 2}  # Conservative mobile
+  # {"--threads": 4}  # Standard mobile
+  # {"--batch-size": 4, "--ubatch-size": 4}  # Bardzo małe batches
+  # {"--batch-size": 8, "--ubatch-size": 8}  # Małe batches mobile
+  # {"--batch-size": 16, "--ubatch-size": 16}  # Standard mobile batches
+  # {"--batch-size": 32, "--ubatch-size": 32}  # Większe batches dla edge
+  
+  # # Speculative decoding dla mobile (jeśli masz draft model)
+  # {"--draft-max": 2}  # Minimalne speculative
+  # {"--draft-max": 3}  # Standard speculative
+  # {"--draft-max": 4}  # Agresywne speculative
+  # {"--draft-max": 5}  # Bardzo agresywne speculative
+  # {"--draft-max": 3, "--draft-p-min": 0.5}  # Speculative z probability
+  # {"--draft-max": 3, "--draft-p-min": 0.7}  # Bardziej konserwatywne
+  # {"--draft-max": 3, "--draft-p-split": 0.3}  # Split probability
+  
+  # # Kombinacje dwuskładnikowe - KV Cache + podstawowe
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--flash-attn": null}
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--cont-batching": null}
+  # {"--flash-attn": null, "--cont-batching": null}
+  
+  # # Kombinacje z thread i batch optimization
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--threads": 4, "--batch-size": 16, "--ubatch-size": 16}
+  # {"--flash-attn": null, "--threads": 4, "--batch-size": 32, "--ubatch-size": 32}
+  # {"--cont-batching": null, "--threads": 2, "--batch-size": 8, "--ubatch-size": 8}
+  
+  # # Kombinacje memory-constrained dla mobile
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--no-mmap": null, "--threads": 2}
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--no-kv-offload": null, "--threads": 1}
+  # {"--no-mmap": null, "--no-kv-offload": null, "--threads": 2, "--batch-size": 8, "--ubatch-size": 8}
+  
+  # # Kombinacje speculative z optymalizacjami (jeśli draft model dostępny)
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--draft-max": 3}
+  # {"--flash-attn": null, "--draft-max": 3}
+  # {"--cont-batching": null, "--draft-max": 3}
+  
+  # # Trójkowe kombinacje - podstawowe optymalizacje
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--flash-attn": null, "--cont-batching": null}
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--flash-attn": null, "--threads": 4}
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--cont-batching": null, "--threads": 4}
+  
+  # # Ultra-conservative mobile (bardzo ograniczone urządzenia)
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--threads": 1, "--batch-size": 4, "--ubatch-size": 4, "--no-mmap": null, "--no-kv-offload": null}
+  
+  # # Standard mobile optimization
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--flash-attn": null, "--threads": 4, "--batch-size": 16, "--ubatch-size": 16}
+  
+  # # Memory-priority mobile
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--no-mmap": null, "--threads": 2, "--batch-size": 8, "--ubatch-size": 8}
+  
+  # # Android CPU optimized
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--cont-batching": null, "--no-kv-offload": null, "--threads": 4}
+  
+  # # Edge device (Raspberry Pi style)
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--threads": 2, "--batch-size": 4, "--ubatch-size": 4, "--no-mmap": null}
+  
+  # # High-performance edge
+  # {"--flash-attn": null, "--cont-batching": null, "--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--threads": 8, "--batch-size": 32, "--ubatch-size": 32}
+  
+  # # Pełne kombinacje mobilne z speculative (gdy draft model dostępny)
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--flash-attn": null, "--draft-max": 3, "--threads": 4}
+  # {"--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--cont-batching": null, "--draft-max": 3, "--threads": 4}
+  
+  # # Wszystkie optymalizacje razem - maksymalna wydajność
+  # {"--flash-attn": null, "--cont-batching": null, "--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--threads": 4, "--batch-size": 16, "--ubatch-size": 16}
+  
+  # # Wszystkie optymalizacje + speculative
+  # {"--flash-attn": null, "--cont-batching": null, "--cache-type-k": "q8_0", "--cache-type-v": "q8_0", "--draft-max": 3, "--threads": 4, "--batch-size": 16, "--ubatch-size": 16}
