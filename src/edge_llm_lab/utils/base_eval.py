@@ -141,7 +141,7 @@ class BaseEvaluation:
 
 
         # --- Configuration ---
-        self.evaluator_model_name = 'gpt-4o'
+        self.evaluator_model_name = 'gpt-4o-mini'
         self.evaluator_api_key = os.getenv("OPENAI_API_KEY")
         self.OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
         self.OLLAMA_CLIENT = ollama.Client(host=self.OLLAMA_HOST)
