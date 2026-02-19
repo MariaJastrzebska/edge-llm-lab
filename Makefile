@@ -74,5 +74,5 @@ build: clean
 	python -m build
 
 all: format lint test
-	@echo " All checks passed!"
+	@echo "✅ All checks passed!"
 
