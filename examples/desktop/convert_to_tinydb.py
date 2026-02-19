@@ -60,7 +60,7 @@ for eval_session in data['evaluations']:
         
         rounds_table.insert(doc)
 
-print(f"✅ Zapisano {len(rounds_table)} rund do evaluation_logs.json")
+print(f"Zapisano {len(rounds_table)} rund do evaluation_logs.json")
 print("\nPrzykładowe query:")
 print("------------------")
 

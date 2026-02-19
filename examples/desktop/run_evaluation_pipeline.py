@@ -88,7 +88,7 @@ def run_pipeline(agent_type: str = "constant_data_en", mode: str = "logs_and_viz
     # if stage2_config and "models_to_evaluate" in stage2_config:
     #      q_models = [m["name"] for m in stage2_config["models_to_evaluate"]]
     #      for q_model_name in q_models:
-    #          print(f"\n📏 Evaluating Quantized Model: {q_model_name}")
+    #          print(f"\nEvaluating Quantized Model: {q_model_name}")
              
     #          # Check model availability and auto-pull if needed
     #          if not BaseEvaluation.check_model_availability(q_model_name, install_choice='y'):

@@ -1,1 +1,0 @@
-The user has provided all necessary information. Please summarize the collected data: {{current_data}}. Confirm that you will now send this data for validation.
