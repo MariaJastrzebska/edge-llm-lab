@@ -1,0 +1,6 @@
+name: smoke-test
+description: Verifies the runner itself — no model, just environment capture.
+requires: [git]
+repeats: 2
+command: echo "smoke ok, RUN_DIR=$RUN_DIR REPEAT=$REPEAT"
+timeout_minutes: 1
