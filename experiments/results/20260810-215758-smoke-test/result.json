@@ -1,0 +1,150 @@
+{
+  "config": {
+    "name": "smoke-test",
+    "description": "Verifies the runner itself \u2014 no model, just environment capture.",
+    "requires": [
+      "git"
+    ],
+    "repeats": 2,
+    "command": "echo \"smoke ok, RUN_DIR=$RUN_DIR REPEAT=$REPEAT\"",
+    "timeout_minutes": 1
+  },
+  "manifest": {
+    "timestamp_utc": "2026-08-10T19:57:58.680921+00:00",
+    "git_sha": "a814b6ad63a65e712083050cdf2f71247c031a57",
+    "git_dirty": false,
+    "python": "3.10.14 (main, Mar 19 2024, 21:46:16) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "hostname": "Marias-MacBook-Air.local",
+    "ollama_version": "ollama version is 0.20.6"
+  },
+  "repeats": [
+    {
+      "repeat": 1,
+      "resources_before": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.7889251708984375,
+          "swap_used_gb": 3.4544677734375
+        },
+        "energy": {
+          "cpu_power_mw": 1547.0,
+          "gpu_power_mw": 157.0,
+          "total_power_mw": 1704.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      },
+      "exit_code": 0,
+      "status": "ok",
+      "duration_s": 0.008335,
+      "resources_after": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.78729248046875,
+          "swap_used_gb": 3.4466552734375
+        },
+        "energy": {
+          "cpu_power_mw": 1947.0,
+          "gpu_power_mw": 45.0,
+          "total_power_mw": 1992.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "resources_before": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.74383544921875,
+          "swap_used_gb": 3.4466552734375
+        },
+        "energy": {
+          "cpu_power_mw": 2079.0,
+          "gpu_power_mw": 42.0,
+          "total_power_mw": 2121.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      },
+      "exit_code": 0,
+      "status": "ok",
+      "duration_s": 0.006406,
+      "resources_after": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.702178955078125,
+          "swap_used_gb": 3.4466552734375
+        },
+        "energy": {
+          "cpu_power_mw": 1239.0,
+          "gpu_power_mw": 40.0,
+          "total_power_mw": 1279.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      }
+    }
+  ],
+  "status": "ok"
+}

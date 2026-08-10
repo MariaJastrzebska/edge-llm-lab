@@ -1,0 +1,1 @@
+smoke ok, RUN_DIR=/Users/mariamalycha/Documents/edge-llm-lab/experiments/results/20260810-215758-smoke-test/repeat_02 REPEAT=2
