@@ -67,13 +67,30 @@ def main() -> int:
         print(f"no tidy.csv in {run_dir}", file=sys.stderr)
         return 2
 
-    rows = list(csv.DictReader(open(csv_path, encoding="utf-8")))
-    conditions = sorted({r["condition"] for r in rows})
+    all_rows = list(csv.DictReader(open(csv_path, encoding="utf-8")))
 
     print(f"# G1 pilot descriptives — {run_dir.name}")
-    print(f"total rows: {len(rows)}")
+    print(f"total rows: {len(all_rows)}")
+
+    models = sorted({(r.get("model") or "") for r in all_rows})
+    if len(models) > 1:
+        # A multi-model run must never be pooled: models differ in tokenizer,
+        # template and speed, so a pooled mean is a mean of different things.
+        for m in models:
+            print("\n" + "=" * 72)
+            print(f"= MODEL: {m or '(unspecified)'}")
+            print("=" * 72)
+            report([r for r in all_rows if (r.get("model") or "") == m])
+    else:
+        report(all_rows)
+    return 0
+
+
+def report(rows: list[dict]) -> None:
+    conditions = sorted({r["condition"] for r in rows})
     ok_rows = [r for r in rows if r.get("status") == "ok"]
-    print(f"status ok:  {len(ok_rows)}   non-ok: {len(rows) - len(ok_rows)}")
+    print(f"rows: {len(rows)}   status ok: {len(ok_rows)}   "
+          f"non-ok: {len(rows) - len(ok_rows)}")
     print()
 
     metrics = [
@@ -134,7 +151,6 @@ def main() -> int:
                   f"({len(energies)} runs, {n_valid} valid)")
         else:
             print(f"  {cond:<15} undefined ({len(energies)} runs, {n_valid} valid)")
-    return 0
 
 
 if __name__ == "__main__":
