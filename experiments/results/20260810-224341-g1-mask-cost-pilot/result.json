@@ -1,0 +1,88 @@
+{
+  "config": {
+    "name": "g1-mask-cost-pilot",
+    "description": "G1 PILOT \u2014 the structured-generation energy tax on edge (STATUS.md candidate 1, digest #2 \"G1 statement\"). First real measurement of what grammar/schema- constrained decoding costs in milliseconds AND Joules on an Apple-Silicon edge SoC, where CPU-side mask construction cannot be hidden behind a long GPU forward pass and CPU/GPU contend for one memory bus.\nModel: granite3.1-dense:2b Q4_K_M GGUF, resolved from the Ollama blob store and served by a locally built llama-server (Metal). 20 fixed medical tool-call prompts (experiments/prompts/g1-medical-toolcall-v1.json) x 3 conditions (unconstrained / GBNF grammar from the medical JSON schema / llama-server's native json_schema) x 5 repeats with a fixed seed set = 300 measured runs.\nCaptures per run: llama.cpp timings (prompt_ms, predicted_ms, per-token ms), wall clock, energy integrated over the generation window via powermetrics, and output validity (parses as JSON / validates against the schema) so Joules-per-VALID-output (G2) is computable.\nrepeats: 1 because the script runs its own 5 repeats internally \u2014 it must own the loop to keep one llama-server and one powermetrics stream alive across the whole matrix, and to rotate condition order against thermal drift.\n",
+    "requires": [
+      "git"
+    ],
+    "repeats": 1,
+    "command": "caffeinate -i python3 scripts/g1_mask_cost_pilot.py --repeats 5\n",
+    "timeout_minutes": 300
+  },
+  "manifest": {
+    "timestamp_utc": "2026-08-10T20:43:41.165572+00:00",
+    "git_sha": "1bfbf97b027df5d84732ceb96aeddc3014f99f67",
+    "git_dirty": false,
+    "python": "3.10.14 (main, Mar 19 2024, 21:46:16) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "hostname": "Marias-MacBook-Air.local",
+    "ollama_version": "ollama version is 0.20.6"
+  },
+  "repeats": [
+    {
+      "repeat": 1,
+      "resources_before": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.6357879638671875,
+          "swap_used_gb": 2.955078125
+        },
+        "energy": {
+          "cpu_power_mw": 968.0,
+          "gpu_power_mw": 15.0,
+          "total_power_mw": 983.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      },
+      "exit_code": 0,
+      "status": "ok",
+      "duration_s": 6918.158609,
+      "resources_after": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.2337493896484375,
+          "swap_used_gb": 2.806640625
+        },
+        "energy": {
+          "cpu_power_mw": 545.0,
+          "gpu_power_mw": 0.0,
+          "total_power_mw": 545.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      }
+    }
+  ],
+  "status": "ok"
+}
