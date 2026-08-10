@@ -73,6 +73,8 @@ dmypy.json
 # Data
 data/
 *.csv
+# ...but experiment result tables ARE the deliverable (RUNBOOK convention)
+!experiments/results/**/*.csv
 # *.json
 # *.jsonl
 

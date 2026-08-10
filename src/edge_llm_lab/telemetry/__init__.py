@@ -7,6 +7,11 @@ from .resources import (
     calculate_resource_differences,
     monitor_resources,
 )
+from .powermetrics_stream import (
+    EnergyWindow,
+    PowerSample,
+    PowermetricsRecorder,
+)
 
 __all__ = [
     "EnergyBackend",
@@ -14,4 +19,7 @@ __all__ = [
     "NullEnergyBackend",
     "calculate_resource_differences",
     "monitor_resources",
+    "EnergyWindow",
+    "PowerSample",
+    "PowermetricsRecorder",
 ]
