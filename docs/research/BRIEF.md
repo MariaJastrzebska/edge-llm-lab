@@ -80,3 +80,31 @@ single next action). Commit.
   May deadline; check next cycle
 - RA-L: rolling, anytime
 - IROS 2027 ~Mar 2027; RO-MAN/ICORR ~Feb–Mar 2027 (paper #2 / medical-HRI angle)
+
+## Constitution: success, stage-exit, kill, and pacing criteria (agreed 2026-08-10)
+
+**Success (loop win condition, then STOP):** paper SUBMITTED to the chosen venue.
+Working target: MLSys 2027 (deadline Oct 30, 2026); backup: RA-L (rolling).
+
+**Stage-exit criteria** (advance only when met):
+- Venues: ≥8 venues verified w/ current deadlines; one primary + one backup chosen.
+- Gaps: ≥15 sources swept per candidate axis; each surviving axis has a
+  FALSIFIABLE gap statement ("no published work does X on Y hardware").
+- Hypotheses: top candidate passes novelty check + feasibility on Maria's
+  hardware + MARIA CONFIRMS it ([NEEDS-INPUT] gate — genuinely hers).
+- Validation: a 1-week pilot on Maria's Mac supports or kills the hypothesis.
+
+**Kill criteria** (drop a candidate immediately): direct prior work found
+(scooped); pilot effect smaller than our statistical resolution at n≥5;
+required hardware cannot exist before T-6 weeks to deadline.
+
+**Pace governors:** 3 consecutive empty iterations → drop to 1 iteration/day
+until something changes. Blocked on Maria >48h → exactly ONE reminder ping,
+then silence.
+
+**Deadline governor:** T-4 weeks → switch to WRITING mode (research only to
+fill named holes in the draft). T-1 week → experiments freeze; polish only.
+
+**Budget:** max 12 worker iterations/day (server-enforced). Workers treat
+BRIEF.md and DECISIONS.md as READ-ONLY — the mission and Maria's decisions
+can only be changed by Maria.
