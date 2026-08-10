@@ -1,0 +1,88 @@
+{
+  "config": {
+    "name": "pipeline-smoke",
+    "description": "First real test: does the legacy evaluation pipeline start at all on the Mac after the recovery? 1 repeat; if it fails, the captured stderr tells Claude exactly what to fix next. Requires Ollama running with granite3.1-dense:2b pulled (ollama pull granite3.1-dense:2b) and llama.cpp built at examples/desktop/llama.cpp/build/bin/llama-server.\n",
+    "requires": [
+      "ollama",
+      "poetry"
+    ],
+    "repeats": 1,
+    "command": "poetry run python examples/desktop/run_evaluation_pipeline.py --agent constant_data_en --mode logs_and_viz",
+    "timeout_minutes": 45
+  },
+  "manifest": {
+    "timestamp_utc": "2026-08-10T19:58:08.490269+00:00",
+    "git_sha": "ffd3178a881dfe84ff4bdb61b9747e9e8d66f117",
+    "git_dirty": false,
+    "python": "3.10.14 (main, Mar 19 2024, 21:46:16) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "hostname": "Marias-MacBook-Air.local",
+    "ollama_version": "ollama version is 0.20.6"
+  },
+  "repeats": [
+    {
+      "repeat": 1,
+      "resources_before": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.7046356201171875,
+          "swap_used_gb": 3.4466552734375
+        },
+        "energy": {
+          "cpu_power_mw": 1688.0,
+          "gpu_power_mw": 38.0,
+          "total_power_mw": 1726.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      },
+      "status": "timeout",
+      "duration_s": 2700.075945,
+      "resources_after": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.616485595703125,
+          "swap_used_gb": 2.955078125
+        },
+        "energy": {
+          "cpu_power_mw": 518.0,
+          "gpu_power_mw": 12.0,
+          "total_power_mw": 530.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      }
+    }
+  ],
+  "status": "partial"
+}
