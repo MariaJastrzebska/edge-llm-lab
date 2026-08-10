@@ -5,6 +5,24 @@ preferably (not necessarily) around a **medical problem** — her thesis use cas
 This loop follows a staged research process; every iteration advances the current
 stage and reports to files (no external pings).
 
+## Thematic direction (Maria, 2026-08-10): **edge × robotics × privacy/medical**
+Privacy is the strongest hook — it is medicine's biggest problem, and on-device
+computation is the structural answer. The paper should ideally be useful to
+Maria's startup (bigos: agents at home) later, but 1:1 alignment is NOT required.
+Candidate axes Maria explicitly floated — treat as priority leads in Stage 2:
+- **Federated small language models** (her long-standing FL thread; privacy-
+  preserving on-device learning/personalization; fleet-of-home-robots angle)
+- **Battery/energy influence on inference parameters** — needs a robotics hook
+  (battery = robot mission time / autonomy; Joules-per-task for mobile robots)
+- **On-device VISUAL models** (robots that SEE, not just talk: fridge cam, home
+  monitoring; video is the most privacy-critical modality — never leaves device)
+
+## Adaptive scoping rule
+This researcher NARROWS as decisions are made: once Maria picks a direction, the
+subsequent sweeps go deep on that scope (its methods, its baselines, its venue's
+recent papers) instead of staying broad. Record every narrowing decision at the
+top of STATUS.md. (Contrast: the bigos landscape researcher stays wide by design.)
+
 ## Hard constraints from Maria (2026-08-10)
 - The contribution must be **super-technical and LOW-LEVEL** — systems /
   implementation work that "pushes the needle": runtimes, kernels, schedulers,
