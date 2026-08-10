@@ -1,0 +1,28 @@
+name: g1-mask-cost-pilot
+description: >
+  G1 PILOT — the structured-generation energy tax on edge (STATUS.md candidate 1,
+  digest #2 "G1 statement"). First real measurement of what grammar/schema-
+  constrained decoding costs in milliseconds AND Joules on an Apple-Silicon edge
+  SoC, where CPU-side mask construction cannot be hidden behind a long GPU
+  forward pass and CPU/GPU contend for one memory bus.
+
+  Model: granite3.1-dense:2b Q4_K_M GGUF, resolved from the Ollama blob store and
+  served by a locally built llama-server (Metal). 20 fixed medical tool-call
+  prompts (experiments/prompts/g1-medical-toolcall-v1.json) x 3 conditions
+  (unconstrained / GBNF grammar from the medical JSON schema / llama-server's
+  native json_schema) x 5 repeats with a fixed seed set = 300 measured runs.
+
+  Captures per run: llama.cpp timings (prompt_ms, predicted_ms, per-token ms),
+  wall clock, energy integrated over the generation window via powermetrics, and
+  output validity (parses as JSON / validates against the schema) so
+  Joules-per-VALID-output (G2) is computable.
+
+  repeats: 1 because the script runs its own 5 repeats internally — it must own
+  the loop to keep one llama-server and one powermetrics stream alive across the
+  whole matrix, and to rotate condition order against thermal drift.
+
+requires: [git]
+repeats: 1
+command: >
+  caffeinate -i python3 scripts/g1_mask_cost_pilot.py --repeats 5
+timeout_minutes: 300
