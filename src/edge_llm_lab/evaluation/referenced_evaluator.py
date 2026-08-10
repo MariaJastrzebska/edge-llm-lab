@@ -5895,9 +5895,18 @@ SZCZEGÓŁY ZŁOTEGO MODELU:
         selected = [{"name": "default"}] # Placeholder default
         test = [{"name": "default"}] # Placeholder default
         
-        # Try to load from custom_optimizations.yaml if available
+        # Try to load from custom_optimizations.yaml if available.
+        # BUGFIX: was a CWD-relative path hardcoded to constant_data_en —
+        # resolve relative to this repo and to the CURRENT agent, with the
+        # constant_data_en file as fallback.
         try:
-             optim_config_path = "examples/desktop/input/agents/constant_data_en/evaluation_config/custom_optimizations.yaml"
+             _agents_dir = os.path.abspath(os.path.join(
+                 os.path.dirname(__file__), "../../../examples/desktop/input/agents"))
+             optim_config_path = os.path.join(
+                 _agents_dir, self.agent_type, "evaluation_config/custom_optimizations.yaml")
+             if not os.path.exists(optim_config_path):
+                 optim_config_path = os.path.join(
+                     _agents_dir, "constant_data_en/evaluation_config/custom_optimizations.yaml")
              if os.path.exists(optim_config_path):
                  import yaml
                  with open(optim_config_path, 'r') as f:

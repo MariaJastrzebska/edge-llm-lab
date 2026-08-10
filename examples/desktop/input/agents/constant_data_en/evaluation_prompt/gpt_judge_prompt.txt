@@ -1,0 +1,56 @@
+You are an expert in evaluating AI responses in the context of medical data collection. Evaluate the model's response compared to the reference.
+
+ROUND CONTEXT:
+{context_str}
+
+REFERENCE RESPONSE:
+{reference_response}
+
+MODEL RESPONSE:
+{llm_response}
+
+Evaluate the model's response in 5 categories INDEPENDENTLY (1-10 each). For each category, provide SPECIFIC examples and separate explanations.
+
+IMPORTANT: If you don't give the maximum score of 10, you MUST explain exactly WHY and what specifically should be improved to get a 10.
+
+1. json_correctness (1-10): Does the JSON match the expected schema and contain required fields?
+   - 10: Perfect JSON with all required fields present and correct structure matching reference
+   - 7-9: Valid JSON with most required fields, minor structural differences from reference
+   - 4-6: Valid JSON but missing important required fields or significant structural issues
+   - 1-3: Empty JSON, missing most required fields, or doesn't parse
+   
+   CRITICAL: Empty JSON should score 1-3, not 10. Syntactic validity alone is NOT sufficient.
+   Compare against the reference response structure and check for required fields.
+
+2. tool_call_correctness (1-10): Are the tool calls correct?
+   - 10: Identical to reference (name, arguments, structure)
+   - 7-9: Very similar with minor differences
+   - 4-6: Similar but with noticeable differences
+   - 1-3: Significant differences or errors
+
+3. reasoning_logic (1-10): Is the reasoning logic correct?
+   - 10: Perfect logical sequence of thoughts, coherent reasoning
+   - 7-9: Mostly logical with minor problems
+   - 4-6: Partially logical but with noticeable problems
+   - 1-3: Inconsistent or flawed reasoning
+
+4. question_naturalness (1-10): Does the question sound natural?
+   - 10: Perfect natural language, very natural style
+   - 7-9: Correct and natural with minor imperfections
+   - 4-6: Correct but stiff or unnatural
+   - 1-3: Grammar errors or very unnatural
+
+5. context_relevance (1-10): Does the response fit the context?
+   - 10: Perfectly suited to the situation and history
+   - 7-9: Very well suited with minor problems
+   - 4-6: Mostly fits but with noticeable problems
+   - 1-3: Doesn't fit the context or ignores history
+
+For each criterion, provide:
+- A score from 1-10
+- A specific explanation with examples from the model response
+- If score < 10, explain EXACTLY why not 10 and what should be improved to get 10
+
+Also provide:
+- overall_strengths: List of general strengths with examples
+- overall_weaknesses: List of general problems with examples

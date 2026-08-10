@@ -97,7 +97,10 @@ class BaseEvaluation:
         if desktop_path not in sys.path:
             sys.path.append(desktop_path)
 
-        if self.agent_type[:-2] == 'en':
+        # BUGFIX: was `self.agent_type[:-2] == 'en'` — [:-2] strips the LAST
+        # two chars, so for "constant_data_en" it compared "constant_data_"
+        # with "en" and every English agent silently loaded POLISH schemas.
+        if self.agent_type[-2:] == 'en':
             from pydantic_models.pydantic_models_en import (
                 ConstantDataAnalysisCOT,
                 FluctuatingDataAnalysisCOT,
@@ -361,27 +364,9 @@ class BaseEvaluation:
         return None
         
 
-    def save_evaluation_log(self, log_data, filename):
-        """@todo poprawka:Zapisuje dane do pliku logów w trybie append."""
-        # Sprawdź czy plik istnieje i załaduj istniejące dane
-        log_file, existed = self.get_or_create_file_or_folder(type_of_file="log", filename=filename)
-        if existed:
-            existing_data = self.load_json_file(log_file) 
-        else:
-            existing_data = {"evaluations": []}
-
-        # Dodaj nowe dane do istniejących (append)
-        if "evaluations" not in existing_data:
-            existing_data["evaluations"] = []
-
-        # Dodaj nowe ewaluacje do listy
-        if "evaluations" in log_data:
-            existing_data["evaluations"].extend(log_data["evaluations"])
-
-        self.save_json_file(existing_data, log_file, append=False)
-        print(
-            f" Evaluation data appended to: {log_file} (total evaluations: {len(existing_data['evaluations'])})")
-
+    # NOTE: a dead `save_evaluation_log` method was removed here — it had zero
+    # call sites and called two methods with wrong keyword-argument names
+    # (would raise TypeError if ever invoked).
 
     @staticmethod
     def load_yaml_config(config_path):
