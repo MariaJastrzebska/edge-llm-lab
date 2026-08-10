@@ -16,7 +16,8 @@ stage and reports to files (no external pings).
   metrics, pilot data), fed-mobile iOS app (on-device llama.cpp/fllama), Apple
   Silicon Macs + iPhone 16 Pro, possible Pi 5 / Jetson purchase, llama.cpp/fllama
   codebases she intends to contribute to.
-- Affiliation: independent preferred; **Tolploox** if one is required.
+- Affiliation: independent preferred; **Tooploox** (the company Maria currently
+  works at) may be used if a venue requires an affiliation.
 
 ## The staged process
 
