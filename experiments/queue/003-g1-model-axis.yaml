@@ -1,0 +1,21 @@
+name: g1-model-axis-pilot
+description: >
+  G1 pilot extension per Maria's review (2026-08-10): granite3.1 alone is too
+  old to carry the paper. Repeat the constrained-vs-unconstrained measurement
+  across a CURRENT small-model axis; granite stays as the continuity point
+  with the thesis pilot data. Reuse the same prompt set, conditions, and the
+  new PowermetricsRecorder (integrated Joules) from
+  src/edge_llm_lab/telemetry/powermetrics_stream.py. Pull models via Ollama
+  (q4_K_M-class tags); skip gracefully any model that fails to pull and record
+  which. n=3 per condition per model (pilot resolution).
+  NOTE for the Mac session: if your G1 pilot script has a different name or
+  CLI than scripts/g1_pilot.py assumed here, adapt THIS config to your script
+  (not the other way around) and note the change in the commit message.
+requires: [ollama, poetry]
+repeats: 1
+command: >
+  poetry run python scripts/g1_pilot.py
+  --models qwen3:4b,gemma3:4b,phi4-mini,granite3.1-dense:2b
+  --conditions unconstrained,gbnf
+  --repeats 3
+timeout_minutes: 240

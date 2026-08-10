@@ -23,8 +23,94 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 QUEUE_DIR = REPO_ROOT / "experiments" / "queue"
 DONE_DIR = REPO_ROOT / "experiments" / "done"
 RESULTS_DIR = REPO_ROOT / "experiments" / "results"
+DB_PATH = REPO_ROOT / "experiments" / "results.db"
 
 sys.path.insert(0, str(REPO_ROOT / "src"))
+
+
+# ── SQLite results store ─────────────────────────────────────────────────────
+# Queryable metadata (the social-media repo pattern: DB for queries, raw JSON
+# files remain the source-of-truth artifacts). One row per run in `runs`, one
+# per repeat in `repeats`; analysis-level metrics land in `metrics` as tidy
+# long format (run × repeat × metric name × value).
+
+def db_connect():
+    import sqlite3
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.executescript(
+        """
+        CREATE TABLE IF NOT EXISTS runs (
+          run_dir TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          started_utc TEXT NOT NULL,
+          status TEXT NOT NULL,
+          git_sha TEXT,
+          hostname TEXT,
+          platform TEXT,
+          config_json TEXT NOT NULL,
+          manifest_json TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS repeats (
+          run_dir TEXT NOT NULL REFERENCES runs(run_dir),
+          repeat INTEGER NOT NULL,
+          status TEXT NOT NULL,
+          exit_code INTEGER,
+          duration_s REAL,
+          ram_delta_gb REAL,
+          PRIMARY KEY (run_dir, repeat)
+        );
+        CREATE TABLE IF NOT EXISTS metrics (
+          run_dir TEXT NOT NULL,
+          repeat INTEGER,
+          name TEXT NOT NULL,
+          value REAL,
+          unit TEXT
+        );
+        """
+    )
+    return conn
+
+
+def db_record(run_dir: Path, result: dict) -> None:
+    try:
+        conn = db_connect()
+        manifest = result.get("manifest", {})
+        conn.execute(
+            "INSERT OR REPLACE INTO runs VALUES (?,?,?,?,?,?,?,?,?)",
+            (
+                run_dir.name,
+                result["config"]["name"],
+                manifest.get("timestamp_utc", ""),
+                result.get("status", "unknown"),
+                manifest.get("git_sha"),
+                manifest.get("hostname"),
+                manifest.get("platform"),
+                json.dumps(result["config"]),
+                json.dumps(manifest, default=str),
+            ),
+        )
+        for rep in result.get("repeats", []):
+            before = (rep.get("resources_before") or {}).get("memory", {})
+            after = (rep.get("resources_after") or {}).get("memory", {})
+            ram_delta = None
+            if "ram_used_gb" in before and "ram_used_gb" in after:
+                ram_delta = after["ram_used_gb"] - before["ram_used_gb"]
+            conn.execute(
+                "INSERT OR REPLACE INTO repeats VALUES (?,?,?,?,?,?)",
+                (
+                    run_dir.name,
+                    rep.get("repeat"),
+                    rep.get("status", "unknown"),
+                    rep.get("exit_code"),
+                    rep.get("duration_s"),
+                    ram_delta,
+                ),
+            )
+        conn.commit()
+        conn.close()
+    except Exception as e:  # the DB is a convenience index, never a run-killer
+        print(f"⚠ results.db write failed (raw JSON is intact): {e}")
 
 
 def sh(cmd: list[str], **kw) -> str:
@@ -141,6 +227,7 @@ def run_one(config_path: Path, no_commit: bool) -> bool:
     (run_dir / "result.json").write_text(
         json.dumps(result, indent=2, default=str), encoding="utf-8"
     )
+    db_record(run_dir, result)
 
     DONE_DIR.mkdir(parents=True, exist_ok=True)
     shutil.move(str(config_path), DONE_DIR / config_path.name)
