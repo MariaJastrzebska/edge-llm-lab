@@ -541,11 +541,15 @@ def main() -> int:
     records: list[dict] = []
 
     def flush() -> None:
-        # incremental write — a crash at hour 3 must not lose hours 1-2
+        # Incremental write — a crash at hour 3 must not lose hours 1-2. The
+        # tidy CSV is rewritten too, not just raw.json: if the queue runner's
+        # timeout SIGKILLs this process the `finally` block never runs, and the
+        # CSV is the artifact analysis actually consumes.
         (out_dir / "raw.json").write_text(
             json.dumps({"manifest": manifest, "runs": records}, indent=2, default=str),
             encoding="utf-8",
         )
+        write_tidy_csv(out_dir / "tidy.csv", records, manifest)
 
     # ---- pre-flight: resolve (and pull) EVERY model before measuring -------
     # A multi-GB `ollama pull` is disk-, network- and CPU-heavy. Pulling lazily

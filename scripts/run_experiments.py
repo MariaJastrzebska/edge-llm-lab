@@ -15,6 +15,7 @@ import json
 import os
 import platform
 import shutil
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -153,6 +154,50 @@ def check_requirements(requires: list[str]) -> list[str]:
     return missing
 
 
+def run_command(command: str, env: dict, timeout_s: int) -> tuple[str, str, int, bool]:
+    """Run one repeat's command, returning (stdout, stderr, returncode, timed_out).
+
+    Two things ``subprocess.run(..., timeout=)`` gets wrong for this rig:
+
+    * On timeout it raises *before* the caller can keep the output, so the
+      diagnostic from a hung experiment is lost — the opposite of what a hung
+      experiment is for. Here the pipes are drained and written either way.
+    * ``shell=True`` means the child is a shell, often wrapping ``caffeinate``
+      which wraps python which owns a ``llama-server``. Killing only the shell
+      orphans the rest, and an orphaned server silently poisons every later
+      run's energy numbers. The command therefore gets its own process group,
+      and the whole group is killed.
+    """
+    proc = subprocess.Popen(
+        command,
+        shell=True,
+        cwd=REPO_ROOT,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        start_new_session=True,
+    )
+    timed_out = False
+    try:
+        stdout, stderr = proc.communicate(timeout=timeout_s)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        try:
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        except Exception:
+            proc.terminate()
+        try:
+            stdout, stderr = proc.communicate(timeout=30)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+            except Exception:
+                proc.kill()
+            stdout, stderr = proc.communicate()
+    return stdout or "", stderr or "", proc.returncode, timed_out
+
+
 def load_config(path: Path) -> dict:
     import yaml
 
@@ -197,21 +242,19 @@ def run_one(config_path: Path, no_commit: bool) -> bool:
             rep: dict = {"repeat": repeat, "resources_before": resource_snapshot()}
             t0 = _dt.datetime.now()
             try:
-                proc = subprocess.run(
-                    config["command"],
-                    shell=True,
-                    cwd=REPO_ROOT,
-                    env=env,
-                    timeout=timeout_s,
-                    capture_output=True,
-                    text=True,
+                stdout, stderr, rc, timed_out = run_command(
+                    config["command"], env, timeout_s
                 )
-                rep["exit_code"] = proc.returncode
-                rep["status"] = "ok" if proc.returncode == 0 else "failed"
-                (rep_dir / "stdout.txt").write_text(proc.stdout, encoding="utf-8")
-                (rep_dir / "stderr.txt").write_text(proc.stderr, encoding="utf-8")
-            except subprocess.TimeoutExpired:
-                rep["status"] = "timeout"
+                rep["exit_code"] = rc
+                if timed_out:
+                    rep["status"] = "timeout"
+                    rep["error"] = f"exceeded timeout_minutes={timeout_s // 60}"
+                else:
+                    rep["status"] = "ok" if rc == 0 else "failed"
+                # Output is written even on timeout: a run that hangs is exactly
+                # the case where the captured stderr is the whole deliverable.
+                (rep_dir / "stdout.txt").write_text(stdout, encoding="utf-8")
+                (rep_dir / "stderr.txt").write_text(stderr, encoding="utf-8")
             except Exception as e:
                 rep["status"] = "error"
                 rep["error"] = str(e)
