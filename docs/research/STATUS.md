@@ -1,17 +1,32 @@
-# Paper machine — STATUS (updated 2026-08-10, iteration 2)
+# Paper machine — STATUS (updated 2026-08-11, iteration 3)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-10 (iter 2, worker narrowing): axes **federated SLM** and **edge
+1. 2026-08-11 (iter 3): discovered that Stage 4 had already effectively
+   started outside this loop's own tracking — an overnight Mac-side pilot
+   (300 + 360 runs, see `experiments/results/NIGHT-REPORT.md`) tested G1
+   before this file was updated to say so. This iteration's real work was
+   analyzing that pilot (Part 1 of digest 2026-08-11.md), not drafting
+   fresh Stage-3 hypotheses as previously planned. **Stage corrected: 3 → 4.**
+2. 2026-08-10 (iter 2, worker narrowing): axes **federated SLM** and **edge
    VLM/VLA for robots** DEMOTED — both scooped by mid-2026 work (see digest #2).
    Surviving axis: **energy-aware edge inference, narrowed to the decode loop's
    structured-generation machinery**.
-2. 2026-08-10: direction = **edge × robotics × privacy and/or medical**; must be
+3. 2026-08-10: direction = **edge × robotics × privacy and/or medical**; must be
    low-level/systems-strong; should ideally (not necessarily) feed bigos later.
-3. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level enough).
+4. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level enough).
 
-**Current stage: 3 — HYPOTHESES.** Stage 2 closed this iteration.
+**Current stage: 4 — VALIDATION, blocked on Maria at a [NEEDS-INPUT] gate.**
+The overnight pilot (see below) is a real falsification attempt on G1: no
+positive latency/energy tax detected on 2–4B models on an M1 Air, one model
+significantly in the *wrong* direction. But the regime G1's mechanism
+actually predicts a tax in (short GPU forward pass) was never reached —
+nothing decoded faster than 36.8 ms/token. This is exactly the kind of
+kill-adjacent-but-not-clean result BRIEF's constitution reserves for Maria:
+continuing costs a specific new bet of her Mac-hardware time (or a hardware
+purchase). See `NEEDS_INPUT.md` at repo root. **The loop will not queue new
+experiments or draft further hypotheses on G1 until she answers.**
 
-<details><summary>Stage-2 exit justification (honest accounting)</summary>
+<details><summary>Stage-2 exit justification (honest accounting, unchanged from iter 2)</summary>
 
 ~40 sources swept. The surviving axis (energy/decoding machinery) clears the
 ≥15-source bar comfortably (25+ direct: energy-aware serving corpus + the
@@ -21,43 +36,49 @@ constrained-decoding corpus). Axes 1 and 2 were closed at 8–9 sources each by 
 falsifiable statement (G1/G2/G3 in digest #2).
 </details>
 
-## Nearest deadlines (verified 2026-08-10, iter 2)
+## Nearest deadlines (re-checked 2026-08-11, iter 3 — no change from iter 2)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | **Sep 15, 2026** (verified, was mis-recorded as ~Sep 17–22) | **5 wks 1 day — OUT OF REACH**, past the T-4wk governor with no validated idea |
-| **MLSys 2027** | **~Oct 30, 2026 — UNCONFIRMED** | mlsys.org still shows only 2026 (its deadline was Oct 30 '25). Ours is an extrapolation; aggregators call it *predicted*. Re-check every iteration; announcement expected ~mid-Sep. |
+| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | mlsys.org and both deadline-tracker aggregators (mlsys-deadlines.github.io, casys-kaist.github.io) still show 2027 as TBD/predicted off the 2026 Oct 30 date. No official CFP yet. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle |
 
-## Top-3 candidates (post-gap-sweep — to be turned into hypotheses next iteration)
+## G1 pilot result (Stage 4, 2026-08-10 night → analyzed 2026-08-11)
 
-1. **The structured-generation energy tax on edge (G1)** — *leader.*
-   Grammar/schema-constrained decoding is claimed "near-zero overhead"
-   (XGrammar: <40 µs/token) — but that claim rests on **overlapping CPU mask
-   construction with a long GPU forward pass**. On a 0.5–3B model on Apple
-   Silicon / mobile / Pi-class hardware, decode is short and memory-bound and CPU
-   and GPU share one memory bus, so the overlap structurally fails. The
-   literature already contradicts itself (near-zero vs. 3.6–8.2× reported
-   elsewhere) and llama.cpp's own GBNF docs admit unquantified "performance
-   gotchas". Nobody has measured it on edge, and nobody has measured it in
-   **Joules**. Motivating evidence: on edge, decode is **86–97% of total
-   inference energy** (arXiv 2607.09520). Contribution is a mechanism, not a
-   benchmark: get the mask off the critical path (build step *t+1*'s mask during
-   step *t*'s GEMV), kill the vocab-sized CPU↔GPU sync, persist the grammar
-   stack — upstreamable llama.cpp work. Venue: MLSys. Assets: entire harness.
-2. **Energy-per-*valid*-output (G2)** — every energy paper reports J/token or
-   tokens/watt; in an agentic/robot setting a structurally invalid tool call
-   burns full energy for zero work, and retries are invisible in J/token.
-   Strongest as contribution #2 inside candidate 1 rather than a paper alone.
-3. **Tail latency under constraint for robot control loops (G3)** — a control
-   loop is a deadline system; constrained decoding perturbs the *distribution*,
-   not just the mean. SafeDec (2509.01728) asserts "minimal overhead" with no
-   distribution reported. This is the robotics hook that makes candidate 1
-   legible at ICRA/IROS/RA-L as well as MLSys.
+**002-g1-mask-cost-pilot** (granite3.1-dense:2b, 300 runs) and
+**003-g1-model-axis** (4 models, 360 runs) ran on Maria's MacBook Air M1 per
+the Linux/Mac protocol in `experiments/RUNBOOK.md`. Full manifest discipline
+(git SHA, llama.cpp SHA, model digest, idle baselines, energy-window coverage
+1.00 throughout). Paired per-token decode time, gbnf − unconstrained:
 
-*(Demoted: federated SLM — scooped by EdgeFlowerTune 2605.08636 + peak-memory
-LoRA 2606.19528. Edge VLM/VLA — scooped by vla.cpp 2606.08094, ROSA 2607.01088,
-and 2607.09520; also needs robot hardware Maria lacks.)*
+| model | paired diff | 95% CI | detection floor |
+|---|---|---|---|
+| qwen3:4b | **−0.879 ms** | [−1.279, −0.479] | 0.62% |
+| phi4-mini | −0.939 ms | [−2.227, +0.349] | 2.13% |
+| granite3.1-dense:2b | +0.088 ms | [−0.094, +0.269] | 0.50% |
+
+**No model shows a positive tax; the one significant CI (qwen3) points the
+wrong way.** But nothing tested decoded faster than 36.8 ms/token, and G1's
+mechanism needs a short forward pass to fail to hide the mask cost — that
+regime is untested, not falsified. A pre-existing repo bug (uppercase vs.
+lowercase status enum, `constant_data_en.txt` vs. `pydantic_models_en.py`)
+confounds the validity/energy-per-valid numbers; now in CLAUDE.md's
+known-bugs list. Full analysis: digest 2026-08-11.md Part 1; raw report:
+`experiments/results/NIGHT-REPORT.md`.
+
+**This is the [NEEDS-INPUT] gate** — see `NEEDS_INPUT.md` for the options
+(chase the short-decode regime with a smaller model / different hardware;
+fix the enum bug first; kill G1 as scoped; or narrow to the smaller claim
+the data does support).
+
+## Scoop-check this iteration (11 new sources swept, none a kill)
+**PSC (parser-stack-classification grammar masking, OpenReview SEjxNfQTHN)**
+is a moderate erosion risk — it drives mask-*computation* cost toward zero
+algorithmically, which shrinks (but doesn't eliminate) the sync-stall
+mechanism G1 targets, since even a near-zero-cost mask still blocks the next
+token if unpipelined. Not a kill; tracked for re-check every iteration. Full
+list and verdicts in digest 2026-08-11.md Part 2.
 
 ## Known competitive pressure
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
@@ -69,11 +90,21 @@ MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
 - `VENUES.md` (Stage-1 artifact) was never written; the venue table lives here
   and in BRIEF. Only worth writing if MLSys 2027 fails to materialize and we
   need to re-rank.
+- The three draft hypotheses from this iteration's original plan (pipeline
+  the mask across the CPU/GPU sync boundary; energy-per-valid-output as
+  metric; tail-latency framing for robotics) are still reasonable *shapes*
+  for G1's mechanism/contribution — but writing them up as commitment-ready
+  was premature given the pilot data above. Revisit once Maria answers
+  NEEDS_INPUT.md; don't re-draft from scratch, the shapes are still sound.
 
-## Next action (iteration 3)
-Stage 3 — write up G1 as 2–3 concrete, ranked hypotheses: each with an
-experiment sketch (models × grammar complexity × device, unconstrained vs.
-GBNF baseline, energy + p99 latency + tool-call validity), feasibility on
-Maria's actual hardware (Macs + iPhone 16 Pro; note whether a Pi 5 purchase is
-load-bearing), effort estimate, and venue mapping. Then hit the **[NEEDS-INPUT]
-gate** — Maria's commitment to the topic is Stage-3's exit criterion.
+## Next action (iteration 4)
+**Blocked on Maria at the [NEEDS-INPUT] gate** (`NEEDS_INPUT.md`, rewritten
+this iteration after the pilot analysis). Until answered, next iteration
+should be a **light tracking pass only**: (a) re-check MLSys 2027 CFP status,
+(b) re-run the PSC-specific scoop query to see if anyone has combined
+algorithmic mask speedup with pipelining/energy measurement on edge (would
+upgrade PSC from erosion-risk to kill), (c) do NOT queue new Mac-hardware
+experiments and do NOT draft further G1 hypotheses without an answer in
+NEEDS_INPUT.md — both spend a resource that's hers to allocate. Per BRIEF's
+pace governor, if this stays blocked past 48h, send exactly one reminder and
+then go quiet on this thread until Maria answers.
