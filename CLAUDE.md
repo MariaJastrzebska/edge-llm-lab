@@ -37,16 +37,33 @@ regenerate from tidy result frames.
 - `save_evaluation_log` (base_eval.py:364) — two wrong kwarg names, dead code.
 - `inference_params.yaml` — duplicate agent keys; first silently wins.
 - `run_evaluation_pipeline.py` — "golden model" tracking is last-model-wins.
-- `examples/desktop/prompts/constant_data_en.txt:73` vs
+- ~~`examples/desktop/prompts/constant_data_en.txt:73` vs
   `examples/desktop/pydantic_models/pydantic_models_en.py`
   (`MedScreeningInputStatus`) — the prompt's worked example shows
   `"status": "INCOMPLETE"` (uppercase) but the schema only accepts
-  `['incomplete', 'complete', 'skipped']` (lowercase). Found 2026-08-11 via the
-  G1 mask-cost pilot (`experiments/results/NIGHT-REPORT.md` §4): unconstrained
-  decoding faithfully copies the prompt's uppercase example and then fails
-  schema validation against the schema that example contradicts — this
-  confounds any experiment that compares unconstrained-vs-constrained schema
-  validity rates until the asset is fixed or validation is case-normalized.
+  `['incomplete', 'complete', 'skipped']` (lowercase).~~ **FIXED 2026-08-11**
+  (Maria's call at the `NEEDS_INPUT.md` gate: fix the asset, then re-run
+  002/003 unconfounded). Found via the G1 mask-cost pilot
+  (`experiments/results/NIGHT-REPORT.md` §4): unconstrained decoding faithfully
+  copied the prompt's uppercase example and then failed schema validation
+  against the schema that example contradicts, confounding every
+  unconstrained-vs-constrained validity comparison. Lowercased at lines 70 and
+  73 in **both** `constant_data_en.txt` and the Polish `constant_data.txt`
+  (same bug, same lines). **Pilot results 002/003 predating this commit have
+  invalid validity / energy-per-valid numbers — decode-time numbers are
+  unaffected.**
+
+## Still-open enum-case suspects (NOT fixed — need Maria's call)
+
+- `examples/desktop/input/agents/constant_data_en/conversation_stimulation/**/*_expected.json`
+  — ground-truth fixtures use uppercase `"expected_status": "COMPLETE"` /
+  `["INCOMPLETE", "SKIPPED"]`. Now that the prompt teaches lowercase, these only
+  pass if the grader compares case-insensitively. Left untouched because they are
+  ground truth — changing them silently moves the scoring goalposts. Verify the
+  comparison path before the next scored eval.
+- `examples/desktop/prompts/validation.txt:19` — `"validation_status": "INCOMPLETE"`
+  with no matching pydantic model found in `examples/desktop/pydantic_models/`.
+  Either dead or validated elsewhere; unresolved.
 
 ## Paper-grade requirements (why the rebuild exists)
 

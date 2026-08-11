@@ -1,3 +1,27 @@
+# ANSWERED 2026-08-11 — G1 go/no-go after the overnight pilot
+
+> **Maria's decision: option 2 — fix the enum-case bug first, then re-run
+> 002/003 with the corrected prompt asset, before spending a night on the
+> short-decode regime.**
+>
+> Status of that decision as of this commit:
+> - Enum bug **fixed** in both `constant_data_en.txt` and the Polish
+>   `constant_data.txt` (lines 70 and 73 in each; the PL copy had the identical
+>   bug and was not previously logged). CLAUDE.md known-bugs updated.
+> - Two adjacent enum-case suspects found and **deliberately left alone** —
+>   the `*_expected.json` ground-truth fixtures and `validation.txt:19`. See
+>   CLAUDE.md "Still-open enum-case suspects". Resolve before the next
+>   *scored* eval; they do not block a decode-time/energy re-run.
+> - Re-run of 002/003 queued for Maria's Mac.
+>
+> **The gate is closed. The pace governor no longer applies** — the loop may
+> queue Mac-hardware time again. The short-decode regime (option 1) is
+> explicitly *deferred*, not rejected: revisit once 002/003 come back clean.
+
+---
+
+<details><summary>Original gate text (2026-08-11, iteration 3)</summary>
+
 # NEEDS INPUT — G1 go/no-go after the overnight pilot (2026-08-11, iteration 3)
 
 **This is a [NEEDS-INPUT] event under BRIEF's constitution: the overnight
@@ -62,3 +86,5 @@ Per BRIEF's pace governor: this loop will not queue new Mac-hardware
 experiments or draft further G1 hypotheses without an answer here. Next
 iterations will do literature-only tracking (re-check MLSys 2027 CFP
 status, re-run the PSC scoop query) at reduced pace until you respond.
+
+</details>

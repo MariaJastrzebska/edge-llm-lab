@@ -67,10 +67,10 @@ Wykonaj poniższe kroki, analizując historię konwersacji i przestrzegając GŁ
         "thoughts": [
           {"thought": "Historia jest pusta. Brak wcześniejszych danych lub pytań.", "action": "Analiza stanu początkowego", "action_input": "current_data: all null, asked_questions: empty"},
           {"thought": "Current_info: wszystkie pola pozostają null, ponieważ historia jest pusta.", "action": "Aktualizacja current_info", "action_input": "current_info: all null"},
-          {"thought": "Status: INCOMPLETE, ponieważ brakuje obowiązkowych pól.", "action": "Określenie statusu", "action_input": "status: INCOMPLETE"},
+          {"thought": "Status: incomplete, ponieważ brakuje obowiązkowych pól.", "action": "Określenie statusu", "action_input": "status: incomplete"},
           {"thought": "Missing_info: Historia jest pusta. Pytam o imię po polsku.", "action": "Sformułowanie missing_info dla pustej historii", "action_input": {"field": "name", "question": "Jak masz na imię?"}}
         ],
-        "status": "INCOMPLETE",
+        "status": "incomplete",
         "missing_info": {"field": "name", "question": "Jak masz na imię?"},
         "current_info": {
           "name": null,
