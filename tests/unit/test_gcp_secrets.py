@@ -46,8 +46,8 @@ def clean_state(monkeypatch):
 def fake_client(monkeypatch):
     client = FakeClient(
         {
-            "Edge_lab_fed_bot": "neptune-token-from-secret-manager",
-            "Edge_lab_openai_key": "sk-judge-key",
+            "NEPTUNE_API_TOKEN": "neptune-token-from-secret-manager",
+            "OPENAI_API_KEY": "sk-judge-key",
         }
     )
     monkeypatch.setattr(gcp_secrets, "_get_client", lambda: client)
@@ -65,7 +65,7 @@ def test_env_var_wins_over_secret_manager(monkeypatch, fake_client):
 def test_falls_back_to_secret_manager(fake_client):
     assert gcp_secrets.resolve("NEPTUNE_API_TOKEN") == "neptune-token-from-secret-manager"
     assert fake_client.calls == [
-        "projects/llm-apps-test/secrets/Edge_lab_fed_bot/versions/latest"
+        "projects/llm-apps-test/secrets/NEPTUNE_API_TOKEN/versions/latest"
     ]
 
 
@@ -77,7 +77,7 @@ def test_blank_env_var_is_treated_as_unset(monkeypatch, fake_client):
 
 def test_trailing_newline_is_stripped(monkeypatch):
     """Console-pasted secrets pick up a newline; it breaks auth headers."""
-    client = FakeClient({"Edge_lab_fed_bot": "neptune-token\n"})
+    client = FakeClient({"NEPTUNE_API_TOKEN": "neptune-token\n"})
     monkeypatch.setattr(gcp_secrets, "_get_client", lambda: client)
 
     assert gcp_secrets.resolve("NEPTUNE_API_TOKEN") == "neptune-token"
@@ -108,9 +108,9 @@ def test_clear_cache_forces_refetch(monkeypatch, fake_client):
 
 def test_secret_name_override(monkeypatch):
     """<ENV_VAR>_SECRET renames a secret without a code change."""
-    client = FakeClient({"Edge_lab_neptune_v2": "rotated-token"})
+    client = FakeClient({"NEPTUNE_API_TOKEN_v2": "rotated-token"})
     monkeypatch.setattr(gcp_secrets, "_get_client", lambda: client)
-    monkeypatch.setenv("NEPTUNE_API_TOKEN_SECRET", "Edge_lab_neptune_v2")
+    monkeypatch.setenv("NEPTUNE_API_TOKEN_SECRET", "NEPTUNE_API_TOKEN_v2")
 
     assert gcp_secrets.resolve("NEPTUNE_API_TOKEN") == "rotated-token"
 
@@ -162,3 +162,18 @@ def test_status_reports_source_without_values(monkeypatch, fake_client):
     # Only lengths are exposed, never the secret itself.
     for info in report.values():
         assert set(info) == {"source", "secret", "length"}
+
+
+def test_registry_matches_the_secrets_that_exist():
+    """Guards against drifting back to invented names.
+
+    Edge_lab_fed_bot is a Telegram bot, not the Neptune token — an earlier
+    revision mapped it to NEPTUNE_API_TOKEN and would have handed a bot token
+    to the Neptune client.
+    """
+    assert gcp_secrets.SECRETS == {
+        "NEPTUNE_API_TOKEN": "NEPTUNE_API_TOKEN",
+        "OPENAI_API_KEY": "OPENAI_API_KEY",
+        "TELEGRAM_BOT_TOKEN": "Edge_lab_fed_bot",
+        "TELEGRAM_CHAT_ID": "TELEGRAM_CHAT_ID",
+    }

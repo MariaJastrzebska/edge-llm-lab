@@ -39,12 +39,16 @@ logger = logging.getLogger(__name__)
 # Environment variable -> Secret Manager secret name.
 #
 # Override any single mapping without a code change by setting
-# ``<ENV_VAR>_SECRET``, e.g. ``NEPTUNE_API_TOKEN_SECRET=Edge_lab_neptune_v2``.
+# ``<ENV_VAR>_SECRET``, e.g. ``NEPTUNE_API_TOKEN_SECRET=NEPTUNE_API_TOKEN_v2``.
 SECRETS: Dict[str, str] = {
     # Experiment tracking (RunTracker / NeptuneManager).
-    "NEPTUNE_API_TOKEN": "Edge_lab_fed_bot",
+    "NEPTUNE_API_TOKEN": "NEPTUNE_API_TOKEN",
     # LLM-judge and reference generation.
-    "OPENAI_API_KEY": "Edge_lab_openai_key",
+    "OPENAI_API_KEY": "OPENAI_API_KEY",
+    # Telegram bot reporting sweep progress out of the lab.
+    "TELEGRAM_BOT_TOKEN": "Edge_lab_fed_bot",
+    # Numeric chat ID the bot writes to.
+    "TELEGRAM_CHAT_ID": "TELEGRAM_CHAT_ID",
 }
 
 # Checked in order; the first non-empty one wins.
