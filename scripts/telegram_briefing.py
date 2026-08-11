@@ -27,6 +27,7 @@ CO ROBI
 
 Nic nie usuwa i nie nadpisuje; pliki tymczasowe lądują w katalogu tymczasowym.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -71,14 +72,14 @@ def load_token_and_chat() -> tuple[str, str]:
 def spoken_text(path: Path) -> str:
     """Markdown → czysty tekst do przeczytania na głos."""
     raw = path.read_text(encoding="utf-8")
-    raw = re.sub(r"<!--.*?-->", "", raw, flags=re.S)      # komentarze HTML
+    raw = re.sub(r"<!--.*?-->", "", raw, flags=re.DOTALL)  # komentarze HTML
     out = []
     for line in raw.splitlines():
         s = line.strip()
-        if not s or s.startswith("#") or s.startswith("|") or s.startswith("```"):
+        if not s or s.startswith(("#", "|", "```")):
             continue
-        s = re.sub(r"[*_`]", "", s)                        # emfaza
-        s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)     # linki
+        s = re.sub(r"[*_`]", "", s)  # emfaza
+        s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)  # linki
         out.append(s)
     return "\n".join(out).strip()
 
@@ -109,8 +110,23 @@ def to_opus(src: Path, dst: Path) -> bool:
     """m4a/mp3 → ogg/opus. True, jeśli się udało (jest ffmpeg)."""
     try:
         subprocess.run(
-            ["ffmpeg", "-y", "-loglevel", "error", "-i", str(src),
-             "-c:a", "libopus", "-b:a", "32k", "-ar", "48000", "-ac", "1", str(dst)],
+            [
+                "ffmpeg",
+                "-y",
+                "-loglevel",
+                "error",
+                "-i",
+                str(src),
+                "-c:a",
+                "libopus",
+                "-b:a",
+                "32k",
+                "-ar",
+                "48000",
+                "-ac",
+                "1",
+                str(dst),
+            ],
             check=True,
         )
         return True
@@ -118,8 +134,13 @@ def to_opus(src: Path, dst: Path) -> bool:
         return False
 
 
-def post(token: str, method: str, fields: dict, file_field: str | None = None,
-         file_path: Path | None = None) -> dict:
+def post(
+    token: str,
+    method: str,
+    fields: dict,
+    file_field: str | None = None,
+    file_path: Path | None = None,
+) -> dict:
     url = f"{API}/bot{token}/{method}"
     if file_path is None:
         data = urllib.parse.urlencode(fields).encode()
@@ -128,10 +149,10 @@ def post(token: str, method: str, fields: dict, file_field: str | None = None,
         boundary = "----briefing-boundary-7f3a"
         body = bytearray()
         for k, v in fields.items():
-            body += f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n".encode()
+            body += f'--{boundary}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode()
         body += (
             f"--{boundary}\r\nContent-Disposition: form-data; "
-            f"name=\"{file_field}\"; filename=\"{file_path.name}\"\r\n"
+            f'name="{file_field}"; filename="{file_path.name}"\r\n'
             f"Content-Type: application/octet-stream\r\n\r\n"
         ).encode()
         body += file_path.read_bytes() + b"\r\n"
@@ -154,29 +175,45 @@ def chunks(text: str, size: int = TG_LIMIT):
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description=__doc__,
-                                formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--spoken", required=True, type=Path, help="skrypt mówiony (markdown)")
-    p.add_argument("--report", type=Path, help="raport tekstowy do wysłania jako wiadomość")
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    p.add_argument(
+        "--spoken", required=True, type=Path, help="skrypt mówiony (markdown)"
+    )
+    p.add_argument(
+        "--report", type=Path, help="raport tekstowy do wysłania jako wiadomość"
+    )
     p.add_argument("--tts", choices=["say", "elevenlabs", "none"], default="say")
-    p.add_argument("--voice", default="Zosia", help="głos `say` (macOS), domyślnie Zosia (pl)")
+    p.add_argument(
+        "--voice", default="Zosia", help="głos `say` (macOS), domyślnie Zosia (pl)"
+    )
     p.add_argument("--elevenlabs-voice-id", default="")
-    p.add_argument("--dry-run", action="store_true",
-                   help="nic nie wysyła; pokazuje, co poszłoby i ile ma znaków")
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="nic nie wysyła; pokazuje, co poszłoby i ile ma znaków",
+    )
     a = p.parse_args()
 
     if not a.spoken.exists():
         sys.exit(f"Nie ma pliku: {a.spoken}")
     text = spoken_text(a.spoken)
     words = len(text.split())
-    print(f"[i] skrypt mówiony: {words} słów (~{words / 150:.1f} min mowy), {len(text)} znaków")
+    print(
+        f"[i] skrypt mówiony: {words} słów (~{words / 150:.1f} min mowy), {len(text)} znaków"
+    )
 
-    body = a.report.read_text(encoding="utf-8") if a.report and a.report.exists() else text
+    body = (
+        a.report.read_text(encoding="utf-8") if a.report and a.report.exists() else text
+    )
     parts = list(chunks(body))
     print(f"[i] wiadomość tekstowa: {len(body)} znaków → {len(parts)} wiadomość(i)")
 
     if a.dry_run:
-        print("[i] --dry-run: nie wysyłam, nie syntezuję. Podgląd pierwszych 300 znaków mowy:")
+        print(
+            "[i] --dry-run: nie wysyłam, nie syntezuję. Podgląd pierwszych 300 znaków mowy:"
+        )
         print("    " + text[:300].replace("\n", "\n    "))
         return 0
 
@@ -195,8 +232,11 @@ def main() -> int:
             synth_elevenlabs(text, audio, a.elevenlabs_voice_id)
 
         for i, part in enumerate(parts, 1):
-            r = post(token, "sendMessage",
-                     {"chat_id": chat, "text": part, "disable_web_page_preview": "true"})
+            r = post(
+                token,
+                "sendMessage",
+                {"chat_id": chat, "text": part, "disable_web_page_preview": "true"},
+            )
             print(f"[+] tekst {i}/{len(parts)}: ok={r.get('ok')}")
 
         if audio is not None:
@@ -205,9 +245,16 @@ def main() -> int:
                 r = post(token, "sendVoice", {"chat_id": chat}, "voice", ogg)
                 print(f"[+] wiadomość głosowa (ogg/opus): ok={r.get('ok')}")
             else:
-                print("[!] brak ffmpeg — wysyłam jako audio zamiast wiadomości głosowej")
-                r = post(token, "sendAudio",
-                         {"chat_id": chat, "title": "Briefing edge-llm-lab"}, "audio", audio)
+                print(
+                    "[!] brak ffmpeg — wysyłam jako audio zamiast wiadomości głosowej"
+                )
+                r = post(
+                    token,
+                    "sendAudio",
+                    {"chat_id": chat, "title": "Briefing edge-llm-lab"},
+                    "audio",
+                    audio,
+                )
                 print(f"[+] audio: ok={r.get('ok')}")
     return 0
 
