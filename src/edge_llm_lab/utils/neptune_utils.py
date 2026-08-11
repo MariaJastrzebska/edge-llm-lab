@@ -3,6 +3,8 @@ import neptune
 from neptune.types import File
 from typing import Dict, Any, List, Optional
 
+from .gcp_secrets import resolve
+
 class NeptuneManager:
     """Zarządza integracją z Neptune AI dla ewaluacji LLM."""
     
@@ -12,7 +14,9 @@ class NeptuneManager:
             load_dotenv()
         except ImportError:
             pass
-        self.api_token = api_token or os.getenv("NEPTUNE_API_TOKEN")
+        # NEPTUNE_API_TOKEN falls back to GCP Secret Manager when unset;
+        # NEPTUNE_PROJECT is a project path, not a credential, so it stays env-only.
+        self.api_token = api_token or resolve("NEPTUNE_API_TOKEN")
         self.project = project or os.getenv("NEPTUNE_PROJECT")
         self.run = None
 

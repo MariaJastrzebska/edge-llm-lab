@@ -22,6 +22,21 @@ The framework employs a multi-stage pipeline encompassing model selection, quant
 poetry run python examples/desktop/run_evaluation_pipeline.py --agent constant_data_en
 ```
 
+### Credentials
+Tokens (`NEPTUNE_API_TOKEN`, `OPENAI_API_KEY`) resolve environment-first, then from
+GCP Secret Manager, so an exported variable or a local `.env` always wins and a
+device without GCP configured runs unchanged:
+
+```bash
+export GCP_PROJECT_ID=llm-apps-...            # project holding the secrets
+gcloud auth application-default login         # local credentials
+poetry run python -m edge_llm_lab.utils.gcp_secrets   # verify; prints no values
+```
+
+The environment-variable-to-secret-name mapping lives in
+`src/edge_llm_lab/utils/gcp_secrets.py`. `source_of()` reports where a credential
+came from (`env` / `secret-manager` / `missing`) for inclusion in a run manifest.
+
 ### Operational Modes
 The `run_evaluation_pipeline.py` script supports distinct operational modes for granular data collection:
 - `logs_only`: Focuses on empirical data collection and primary metric calculation.

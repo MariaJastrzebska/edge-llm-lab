@@ -44,6 +44,11 @@ statsmodels = "^0.14.2"
 tinydb = "^4.8.0"            # convert_to_tinydb bridge (was used but undeclared)
 # --- plotting (until figures move to tidy result frames) ---
 seaborn = "^0.13.2"
+# --- credentials ---
+# Judge/tracking tokens from GCP Secret Manager (utils/gcp_secrets.py).
+# Optional at runtime: the resolver falls back to env vars if the import fails,
+# so a Pi/Jetson without GCP set up still runs.
+google-cloud-secret-manager = "^2.20.0"
 # --- experiment tracking ---
 neptune = "^1.14.0"
 mlflow = "^2.20.2"
