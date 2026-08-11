@@ -21,6 +21,18 @@ z chmurowego środowiska Claude (w przeciwieństwie do `api.telegram.org`).
 | `bigos-telegram-chat-id` | id czatu z tym botem |
 | `elevenlabs-api-key` | klucz ElevenLabs (opcjonalny, do TTS) |
 
+## Faktyczne nazwy utworzone w konsoli (2026-08-11, projekt `llm-apps-4…`)
+
+Maria utworzyła sekrety nazwane po botach: `Edge_lab_fed_bot`, `Bigos_lab_bot`,
+`Prazanki_bot`. Skrypt obsługuje dowolne nazwy przez zmienne:
+
+```bash
+export TELEGRAM_BOT_TOKEN_SECRET=Edge_lab_fed_bot     # nazwa sekretu z tokenem
+export TELEGRAM_CHAT_ID_SECRET=Edge_lab_fed_chat_id   # sekret z chat_id (do utworzenia)
+```
+
+Brakuje sekretów z chat_id — bez nich wysyłka nie ruszy (procedura niżej).
+
 `scripts/telegram_briefing.py` czyta sekrety w kolejności: zmienne środowiskowe →
 `~/.secrets/telegram.env` → GCP SM (`$GCP_SECRET_PREFIX-telegram-bot-token`,
 domyślny prefiks `edgelab`; projekt z `$GCP_PROJECT` albo domyślny gcloud).

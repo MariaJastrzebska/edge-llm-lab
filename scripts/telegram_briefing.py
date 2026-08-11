@@ -51,18 +51,16 @@ TG_LIMIT = 4096
 
 
 def _gcp_secret(name: str) -> str:
-    """Czyta sekret z GCP Secret Managera przez `gcloud` (jeśli jest)."""
-    project = os.environ.get("GCP_PROJECT", "").strip()
-    cmd = ["gcloud", "secrets", "versions", "access", "latest", "--secret", name]
-    if project:
-        cmd += ["--project", project]
+    """Czyta sekret z GCP SM przez scripts/gcp_secrets.py (gcloud na Macu,
+    klucz konta serwisowego w chmurze). Cicho degraduje się do ""."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
     try:
-        out = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=30, check=False
-        )
-    except FileNotFoundError:
+        from gcp_secrets import get_secret
+
+        return get_secret(name).strip()
+    except Exception as e:  # noqa: BLE001 — każde niepowodzenie = brak źródła
+        print(f"[i] GCP SM niedostępny ({e})", file=sys.stderr)
         return ""
-    return out.stdout.strip() if out.returncode == 0 else ""
 
 
 def load_token_and_chat() -> tuple[str, str]:
@@ -85,9 +83,18 @@ def load_token_and_chat() -> tuple[str, str]:
                 chat = v
 
     if not token or not chat:
+        # Nazwy sekretów: jawnie przez TELEGRAM_BOT_TOKEN_SECRET /
+        # TELEGRAM_CHAT_ID_SECRET (np. Edge_lab_fed_bot), albo konwencja
+        # <GCP_SECRET_PREFIX>-telegram-bot-token / -chat-id.
         prefix = os.environ.get("GCP_SECRET_PREFIX", "edgelab").strip()
-        token = token or _gcp_secret(f"{prefix}-telegram-bot-token")
-        chat = chat or _gcp_secret(f"{prefix}-telegram-chat-id")
+        tok_name = os.environ.get(
+            "TELEGRAM_BOT_TOKEN_SECRET", f"{prefix}-telegram-bot-token"
+        )
+        chat_name = os.environ.get(
+            "TELEGRAM_CHAT_ID_SECRET", f"{prefix}-telegram-chat-id"
+        )
+        token = token or _gcp_secret(tok_name)
+        chat = chat or _gcp_secret(chat_name)
 
     if not token or not chat:
         sys.exit(
