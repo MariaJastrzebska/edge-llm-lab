@@ -1,19 +1,24 @@
-# Paper machine — STATUS (updated 2026-08-11, iteration 3)
+# Paper machine — STATUS (updated 2026-08-11, iteration 4)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-11 (iter 3): discovered that Stage 4 had already effectively
+1. 2026-08-11 (iter 4): no new scope decision — light tracking pass only,
+   per iter 3's own instruction not to spend Mac-hardware time or draft
+   further G1 hypotheses while `NEEDS_INPUT.md` is unanswered. Still well
+   under the 48h pace-governor reminder threshold (gate opened 06:26 UTC
+   today).
+2. 2026-08-11 (iter 3): discovered that Stage 4 had already effectively
    started outside this loop's own tracking — an overnight Mac-side pilot
    (300 + 360 runs, see `experiments/results/NIGHT-REPORT.md`) tested G1
    before this file was updated to say so. This iteration's real work was
    analyzing that pilot (Part 1 of digest 2026-08-11.md), not drafting
    fresh Stage-3 hypotheses as previously planned. **Stage corrected: 3 → 4.**
-2. 2026-08-10 (iter 2, worker narrowing): axes **federated SLM** and **edge
+3. 2026-08-10 (iter 2, worker narrowing): axes **federated SLM** and **edge
    VLM/VLA for robots** DEMOTED — both scooped by mid-2026 work (see digest #2).
    Surviving axis: **energy-aware edge inference, narrowed to the decode loop's
    structured-generation machinery**.
-3. 2026-08-10: direction = **edge × robotics × privacy and/or medical**; must be
+4. 2026-08-10: direction = **edge × robotics × privacy and/or medical**; must be
    low-level/systems-strong; should ideally (not necessarily) feed bigos later.
-4. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level enough).
+5. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level enough).
 
 **Current stage: 4 — VALIDATION, blocked on Maria at a [NEEDS-INPUT] gate.**
 The overnight pilot (see below) is a real falsification attempt on G1: no
@@ -36,11 +41,11 @@ constrained-decoding corpus). Axes 1 and 2 were closed at 8–9 sources each by 
 falsifiable statement (G1/G2/G3 in digest #2).
 </details>
 
-## Nearest deadlines (re-checked 2026-08-11, iter 3 — no change from iter 2)
+## Nearest deadlines (re-checked 2026-08-11, iter 4)
 | Venue | Deadline | Note |
 |---|---|---|
-| ~~ICRA 2027~~ | **Sep 15, 2026** (verified, was mis-recorded as ~Sep 17–22) | **5 wks 1 day — OUT OF REACH**, past the T-4wk governor with no validated idea |
-| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | mlsys.org and both deadline-tracker aggregators (mlsys-deadlines.github.io, casys-kaist.github.io) still show 2027 as TBD/predicted off the 2026 Oct 30 date. No official CFP yet. Re-check every iteration. |
+| ~~ICRA 2027~~ | **Sep 15, 2026** (verified, was mis-recorded as ~Sep 17–22) | **5 wks — OUT OF REACH**, past the T-4wk governor with no validated idea |
+| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | mlsys.org and both deadline-tracker aggregators (mlsys-deadlines.github.io, casys-kaist.github.io) still show 2027 as TBD/predicted off the 2026 Oct 30 date; official mlsys.org 2027 CFP page unreachable this iteration too. One low-trust secondary source (clocate.com) puts the conference itself at May 17–22, 2027 with conflicting venue city — no deadline signal. No official CFP yet. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle |
 
@@ -72,13 +77,19 @@ known-bugs list. Full analysis: digest 2026-08-11.md Part 1; raw report:
 fix the enum bug first; kill G1 as scoped; or narrow to the smaller claim
 the data does support).
 
-## Scoop-check this iteration (11 new sources swept, none a kill)
+## Scoop-check status (iter 3: 11 sources; iter 4 top-up: 4 more, none a kill)
 **PSC (parser-stack-classification grammar masking, OpenReview SEjxNfQTHN)**
 is a moderate erosion risk — it drives mask-*computation* cost toward zero
 algorithmically, which shrinks (but doesn't eliminate) the sync-stall
 mechanism G1 targets, since even a near-zero-cost mask still blocks the next
-token if unpipelined. Not a kill; tracked for re-check every iteration. Full
-list and verdicts in digest 2026-08-11.md Part 2.
+token if unpipelined. Iter 4 re-ran the specific query BRIEF flagged as the
+kill-upgrade trigger ("PSC-style masking + pipelining + Joules, on edge
+hardware") — still nothing found combining all three; XGrammar's own
+CPU/GPU overlap is documented only on datacenter GPUs (H100), not in the
+short-forward-pass edge regime. **Still erosion-risk, not a kill.** Full
+list and verdicts: digest 2026-08-11.md Part 2 (iter 3) and Iteration 4
+section (iter 4 top-up, incl. two edge-SLM energy-characterization papers
+relevant to the Pi 5/Jetson hardware-purchase question in NEEDS_INPUT.md).
 
 ## Known competitive pressure
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
@@ -97,14 +108,16 @@ MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
   was premature given the pilot data above. Revisit once Maria answers
   NEEDS_INPUT.md; don't re-draft from scratch, the shapes are still sound.
 
-## Next action (iteration 4)
-**Blocked on Maria at the [NEEDS-INPUT] gate** (`NEEDS_INPUT.md`, rewritten
-this iteration after the pilot analysis). Until answered, next iteration
-should be a **light tracking pass only**: (a) re-check MLSys 2027 CFP status,
-(b) re-run the PSC-specific scoop query to see if anyone has combined
-algorithmic mask speedup with pipelining/energy measurement on edge (would
-upgrade PSC from erosion-risk to kill), (c) do NOT queue new Mac-hardware
-experiments and do NOT draft further G1 hypotheses without an answer in
-NEEDS_INPUT.md — both spend a resource that's hers to allocate. Per BRIEF's
-pace governor, if this stays blocked past 48h, send exactly one reminder and
-then go quiet on this thread until Maria answers.
+## Next action (iteration 5)
+**Still blocked on Maria at the [NEEDS-INPUT] gate** (`NEEDS_INPUT.md`,
+unanswered since 06:26 UTC 2026-08-11). Iteration 4 completed the light
+tracking pass iteration 3 called for — MLSys 2027 CFP: no change, still
+unconfirmed; PSC scoop re-check: no kill found — and turned up nothing that
+changes the decision Maria needs to make. Next iteration should repeat the
+**same light tracking pass** (re-check MLSys 2027 CFP, re-run the PSC
+kill-upgrade query) and continue to hold off on new Mac-hardware experiments
+or further G1 hypothesis drafts. Per BRIEF's pace governor: the gate opened
+2026-08-11 06:26 UTC, so the 48h reminder threshold is **~2026-08-13 06:26
+UTC** — if still unanswered by the iteration that runs at or after that
+time, send exactly one reminder ping, then go quiet on this thread until
+Maria answers.
