@@ -7,6 +7,14 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+# Kazdy push na galaz PR-a odpala DWA zdarzenia naraz (push: '**' oraz
+# pull_request), czyli dwa pelne matrixy 2 OS x 3 Pythony na jeden commit.
+# Grupowanie po workflow+ref i anulowanie poprzedniego przebiegu zmniejsza
+# zuzycie runnerow o polowe i nie zmienia zakresu testow.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test on Python ${{ matrix.python-version }}
