@@ -1,0 +1,11 @@
+name: pipeline-smoke
+description: >
+  First real test: does the legacy evaluation pipeline start at all on the Mac
+  after the recovery? 1 repeat; if it fails, the captured stderr tells Claude
+  exactly what to fix next. Requires Ollama running with granite3.1-dense:2b
+  pulled (ollama pull granite3.1-dense:2b) and llama.cpp built at
+  examples/desktop/llama.cpp/build/bin/llama-server.
+requires: [ollama, poetry]
+repeats: 1
+command: poetry run python examples/desktop/run_evaluation_pipeline.py --agent constant_data_en --mode logs_and_viz
+timeout_minutes: 45
