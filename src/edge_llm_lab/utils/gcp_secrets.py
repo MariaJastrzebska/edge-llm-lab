@@ -48,7 +48,7 @@ SECRETS: Dict[str, str] = {
     # Telegram bot reporting sweep progress out of the lab.
     "TELEGRAM_BOT_TOKEN": "Edge_lab_fed_bot",
     # Numeric chat ID the bot writes to.
-    "TELEGRAM_CHAT_ID": "TELEGRAM_CHAT_ID",
+    "TELEGRAM_CHAT_ID": "EDGE_LAB_CHAT_ID",
 }
 
 # Checked in order; the first non-empty one wins.

@@ -36,7 +36,7 @@ poetry run python -m edge_llm_lab.utils.gcp_secrets   # verify; prints no values
 The environment-variable-to-secret-name mapping lives in
 `src/edge_llm_lab/utils/gcp_secrets.py` (`SECRETS`): `NEPTUNE_API_TOKEN` and
 `OPENAI_API_KEY` map to secrets of the same name, and `TELEGRAM_BOT_TOKEN` /
-`TELEGRAM_CHAT_ID` map to `Edge_lab_fed_bot` / `TELEGRAM_CHAT_ID` for reporting
+`TELEGRAM_CHAT_ID` map to `Edge_lab_fed_bot` / `EDGE_LAB_CHAT_ID` for reporting
 sweep progress. `source_of()` reports where a credential came from (`env` /
 `secret-manager` / `missing`) for inclusion in a run manifest.
 

@@ -175,5 +175,5 @@ def test_registry_matches_the_secrets_that_exist():
         "NEPTUNE_API_TOKEN": "NEPTUNE_API_TOKEN",
         "OPENAI_API_KEY": "OPENAI_API_KEY",
         "TELEGRAM_BOT_TOKEN": "Edge_lab_fed_bot",
-        "TELEGRAM_CHAT_ID": "TELEGRAM_CHAT_ID",
+        "TELEGRAM_CHAT_ID": "EDGE_LAB_CHAT_ID",
     }
