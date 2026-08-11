@@ -191,14 +191,92 @@ conditions so it cancels in comparisons but not in absolute numbers.
 
 ---
 
-## 7. Status at time of writing
+## 7. Experiment 003 — model axis (COMPLETE)
 
-`003-g1-model-axis` is running (started 00:39): `qwen3:4b`, `gemma3:4b`,
-`phi4-mini`, `granite3.1-dense:2b` × {unconstrained, gbnf} × 20 prompts × 3
-repeats. Models are pulled up front, before the idle baseline, so a multi-GB
-download cannot land inside another model's energy window. Any model that fails
-to pull is recorded in `models_skipped` and skipped, never faked. This section
-will be updated when it finishes.
+Ran 00:39 → 03:50 (11431 s). **360 runs, status `ok`**, 104,982 power samples,
+energy-window coverage 1.00 throughout. All four models pulled successfully and
+**all four confirmed `Q4_K_M`** via `ollama show` (recorded, not assumed).
+
+**`gemma3:4b` was skipped and recorded, not faked.** Its GGUF fails to load in
+this llama.cpp build (`030ebb5`): `llama_model_load_from_file_impl: failed to
+load model`, server exits rc=1. Logged at
+`llama-server-gemma3_4b.log` and in `manifest.models_skipped`. That removed
+120 of the planned 480 runs. Worth the Linux side deciding whether to chase a
+newer llama.cpp or a different gemma3 build.
+
+### Per-token decode time — paired (same prompt + seed), gbnf − unconstrained
+
+| model | unconstrained | gbnf | paired diff | 95 % CI | detection floor |
+|---|---|---|---|---|---|
+| qwen3:4b | 65.69 ms | 64.81 ms | **−0.879 ms** | [−1.279, −0.479] | 0.62 % |
+| phi4-mini | 61.56 ms | 60.62 ms | −0.939 ms | [−2.227, +0.349] | 2.13 % |
+| granite3.1-dense:2b | 36.83 ms | 36.92 ms | +0.088 ms | [−0.094, +0.269] | 0.50 % |
+
+**No model shows a positive latency tax.** Two of three CIs include zero. The
+one interval that excludes zero (qwen3) is **negative** — constrained decode was
+~1.3 % *faster per token*. Direction is opposite to G1's prediction; magnitude
+is ~1 % either way.
+
+Note the axis did what it was meant to do: granite decodes at 36.8 ms/token
+while phi4-mini and qwen3 sit at 61–66 ms/token. Nothing here got *faster* than
+granite, so **this hardware never entered the short-forward-pass regime G1's
+mechanism is about.** All three leave ample room to hide microseconds of CPU
+mask construction. A genuinely short decode (smaller model, or a device where
+the GEMV is quicker) remains untested.
+
+### Validity and energy per model
+
+| model | valid unconstrained | valid gbnf | J unconstrained | J gbnf | tokens unc. | tokens gbnf | truncated unc. |
+|---|---|---|---|---|---|---|---|
+| qwen3:4b | **0/60** | 60/60 | 300.3 | 167.2 | 768.0 | 347.0 | **60/60** |
+| phi4-mini | **0/60** | 60/60 | 132.2 | 132.2 | 257.1 | 264.8 | 0/60 |
+| granite3.1-dense:2b | **0/60** | 59/60 | 114.6 | 112.6 | 357.8 | 347.1 | 2/60 |
+
+### ⚠ Two artifacts that must not be read as results
+
+**(a) The qwen3 energy gap (300.3 J vs 167.2 J) is censored, not a saving.**
+Unconstrained qwen3 hit the 768-token cap in **60 of 60 runs**. It emits prose
+reasoning first — a sampled output begins *"We are given a user message… Step 1:
+Analyze the entire conversation history…"* — and never reaches JSON inside the
+budget. So its energy figure is "cost of burning the entire token budget", not
+"cost of producing an answer". **Do not quote 300 J vs 167 J as a 44 % energy
+saving from constraining.** The honest reading is that a reasoning-style model
+cannot complete this task unconstrained within 768 tokens. Re-running qwen3 with
+a much larger cap (or with thinking disabled) is the fix, and it is unfinished
+business.
+
+**(b) Unconstrained scored 0/60 on all three models**, which superficially looks
+like a devastating result and is not. Pooled failure modes across 003:
+90 × enum rejection, 78 × no JSON parse at all, 7 × other. That splits cleanly:
+granite and phi4-mini fail on the **uppercase-enum asset bug of §4**, qwen3
+fails because it was **truncated mid-reasoning** (artifact (a)). Neither is
+evidence that unconstrained decoding produces structurally bad tool calls. §4
+applies with full force to this table too.
+
+---
+
+## 8. Summary of the night
+
+- 002: **300/300**, clean. 003: **360/360 attempted runs ok**, one model skipped
+  for a load failure.
+- **No latency or energy tax from constrained decoding was detected on any of
+  the three working models.** Effects are ≈1 % and mostly inside noise; the only
+  CI excluding zero points the *wrong way* for G1.
+- This **does** contradict the 3.6–8.2× end of the literature on this hardware.
+  It **does not** test XGrammar's "<40 µs/token" claim: 40 µs against a 37–66 ms
+  forward pass is ~0.1 %, and the best detection floor achieved tonight was
+  0.50 %. The instrument is roughly 5–20× too coarse for that comparison.
+- The G1 mechanism (mask construction unable to hide behind a short forward
+  pass) was **never actually stressed** — no configuration tested decoded faster
+  than 36.8 ms/token.
+- G2's headline (J-per-valid) is currently dominated by the §4 asset bug and by
+  artifact (a), not by decoding behaviour.
+
+Recommended before any go/no-go call on G1: fix the prompt/schema enum
+inconsistency, re-run qwen3 with an adequate token budget, and get onto hardware
+or model sizes where per-token decode is genuinely short. **The go/no-go
+decision itself is Maria's and the Linux side's — this session does not make
+it.**
 
 Config 003 was adapted on the Mac (script name, `poetry` → `python3`) exactly as
 that config's own NOTE instructed; the reasons are written into the YAML.

@@ -37,6 +37,16 @@ regenerate from tidy result frames.
 - `save_evaluation_log` (base_eval.py:364) — two wrong kwarg names, dead code.
 - `inference_params.yaml` — duplicate agent keys; first silently wins.
 - `run_evaluation_pipeline.py` — "golden model" tracking is last-model-wins.
+- `examples/desktop/prompts/constant_data_en.txt:73` vs
+  `examples/desktop/pydantic_models/pydantic_models_en.py`
+  (`MedScreeningInputStatus`) — the prompt's worked example shows
+  `"status": "INCOMPLETE"` (uppercase) but the schema only accepts
+  `['incomplete', 'complete', 'skipped']` (lowercase). Found 2026-08-11 via the
+  G1 mask-cost pilot (`experiments/results/NIGHT-REPORT.md` §4): unconstrained
+  decoding faithfully copies the prompt's uppercase example and then fails
+  schema validation against the schema that example contradicts — this
+  confounds any experiment that compares unconstrained-vs-constrained schema
+  validity rates until the asset is fixed or validation is case-normalized.
 
 ## Paper-grade requirements (why the rebuild exists)
 

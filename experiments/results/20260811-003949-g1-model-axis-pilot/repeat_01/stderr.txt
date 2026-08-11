@@ -1,0 +1,3 @@
+version: 1 (030ebb5)
+built with AppleClang 21.0.0.21000101 for Darwin arm64
+[g1] ERROR on gemma3:4b: llama-server exited rc=1; see /Users/mariamalycha/Documents/edge-llm-lab/experiments/results/20260811-003949-g1-model-axis-pilot/repeat_01/llama-server-gemma3_4b.log

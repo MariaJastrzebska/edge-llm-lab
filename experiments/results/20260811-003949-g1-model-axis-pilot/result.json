@@ -1,0 +1,89 @@
+{
+  "config": {
+    "name": "g1-model-axis-pilot",
+    "description": "G1 pilot extension per Maria's review (2026-08-10): granite3.1 alone is too old to carry the paper. Repeat the constrained-vs-unconstrained measurement across a CURRENT small-model axis; granite stays as the continuity point with the thesis pilot data. Reuse the same prompt set, conditions, and the new PowermetricsRecorder (integrated Joules) from src/edge_llm_lab/telemetry/powermetrics_stream.py. Pull models via Ollama (q4_K_M-class tags); skip gracefully any model that fails to pull and record which. n=3 per condition per model (pilot resolution).\nADAPTED ON THE MAC (2026-08-10, as this config's own NOTE instructs): 1. Script name \u2014 the Mac-side pilot script is scripts/g1_mask_cost_pilot.py,\n   not scripts/g1_pilot.py. Same CLI surface otherwise: --models,\n   --conditions, --repeats are all supported (multi-model support was added\n   tonight specifically to satisfy this config).\n2. poetry -> python3 \u2014 the project's poetry .venv interpreter is unusable on\n   this Mac: a bare `import jsonschema` did not return in 180s, and that is\n   also what hung 001-pipeline-smoke into its 45-minute timeout. The system\n   python3 has every dependency this script needs. Left as a finding for the\n   Linux side rather than papered over.\n3. requires: poetry dropped for the same reason \u2014 the runner's presence check\n   would pass (poetry IS installed) while the interpreter it selects hangs,\n   which is a worse failure than not using it.\n4. Quantization is RECORDED per model (from `ollama show`), not assumed: the\n   config asks for \"q4_K_M-class tags\", so whatever Ollama actually ships for\n   each tag is written into the manifest and the tidy CSV.\n5. Models are all resolved/pulled BEFORE the idle baseline and any\n   measurement, so a multi-GB download can never land inside another model's\n   energy window.\n",
+    "requires": [
+      "ollama",
+      "git"
+    ],
+    "repeats": 1,
+    "command": "caffeinate -i python3 scripts/g1_mask_cost_pilot.py --models qwen3:4b,gemma3:4b,phi4-mini,granite3.1-dense:2b --conditions unconstrained,gbnf --repeats 3\n",
+    "timeout_minutes": 420
+  },
+  "manifest": {
+    "timestamp_utc": "2026-08-10T22:39:49.932587+00:00",
+    "git_sha": "7819573b87502287772d0e49cc9526f35eed1871",
+    "git_dirty": true,
+    "python": "3.10.14 (main, Mar 19 2024, 21:46:16) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "hostname": "Marias-MacBook-Air.local",
+    "ollama_version": "ollama version is 0.20.6"
+  },
+  "repeats": [
+    {
+      "repeat": 1,
+      "resources_before": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 7.110321044921875,
+          "swap_used_gb": 2.806640625
+        },
+        "energy": {
+          "cpu_power_mw": 612.0,
+          "gpu_power_mw": 0.0,
+          "total_power_mw": 612.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      },
+      "exit_code": 0,
+      "status": "ok",
+      "duration_s": 11430.770732,
+      "resources_after": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 6.677093505859375,
+          "swap_used_gb": 2.5858154296875
+        },
+        "energy": {
+          "cpu_power_mw": 1294.0,
+          "gpu_power_mw": 0.0,
+          "total_power_mw": 1294.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      }
+    }
+  ],
+  "status": "ok"
+}
