@@ -73,6 +73,23 @@ def default_energy_backend() -> EnergyBackend:
     return NullEnergyBackend()
 
 
+def _cpu_freq():
+    """psutil.cpu_freq() jako dict albo None.
+
+    Na Apple Silicon psutil podnosi RuntimeError ("'pmgr' entry was not found
+    in AppleARMIODevice service") zamiast zwrócić None — a to jest dokładnie
+    ten sprzęt, na którym laboratorium mierzy. Częstotliwość jest metadaną
+    opisową, więc jej brak nie może wywracać zbierania telemetrii.
+    """
+    import psutil
+
+    try:
+        freq = psutil.cpu_freq()
+    except (RuntimeError, NotImplementedError, OSError):
+        return None
+    return freq._asdict() if freq else None
+
+
 def monitor_resources(energy_backend: Optional[EnergyBackend] = None) -> dict:
     """Sample memory, device info, and one energy reading."""
     import psutil
@@ -87,7 +104,7 @@ def monitor_resources(energy_backend: Optional[EnergyBackend] = None) -> dict:
         "architecture": platform.architecture(),
         "machine": platform.machine(),
         "cpu_count": psutil.cpu_count(),
-        "cpu_freq": psutil.cpu_freq()._asdict() if psutil.cpu_freq() else None,
+        "cpu_freq": _cpu_freq(),
     }
 
     memory_info = {
