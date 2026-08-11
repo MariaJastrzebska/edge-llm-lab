@@ -7,8 +7,13 @@ Więc chmura *przygotowuje* briefing w repo, a wysyła go maszyna, która ma
 sieć i token — czyli Mac.
 
 UŻYCIE (na Macu):
-    export TELEGRAM_BOT_TOKEN=...        # albo ~/.secrets/telegram.env
-    export TELEGRAM_CHAT_ID=...
+    export TELEGRAM_BOT_TOKEN=...        # albo ~/.secrets/telegram.env,
+    export TELEGRAM_CHAT_ID=...          # albo GCP Secret Manager (niżej)
+
+    # z GCP Secret Managera (wymaga `gcloud auth login` zrobionego raz):
+    export GCP_PROJECT=twoj-projekt
+    export GCP_SECRET_PREFIX=edgelab     # sekrety: edgelab-telegram-bot-token,
+                                         #          edgelab-telegram-chat-id
     python3 scripts/telegram_briefing.py \
         --spoken docs/research/BRIEFING-2026-08-11.md \
         --report docs/reports/2026-08-11-go-no-go-G1.md
@@ -45,9 +50,25 @@ API = "https://api.telegram.org"
 TG_LIMIT = 4096
 
 
+def _gcp_secret(name: str) -> str:
+    """Czyta sekret z GCP Secret Managera przez `gcloud` (jeśli jest)."""
+    project = os.environ.get("GCP_PROJECT", "").strip()
+    cmd = ["gcloud", "secrets", "versions", "access", "latest", "--secret", name]
+    if project:
+        cmd += ["--project", project]
+    try:
+        out = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=False)
+    except FileNotFoundError:
+        return ""
+    return out.stdout.strip() if out.returncode == 0 else ""
+
+
 def load_token_and_chat() -> tuple[str, str]:
+    """Kolejność źródeł: zmienne środowiskowe → ~/.secrets/telegram.env →
+    GCP Secret Manager (`<prefix>-telegram-bot-token` / `-chat-id`)."""
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+
     env_file = Path.home() / ".secrets" / "telegram.env"
     if (not token or not chat) and env_file.exists():
         for line in env_file.read_text().splitlines():
@@ -60,11 +81,21 @@ def load_token_and_chat() -> tuple[str, str]:
                 token = v
             elif k.strip() == "TELEGRAM_CHAT_ID" and not chat:
                 chat = v
+
+    if not token or not chat:
+        prefix = os.environ.get("GCP_SECRET_PREFIX", "edgelab").strip()
+        token = token or _gcp_secret(f"{prefix}-telegram-bot-token")
+        chat = chat or _gcp_secret(f"{prefix}-telegram-chat-id")
+
     if not token or not chat:
         sys.exit(
-            "Brak TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID.\n"
-            "Ustaw zmienne środowiskowe albo utwórz ~/.secrets/telegram.env "
-            "z liniami TELEGRAM_BOT_TOKEN=... i TELEGRAM_CHAT_ID=..."
+            "Brak TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID. Źródła sprawdzane po kolei:\n"
+            "  1. zmienne środowiskowe TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID,\n"
+            "  2. ~/.secrets/telegram.env,\n"
+            "  3. GCP Secret Manager: sekrety <GCP_SECRET_PREFIX>-telegram-bot-token\n"
+            "     i -telegram-chat-id (wymaga gcloud + `gcloud auth login`;\n"
+            "     projekt z GCP_PROJECT albo domyślny gcloud).\n"
+            "Instrukcja konfiguracji: docs/SECRETS.md"
         )
     return token, chat
 
