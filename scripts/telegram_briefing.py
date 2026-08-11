@@ -57,7 +57,9 @@ def _gcp_secret(name: str) -> str:
     if project:
         cmd += ["--project", project]
     try:
-        out = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=False)
+        out = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=30, check=False
+        )
     except FileNotFoundError:
         return ""
     return out.stdout.strip() if out.returncode == 0 else ""
