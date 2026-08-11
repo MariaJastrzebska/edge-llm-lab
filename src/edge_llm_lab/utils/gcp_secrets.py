@@ -18,7 +18,7 @@ from, so a manifest can state "judge key: secret-manager" without leaking it.
 Setup
 -----
     poetry install                            # google-cloud-secret-manager included
-    export GCP_PROJECT_ID=llm-apps-...        # project holding the secrets
+    export GCP_PROJECT_ID=other-project        # OPTIONAL — overrides llm-apps-425420
     gcloud auth application-default login     # local credentials
 
 Verify the wiring without printing any secret values:
@@ -54,6 +54,11 @@ SECRETS: Dict[str, str] = {
 # Checked in order; the first non-empty one wins.
 PROJECT_ENV_VARS = ("GCP_PROJECT_ID", "GOOGLE_CLOUD_PROJECT", "GCLOUD_PROJECT")
 
+# Maria's LLM-APPS project, where all the secrets live. A project ID is not a
+# secret, so baking it in is safe — and it beats guessing from ambient ADC,
+# which may default to some other project and silently look up secrets there.
+DEFAULT_PROJECT_ID = "llm-apps-425420"
+
 
 class MissingSecret(RuntimeError):
     """A secret marked ``required`` was not found in any source."""
@@ -65,19 +70,13 @@ _client = None
 _client_unavailable = False
 
 
-def project_id() -> Optional[str]:
-    """Project holding the secrets, or None if it cannot be determined."""
+def project_id() -> str:
+    """Project holding the secrets: env override, else the baked-in default."""
     for var in PROJECT_ENV_VARS:
         value = os.environ.get(var, "").strip()
         if value:
             return value
-    # Fall back to whatever project the ambient credentials default to.
-    try:
-        import google.auth
-
-        return google.auth.default()[1]
-    except Exception:
-        return None
+    return DEFAULT_PROJECT_ID
 
 
 def _get_client():
@@ -117,15 +116,7 @@ def _fetch(secret_name: str, version: str = "latest") -> Optional[str]:
     if client is None:
         return None
 
-    project = project_id()
-    if not project:
-        logger.warning(
-            "No GCP project configured — set GCP_PROJECT_ID to read %s from Secret Manager",
-            secret_name,
-        )
-        return None
-
-    path = f"projects/{project}/secrets/{secret_name}/versions/{version}"
+    path = f"projects/{project_id()}/secrets/{secret_name}/versions/{version}"
     try:
         response = client.access_secret_version(request={"name": path})
     except Exception as exc:
@@ -139,7 +130,7 @@ def _fetch(secret_name: str, version: str = "latest") -> Optional[str]:
 
 
 def _fetch_cached(secret_name: str) -> Optional[str]:
-    key = (project_id() or "", secret_name)
+    key = (project_id(), secret_name)
     with _lock:
         if key in _cache:
             return _cache[key]

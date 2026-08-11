@@ -28,7 +28,7 @@ GCP Secret Manager, so an exported variable or a local `.env` always wins and a
 device without GCP configured runs unchanged:
 
 ```bash
-export GCP_PROJECT_ID=llm-apps-...            # project holding the secrets
+export GCP_PROJECT_ID=other-project           # OPTIONAL — overrides llm-apps-425420
 gcloud auth application-default login         # local credentials
 poetry run python -m edge_llm_lab.utils.gcp_secrets   # verify; prints no values
 ```

@@ -137,10 +137,18 @@ def test_required_raises_when_unresolvable(monkeypatch):
         gcp_secrets.resolve("NEPTUNE_API_TOKEN", required=True)
 
 
-def test_missing_project_degrades_to_default(monkeypatch, fake_client):
-    monkeypatch.setattr(gcp_secrets, "project_id", lambda: None)
+def test_project_defaults_without_any_env_var(monkeypatch):
+    """No GCP_PROJECT_ID anywhere still resolves to Maria's project."""
+    for var in gcp_secrets.PROJECT_ENV_VARS:
+        monkeypatch.delenv(var, raising=False)
 
-    assert gcp_secrets.resolve("NEPTUNE_API_TOKEN") is None
+    assert gcp_secrets.project_id() == "llm-apps-425420"
+
+
+def test_project_env_var_overrides_the_default(monkeypatch):
+    monkeypatch.setenv("GCP_PROJECT_ID", "some-other-project")
+
+    assert gcp_secrets.project_id() == "some-other-project"
 
 
 def test_source_of_is_manifest_safe(monkeypatch, fake_client):
