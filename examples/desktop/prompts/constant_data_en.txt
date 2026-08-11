@@ -67,10 +67,10 @@ Follow these steps, analyzing the conversation history and adhering to the MAIN 
         "thoughts": [
           {"thought": "History is empty. No prior data or questions.", "action": "Analyze initial state", "action_input": "current_data: all null, asked_questions: empty"},
           {"thought": "Current_info: all fields remain null as history is empty.", "action": "Update current_info", "action_input": "current_info: all null"},
-          {"thought": "Status: INCOMPLETE, as mandatory fields are missing.", "action": "Determine status", "action_input": "status: INCOMPLETE"},
+          {"thought": "Status: incomplete, as mandatory fields are missing.", "action": "Determine status", "action_input": "status: incomplete"},
           {"thought": "Missing_info: History is empty. Asking for 'name' in English.", "action": "Formulate missing_info for empty history", "action_input": {"field": "name", "question": "What is your name?"}}
         ],
-        "status": "INCOMPLETE",
+        "status": "incomplete",
         "missing_info": {"field": "name", "question": "What is your name?"},
         "current_info": {
           "name": null,

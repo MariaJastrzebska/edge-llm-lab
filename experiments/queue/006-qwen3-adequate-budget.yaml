@@ -1,0 +1,44 @@
+name: qwen3-adequate-budget
+description: >
+  Close the loose end NIGHT-REPORT §7(a) flagged as "unfinished business".
+
+  In 003, unconstrained qwen3:4b hit the 768-token cap in 60 of 60 runs. It
+  emits prose reasoning first — a sampled output opens "We are given a user
+  message... Step 1: Analyze the entire conversation history..." — and never
+  reaches JSON inside the budget. Its 300.3 J is therefore the cost of burning
+  the whole token budget, not the cost of producing an answer, and the apparent
+  44% energy saving from constraining (300.3 J vs 167.2 J) is CENSORING, not a
+  saving. NIGHT-REPORT says explicitly: do not quote it. This run makes the
+  number quotable or kills it.
+
+  n_predict is raised 768 -> 3072 so a reasoning-style model has room to finish.
+  That is the only variable changed.
+
+  Scope is deliberately narrow to keep the runtime sane: unconstrained qwen3 may
+  spend up to 3072 tokens x ~66 ms = ~200 s per run, so this uses 10 prompts and
+  2 repeats rather than the full 20 x 3. The question is binary — does it
+  complete when given room — and 40 runs answer it.
+
+  Three outcomes, all informative:
+  (a) it completes and produces valid JSON — then the 003 energy comparison was
+      censored and must be redone or dropped, and the honest claim becomes
+      "reasoning models need a bigger budget", not "constraining saves energy".
+  (b) it completes but the JSON is invalid — a real unconstrained-validity
+      finding, now uncontaminated by the enum bug fixed in 004.
+  (c) it still truncates at 3072 — then this model cannot do this task
+      unconstrained at any sane budget, which is itself a clean result worth
+      one sentence in the paper.
+
+  Note this runs AFTER 004's asset fix, so its validity numbers are on the fixed
+  prompt and are comparable to 004, not to 003.
+
+requires: [ollama, git]
+repeats: 1
+command: >
+  caffeinate -i python3 scripts/g1_mask_cost_pilot.py
+  --models qwen3:4b
+  --conditions unconstrained,gbnf
+  --repeats 2
+  --limit-prompts 10
+  --n-predict 3072
+timeout_minutes: 240

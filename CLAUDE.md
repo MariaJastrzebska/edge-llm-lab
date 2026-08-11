@@ -37,16 +37,18 @@ regenerate from tidy result frames.
 - `save_evaluation_log` (base_eval.py:364) — two wrong kwarg names, dead code.
 - `inference_params.yaml` — duplicate agent keys; first silently wins.
 - `run_evaluation_pipeline.py` — "golden model" tracking is last-model-wins.
-- `examples/desktop/prompts/constant_data_en.txt:73` vs
-  `examples/desktop/pydantic_models/pydantic_models_en.py`
-  (`MedScreeningInputStatus`) — the prompt's worked example shows
-  `"status": "INCOMPLETE"` (uppercase) but the schema only accepts
-  `['incomplete', 'complete', 'skipped']` (lowercase). Found 2026-08-11 via the
-  G1 mask-cost pilot (`experiments/results/NIGHT-REPORT.md` §4): unconstrained
-  decoding faithfully copies the prompt's uppercase example and then fails
-  schema validation against the schema that example contradicts — this
-  confounds any experiment that compares unconstrained-vs-constrained schema
-  validity rates until the asset is fixed or validation is case-normalized.
+- ~~`constant_data_en.txt:73` uppercase `"INCOMPLETE"` vs the schema's
+  lowercase enum~~ — **FIXED 2026-08-11.** Both `constant_data.txt` and
+  `constant_data_en.txt` now say `"incomplete"` on lines 70 and 73, matching
+  `MedScreeningInputStatus` (whose enum *members* are uppercase but whose
+  *values* — the things JSON Schema validates — are lowercase).
+  The decision was to fix the asset rather than case-normalise the validator:
+  the schema is the contract, and a prompt whose own worked example violates it
+  is a bug. Consequence for analysis: **validity and J-per-valid numbers from
+  experiments 002 and 003 are not comparable to anything measured after this
+  fix** — they were dominated by the model faithfully copying the prompt
+  (`INCOMPLETE` ×47, `COMPLETE` ×38 of 99 unconstrained failures). Latency and
+  energy rows remain comparable. Re-measurement is queued as experiment 004.
 
 ## Paper-grade requirements (why the rebuild exists)
 

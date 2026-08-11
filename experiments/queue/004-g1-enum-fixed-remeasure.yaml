@@ -1,0 +1,46 @@
+name: g1-enum-fixed-remeasure
+description: >
+  Re-measure G2 (Joules per VALID output) now that the prompt/schema enum
+  contradiction is fixed. NIGHT-REPORT §4 left this decision to the Linux side;
+  the decision taken is FIX THE ASSET, not case-normalise the validator, because
+  the schema is the contract and a prompt whose own worked example violates it
+  is simply a bug.
+
+  What changed in the repo before this run (commit alongside this config):
+  examples/desktop/prompts/constant_data{,_en}.txt lines 70 and 73 showed
+  "status": "INCOMPLETE" while MedScreeningInputStatus admits only
+  ['incomplete','complete','skipped'] — the enum member NAMES are uppercase but
+  their VALUES are lowercase, and JSON Schema validates values. Both files now
+  say "incomplete". g1_mask_cost_pilot.py:485 reads constant_data_en.txt as the
+  system prompt, so this asset is exactly what the model was copying.
+
+  WHY THIS MATTERS: in 002 the unconstrained condition scored 1% valid, and 89
+  of its 99 failures were enum rejections with the model emitting INCOMPLETE ×47
+  and COMPLETE ×38 — faithfully copying the prompt. The grammar conditions could
+  not emit uppercase by construction, so they were immune. The resulting 100x
+  J-per-valid gap therefore measured "constrained decoding masks a prompt bug",
+  NOT "unconstrained decoding produces invalid tool calls". This run separates
+  those two claims for the first time.
+
+  COMPARABILITY WARNING for whoever analyses this: results here are NOT directly
+  comparable to 002/003 validity or J-per-valid numbers. The system prompt
+  changed. Latency and energy rows remain comparable (the prompt is the same
+  length to within a few characters and the sampler settings are identical).
+
+  Models: the two that failed 002/003 on the enum bug specifically. qwen3 is
+  excluded here because its failure mode was truncation, not the enum — that is
+  experiment 006's job.
+
+  Expected reading: if unconstrained validity jumps from ~1% to something high,
+  the 002 headline was an asset artifact and G2's claim must be restated. If it
+  stays low with a DIFFERENT failure-mode breakdown, that breakdown is the real
+  G2 finding. Either outcome is publishable; conflating them was not.
+
+requires: [ollama, git]
+repeats: 1
+command: >
+  caffeinate -i python3 scripts/g1_mask_cost_pilot.py
+  --models granite3.1-dense:2b,phi4-mini
+  --conditions unconstrained,gbnf,json_schema
+  --repeats 3
+timeout_minutes: 240
