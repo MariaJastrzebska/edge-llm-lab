@@ -1,123 +1,137 @@
-# Paper machine — STATUS (updated 2026-08-11, iteration 4)
+# Paper machine — STATUS (updated 2026-08-12, iteration 5)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-11 (iter 4): no new scope decision — light tracking pass only,
-   per iter 3's own instruction not to spend Mac-hardware time or draft
-   further G1 hypotheses while `NEEDS_INPUT.md` is unanswered. Still well
-   under the 48h pace-governor reminder threshold (gate opened 06:26 UTC
-   today).
-2. 2026-08-11 (iter 3): discovered that Stage 4 had already effectively
-   started outside this loop's own tracking — an overnight Mac-side pilot
-   (300 + 360 runs, see `experiments/results/NIGHT-REPORT.md`) tested G1
-   before this file was updated to say so. This iteration's real work was
-   analyzing that pilot (Part 1 of digest 2026-08-11.md), not drafting
-   fresh Stage-3 hypotheses as previously planned. **Stage corrected: 3 → 4.**
-3. 2026-08-10 (iter 2, worker narrowing): axes **federated SLM** and **edge
-   VLM/VLA for robots** DEMOTED — both scooped by mid-2026 work (see digest #2).
-   Surviving axis: **energy-aware edge inference, narrowed to the decode loop's
-   structured-generation machinery**.
-4. 2026-08-10: direction = **edge × robotics × privacy and/or medical**; must be
-   low-level/systems-strong; should ideally (not necessarily) feed bigos later.
-5. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level enough).
+1. 2026-08-12 (iter 5): no new scope-narrowing decision. Caught STATUS.md up
+   to reality — the `NEEDS_INPUT.md` gate from iteration 3 was **answered by
+   Maria on 2026-08-11 (option 2: fix the enum bug, then re-run)** and is
+   closed; this file had not been updated to reflect that. Since the answer,
+   outside this loop's own tracking (same pattern as iteration 3): the enum
+   fix landed (`b64b4ed`), 002/003 were re-run clean, and a new **experiment
+   004 (enum-fixed remeasure) completed** overnight 2026-08-12 with a
+   genuinely new result — see below. Two follow-up experiments (005
+   short-forward-pass, 006 qwen3-budget-fix) are already queued in
+   `experiments/queue/` for Maria's next Mac session; they do not require a
+   new gate to exist, only her hardware time to run.
+2. 2026-08-11 (iter 4): light tracking pass only, per the (then-open) gate.
+3. 2026-08-11 (iter 3): Stage corrected 3 → 4 — a Stage-4 pilot had already
+   run outside this loop's tracking.
+4. 2026-08-10 (iter 2): axes **federated SLM** and **edge VLM/VLA for
+   robots** DEMOTED — both scooped by mid-2026 work. Surviving axis:
+   **energy-aware edge inference, narrowed to the decode loop's
+   structured-generation machinery.**
+5. 2026-08-10: direction = **edge × robotics × privacy and/or medical**;
+   must be low-level/systems-strong; should ideally (not necessarily) feed
+   bigos later.
+6. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level
+   enough).
 
-**Current stage: 4 — VALIDATION, blocked on Maria at a [NEEDS-INPUT] gate.**
-The overnight pilot (see below) is a real falsification attempt on G1: no
-positive latency/energy tax detected on 2–4B models on an M1 Air, one model
-significantly in the *wrong* direction. But the regime G1's mechanism
-actually predicts a tax in (short GPU forward pass) was never reached —
-nothing decoded faster than 36.8 ms/token. This is exactly the kind of
-kill-adjacent-but-not-clean result BRIEF's constitution reserves for Maria:
-continuing costs a specific new bet of her Mac-hardware time (or a hardware
-purchase). See `NEEDS_INPUT.md` at repo root. **The loop will not queue new
-experiments or draft further hypotheses on G1 until she answers.**
+**Current stage: 4 — VALIDATION. Gate closed, no new blocking gate open.**
+The G1 pilot now has four measurement rounds across two nights. The headline
+change since iteration 4: **phi4-mini's latency tax replicated cleanly three
+times running (+1.51%, +1.65%, +1.78%, all CIs excluding zero)**; granite's
+earlier apparent effect (+0.34%–+0.66%, CIs excluding zero in 002/003) **did
+not survive** a larger-n rerun in 004 (CI spans zero, one arm flips sign) —
+the source report itself declines to keep the earlier granite number. This
+is the first genuinely informative (not null, not wrong-direction) data
+point in the whole G1 investigation. Full analysis:
+`docs/research/digests/2026-08-12.md` Part 1; raw report:
+`experiments/results/NIGHT-REPORT-2026-08-12.md`.
 
-<details><summary>Stage-2 exit justification (honest accounting, unchanged from iter 2)</summary>
+No new `[NEEDS-INPUT]` gate opened this iteration — the natural next
+experiments (005, 006) are already queued and don't need permission to
+exist, only Mac time. But the significance question Maria reserved for
+herself in `DECISIONS.md` (2026-08-10, point 2: "if the tax is below
+meaningful, G1 dies, no attachment to the candidate") now has real data to
+apply to on at least one model, independent of whatever 005/006 show. Flagged
+in the digest as worth her direct read, not gated on a worker decision.
 
-~40 sources swept. The surviving axis (energy/decoding machinery) clears the
-≥15-source bar comfortably (25+ direct: energy-aware serving corpus + the
-constrained-decoding corpus). Axes 1 and 2 were closed at 8–9 sources each by the
-**kill criterion** ("direct prior work found — scooped"), not by exhaustive sweep
-— reviving either would need a top-up sweep first. Each surviving gap has a
-falsifiable statement (G1/G2/G3 in digest #2).
+<details><summary>Stage-2 exit justification (honest accounting, unchanged since iter 2)</summary>
+
+~40 sources swept pre-Stage-4; the surviving axis (energy/decoding machinery)
+cleared the ≥15-source bar comfortably. Axes 1 and 2 were closed at 8–9
+sources each by the kill criterion, not exhaustive sweep.
+
 </details>
 
-## Nearest deadlines (re-checked 2026-08-11, iter 4)
+## Nearest deadlines (re-checked 2026-08-12, iter 5)
 | Venue | Deadline | Note |
 |---|---|---|
-| ~~ICRA 2027~~ | **Sep 15, 2026** (verified, was mis-recorded as ~Sep 17–22) | **5 wks — OUT OF REACH**, past the T-4wk governor with no validated idea |
-| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | mlsys.org and both deadline-tracker aggregators (mlsys-deadlines.github.io, casys-kaist.github.io) still show 2027 as TBD/predicted off the 2026 Oct 30 date; official mlsys.org 2027 CFP page unreachable this iteration too. One low-trust secondary source (clocate.com) puts the conference itself at May 17–22, 2027 with conflicting venue city — no deadline signal. No official CFP yet. Re-check every iteration. |
+| ~~ICRA 2027~~ | Sep 15, 2026 | out of reach, unchanged |
+| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | Aggregators (mlsys-deadlines.github.io, casys-kaist.github.io) still show 2027 as TBD/predicted off the 2026 date. **New this iteration: `mlsys.org` is blocked by this session's network egress policy** — could not attempt direct verification against the primary source this pass (prior iterations reported it as merely unreachable/no-CFP-yet; this iteration it's an explicit access block). Re-check every iteration; try again from a session without the block if one is available. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle |
 
-## G1 pilot result (Stage 4, 2026-08-10 night → analyzed 2026-08-11)
+## G1 status — four measurement rounds, mixed but informative (2026-08-10 → 2026-08-12)
 
-**002-g1-mask-cost-pilot** (granite3.1-dense:2b, 300 runs) and
-**003-g1-model-axis** (4 models, 360 runs) ran on Maria's MacBook Air M1 per
-the Linux/Mac protocol in `experiments/RUNBOOK.md`. Full manifest discipline
-(git SHA, llama.cpp SHA, model digest, idle baselines, energy-window coverage
-1.00 throughout). Paired per-token decode time, gbnf − unconstrained:
-
-| model | paired diff | 95% CI | detection floor |
+| model | rounds w/ CI excluding zero | direction | best estimate |
 |---|---|---|---|
-| qwen3:4b | **−0.879 ms** | [−1.279, −0.479] | 0.62% |
-| phi4-mini | −0.939 ms | [−2.227, +0.349] | 2.13% |
-| granite3.1-dense:2b | +0.088 ms | [−0.094, +0.269] | 0.50% |
+| **phi4-mini** | 3 of 3 (003, 004-gbnf, 004-json_schema) | positive, consistent | **+1.5–1.8%**, replicated |
+| granite3.1-dense:2b | 2 of 4 (002-rerun, 003-rerun); NOT in 004 (larger n) | inconsistent, effect not established | treat as null |
+| qwen3:4b | 2 of 2 | negative | **artifact** — 60/60 unconstrained runs hit the 768-token cap mid-reasoning-prose; not a like-for-like comparison, queued experiment 006 targets this directly |
 
-**No model shows a positive tax; the one significant CI (qwen3) points the
-wrong way.** But nothing tested decoded faster than 36.8 ms/token, and G1's
-mechanism needs a short forward pass to fail to hide the mask cost — that
-regime is untested, not falsified. A pre-existing repo bug (uppercase vs.
-lowercase status enum, `constant_data_en.txt` vs. `pydantic_models_en.py`)
-confounds the validity/energy-per-valid numbers; now in CLAUDE.md's
-known-bugs list. Full analysis: digest 2026-08-11.md Part 1; raw report:
-`experiments/results/NIGHT-REPORT.md`.
+**Reading:** magnitude on the one model with a real signal is ~1.5–1.8%, far
+below the 3.6–8.2× literature high end — consistent with what iterations 3–4
+already suspected, now on firmer footing (replicated, not just "not
+detected"). **G1's actual predicted mechanism (short forward pass) is still
+untested** — nothing measured decodes faster than ~34.6ms/token. Queued
+experiment 005 targets that regime directly (sub-1B models via Ollama,
+should reach <20ms/token). Absolute decode-time is **not comparable across
+nights** (suspected observer-contention confound, not thermal — see
+NIGHT-REPORT-2026-08-12.md §3); only within-run paired comparisons are valid,
+and all numbers above already are.
 
-**This is the [NEEDS-INPUT] gate** — see `NEEDS_INPUT.md` for the options
-(chase the short-decode regime with a smaller model / different hardware;
-fix the enum bug first; kill G1 as scoped; or narrow to the smaller claim
-the data does support).
-
-## Scoop-check status (iter 3: 11 sources; iter 4 top-up: 4 more, none a kill)
-**PSC (parser-stack-classification grammar masking, OpenReview SEjxNfQTHN)**
-is a moderate erosion risk — it drives mask-*computation* cost toward zero
-algorithmically, which shrinks (but doesn't eliminate) the sync-stall
-mechanism G1 targets, since even a near-zero-cost mask still blocks the next
-token if unpipelined. Iter 4 re-ran the specific query BRIEF flagged as the
-kill-upgrade trigger ("PSC-style masking + pipelining + Joules, on edge
-hardware") — still nothing found combining all three; XGrammar's own
-CPU/GPU overlap is documented only on datacenter GPUs (H100), not in the
-short-forward-pass edge regime. **Still erosion-risk, not a kill.** Full
-list and verdicts: digest 2026-08-11.md Part 2 (iter 3) and Iteration 4
-section (iter 4 top-up, incl. two edge-SLM energy-characterization papers
-relevant to the Pi 5/Jetson hardware-purchase question in NEEDS_INPUT.md).
+## Scoop-check status (iter 5 top-up: 5 new sources, none a kill)
+Re-ran the PSC kill-upgrade query ("algorithmic mask speedup + CPU/GPU
+pipelining + Joules + edge hardware") — still nothing found. Two new
+algorithmic mask-speedup papers (GRID, arXiv 2607.11951; "Attention Meets
+Reachability," arXiv 2603.05540) join PSC in the same erosion-risk bucket —
+neither measures edge hardware or energy, neither touches the sync-stall
+mechanism. Two new validity-axis "tax" papers found (Constraint Tax, arXiv
+2605.26128; Format Tax, arXiv 2604.03616) — different mechanism from G1
+(correctness/prompt-framing, not latency/energy), cited as adjacent
+background; Constraint Tax specifically worth reading before 005 runs, since
+its sub-1B/1.5B results suggest constrained small models may trade validity
+for correctness in exactly the size class 005 targets — a confound the
+current pilot's grading may not currently distinguish. Full list and
+verdicts: digest 2026-08-12.md Part 2.
 
 ## Known competitive pressure
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
 (2505.15030) is prior art; generic energy-aware edge scheduling is crowded
-(EnerInfer, HeteroMosaic, Agent.xpu, KAIROS, BiScale). **All of it optimizes
-*unconstrained* generation — none touches the constrained decode loop.**
+(EnerInfer, HeteroMosaic, Agent.xpu, KAIROS, BiScale). Algorithmic mask-speedup
+work (PSC, GRID, Attention-Meets-Reachability) is a growing but still
+non-overlapping erosion-risk cluster — none on edge hardware, none in Joules,
+none with CPU/GPU pipelining measured against a short forward pass. **All of
+it still optimizes *unconstrained* generation or mask *computation* cost —
+none touches the constrained-decode sync-stall mechanism G1 is about.**
 
 ## Open debt
-- `VENUES.md` (Stage-1 artifact) was never written; the venue table lives here
-  and in BRIEF. Only worth writing if MLSys 2027 fails to materialize and we
-  need to re-rank.
-- The three draft hypotheses from this iteration's original plan (pipeline
-  the mask across the CPU/GPU sync boundary; energy-per-valid-output as
-  metric; tail-latency framing for robotics) are still reasonable *shapes*
-  for G1's mechanism/contribution — but writing them up as commitment-ready
-  was premature given the pilot data above. Revisit once Maria answers
-  NEEDS_INPUT.md; don't re-draft from scratch, the shapes are still sound.
+- `VENUES.md` (Stage-1 artifact) never written; only worth writing if MLSys
+  2027 fails to materialize and a re-rank is needed.
+- The three draft hypothesis *shapes* from iteration 3 (pipeline the mask
+  across the CPU/GPU sync boundary; energy-per-valid-output as metric;
+  tail-latency framing for robotics) are still sound and still not written
+  up as commitment-ready. With phi4-mini's replicated effect now in hand,
+  the "pipeline the mask" shape is the one most directly motivated by data —
+  worth drafting once 005/006 land, not before (their result changes what
+  the hypothesis should claim).
+- Constraint Tax (arXiv 2605.26128) not yet read in full — flagged as a
+  pre-read for 005, not done this iteration (time budget).
 
-## Next action (iteration 5)
-**Still blocked on Maria at the [NEEDS-INPUT] gate** (`NEEDS_INPUT.md`,
-unanswered since 06:26 UTC 2026-08-11). Iteration 4 completed the light
-tracking pass iteration 3 called for — MLSys 2027 CFP: no change, still
-unconfirmed; PSC scoop re-check: no kill found — and turned up nothing that
-changes the decision Maria needs to make. Next iteration should repeat the
-**same light tracking pass** (re-check MLSys 2027 CFP, re-run the PSC
-kill-upgrade query) and continue to hold off on new Mac-hardware experiments
-or further G1 hypothesis drafts. Per BRIEF's pace governor: the gate opened
-2026-08-11 06:26 UTC, so the 48h reminder threshold is **~2026-08-13 06:26
-UTC** — if still unanswered by the iteration that runs at or after that
-time, send exactly one reminder ping, then go quiet on this thread until
-Maria answers.
+## Next action (iteration 6)
+1. **Literature tracking (repeat, ~5 min):** re-check MLSys 2027 CFP status
+   (retry `mlsys.org` directly in case the egress block was session-specific
+   rather than durable; otherwise stick with aggregator TBD reading);
+   re-run the PSC/GRID/Attention-Meets-Reachability kill-upgrade query.
+2. **Read Constraint Tax (arXiv 2605.26128) in full** and note in the next
+   digest whether its validity/correctness tradeoff on sub-1B/1.5B models is
+   likely to confound queued experiment 005's grading (i.e. does 005 need a
+   correctness check added to its scope, not just schema-validity, before it
+   runs) — a research-literature question this loop can answer without
+   Mac hardware, and worth resolving *before* 005 runs rather than after.
+3. Continue watching for 005/006 results landing in `experiments/results/`
+   (same "check the working tree before trusting STATUS.md" discipline that
+   caught iterations 3 and 5's stale gate state) — if they've run, analyzing
+   them is Stage-4 priority work over any of the above.
+4. No new Mac-hardware experiments or new `[NEEDS-INPUT]` gate needed from
+   this loop; 005/006 are Maria's to run on her own schedule.
