@@ -31,6 +31,7 @@ import ollama
 import openai
 import instructor
 from joblib import Memory
+from edge_llm_lab.utils.gcp_secrets import resolve as resolve_secret
 from edge_llm_lab.utils.neptune_utils import NeptuneManager
 from datetime import datetime
 from typing import Protocol, runtime_checkable
@@ -145,7 +146,8 @@ class BaseEvaluation:
 
         # --- Configuration ---
         self.evaluator_model_name = 'gpt-4o-mini'
-        self.evaluator_api_key = os.getenv("OPENAI_API_KEY")
+        # Judge key: env first, then GCP Secret Manager (see utils/gcp_secrets.py).
+        self.evaluator_api_key = resolve_secret("OPENAI_API_KEY")
         self.OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
         self.OLLAMA_CLIENT = ollama.Client(host=self.OLLAMA_HOST)
         self.OPENAI_CLIENT = openai.OpenAI(api_key=self.evaluator_api_key)

@@ -1,0 +1,38 @@
+name: g1-short-forward-pass
+description: >
+  The experiment G1 has been waiting for. NIGHT-REPORT §8 is blunt about it:
+  "The G1 mechanism was never actually stressed — no configuration tested
+  decoded faster than 36.8 ms/token."
+
+  G1's mechanism is that CPU-side grammar mask construction cannot hide behind
+  the GPU forward pass when the forward pass is short. Every model measured so
+  far decodes at 36.8-65.7 ms/token, which leaves ample room to hide a mask
+  costing tens of microseconds. XGrammar claims <40 us/token; against a 37 ms
+  forward pass that is ~0.1%, while the best detection floor achieved so far was
+  0.50%. The instrument is 5-20x too coarse at these model sizes — not because
+  the instrument is bad, but because the models are too slow for the effect.
+
+  The fix is not a better instrument, it is a shorter forward pass. This runs
+  the smallest current models available through Ollama, where per-token decode
+  should fall well under 20 ms and the mask can no longer hide.
+
+  Several tags are listed deliberately: the runner pulls each and records any it
+  cannot (003 skipped gemma3:4b for a llama.cpp load failure and recorded it
+  rather than faking it — same behaviour applies here). Even two working small
+  models answer the question.
+
+  Reading the result: the key column is per-token decode time and the paired
+  gbnf-minus-unconstrained difference with its CI, exactly as in NIGHT-REPORT §7.
+  If a positive latency tax appears here and did not at 37-66 ms/token, that is
+  direct evidence for G1's mechanism and locates the crossover. If the tax is
+  still absent at 10-15 ms/token, that is a strong negative result for G1 on
+  this hardware family and it is worth saying so plainly.
+
+requires: [ollama, git]
+repeats: 1
+command: >
+  caffeinate -i python3 scripts/g1_mask_cost_pilot.py
+  --models qwen3:0.6b,llama3.2:1b,gemma3:1b,qwen2.5:0.5b
+  --conditions unconstrained,gbnf
+  --repeats 3
+timeout_minutes: 300

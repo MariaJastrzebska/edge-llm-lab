@@ -43,7 +43,16 @@ regenerate from tidy result frames.
   `"status": "INCOMPLETE"` (uppercase) but the schema only accepts
   `['incomplete', 'complete', 'skipped']` (lowercase).~~ **FIXED 2026-08-11**
   (Maria's call at the `NEEDS_INPUT.md` gate: fix the asset, then re-run
-  002/003 unconfounded). Found via the G1 mask-cost pilot
+  002/003 unconfounded; the same fix landed independently on the
+  gcp-secret-manager-tokens branch — both lowercased lines 70/73 in the EN and
+  PL assets, resolved as one). The schema is the contract; a prompt whose own
+  worked example violates it is a bug — hence fix-the-asset, not
+  case-normalise-the-validator. Consequence for analysis: **validity and
+  J-per-valid numbers from experiments 002 and 003 are not comparable to
+  anything measured after this fix** — they were dominated by the model
+  faithfully copying the prompt (`INCOMPLETE` ×47, `COMPLETE` ×38 of 99
+  unconstrained failures). Latency and energy rows remain comparable;
+  re-measurement queued as experiment 004. Found via the G1 mask-cost pilot
   (`experiments/results/NIGHT-REPORT.md` §4): unconstrained decoding faithfully
   copied the prompt's uppercase example and then failed schema validation
   against the schema that example contradicts, confounding every
