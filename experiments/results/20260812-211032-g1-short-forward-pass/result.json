@@ -1,0 +1,89 @@
+{
+  "config": {
+    "name": "g1-short-forward-pass",
+    "description": "The experiment G1 has been waiting for. NIGHT-REPORT \u00a78 is blunt about it: \"The G1 mechanism was never actually stressed \u2014 no configuration tested decoded faster than 36.8 ms/token.\"\nG1's mechanism is that CPU-side grammar mask construction cannot hide behind the GPU forward pass when the forward pass is short. Every model measured so far decodes at 36.8-65.7 ms/token, which leaves ample room to hide a mask costing tens of microseconds. XGrammar claims <40 us/token; against a 37 ms forward pass that is ~0.1%, while the best detection floor achieved so far was 0.50%. The instrument is 5-20x too coarse at these model sizes \u2014 not because the instrument is bad, but because the models are too slow for the effect.\nThe fix is not a better instrument, it is a shorter forward pass. This runs the smallest current models available through Ollama, where per-token decode should fall well under 20 ms and the mask can no longer hide.\nSeveral tags are listed deliberately: the runner pulls each and records any it cannot (003 skipped gemma3:4b for a llama.cpp load failure and recorded it rather than faking it \u2014 same behaviour applies here). Even two working small models answer the question.\nReading the result: the key column is per-token decode time and the paired gbnf-minus-unconstrained difference with its CI, exactly as in NIGHT-REPORT \u00a77. If a positive latency tax appears here and did not at 37-66 ms/token, that is direct evidence for G1's mechanism and locates the crossover. If the tax is still absent at 10-15 ms/token, that is a strong negative result for G1 on this hardware family and it is worth saying so plainly.\n",
+    "requires": [
+      "ollama",
+      "git"
+    ],
+    "repeats": 1,
+    "command": "caffeinate -i python3 scripts/g1_mask_cost_pilot.py --models qwen3:0.6b,llama3.2:1b,gemma3:1b,qwen2.5:0.5b --conditions unconstrained,gbnf --repeats 3\n",
+    "timeout_minutes": 300
+  },
+  "manifest": {
+    "timestamp_utc": "2026-08-12T19:10:32.922786+00:00",
+    "git_sha": "706e7455956a2a78f0fcb4ac1f72593f94a3caa4",
+    "git_dirty": true,
+    "python": "3.10.14 (main, Mar 19 2024, 21:46:16) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "hostname": "Marias-MacBook-Air.local",
+    "ollama_version": "ollama version is 0.20.6"
+  },
+  "repeats": [
+    {
+      "repeat": 1,
+      "resources_before": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 4.851104736328125,
+          "swap_used_gb": 3.71337890625
+        },
+        "energy": {
+          "cpu_power_mw": 2260.0,
+          "gpu_power_mw": 17.0,
+          "total_power_mw": 2277.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      },
+      "exit_code": 0,
+      "status": "ok",
+      "duration_s": 3895.755751,
+      "resources_after": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 5.702911376953125,
+          "swap_used_gb": 4.865478515625
+        },
+        "energy": {
+          "cpu_power_mw": 772.0,
+          "gpu_power_mw": 27.0,
+          "total_power_mw": 799.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      }
+    }
+  ],
+  "status": "ok"
+}
