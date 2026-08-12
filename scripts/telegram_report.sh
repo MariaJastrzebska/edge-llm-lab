@@ -62,16 +62,43 @@ if [ -n "$TEXT" ]; then
     || { echo "FAIL tekst: $r"; fail=1; }
 fi
 for f in ${FILES[@]+"${FILES[@]}"}; do
-  # Podgląd Telegrama zgaduje kodowanie i psuje polskie znaki w plikach
-  # tekstowych — BOM UTF-8 wymusza poprawną dekodację. Wysyłamy kopię z BOM
-  # pod oryginalną nazwą pliku.
+  # Podgląd Telegrama to zwykły tekst: BOM UTF-8 wymusza poprawne polskie
+  # znaki, tabele markdown zamieniamy na wyrównane kolumny, a surowe **
+  # zdejmujemy — inaczej pliku nie da się czytać na telefonie.
   sendf="$f"; tmpd=""
   case "$f" in *.md|*.txt)
-    if ! head -c 3 "$f" | grep -q "$(printf '\xef\xbb\xbf')"; then
-      tmpd=$(mktemp)
-      { printf '\xef\xbb\xbf'; cat "$f"; } > "$tmpd"
-      sendf="$tmpd"
-    fi ;;
+    tmpd=$(mktemp)
+    python3 - "$f" > "$tmpd" <<'PYEOF'
+import re
+import sys
+
+lines = open(sys.argv[1], encoding="utf-8-sig").read().split("\n")
+out, buf = [], []
+
+def flush():
+    rows = [[c.strip() for c in r.strip().strip("|").split("|")] for r in buf]
+    rows = [r for r in rows if not all(re.fullmatch(r"[-: ]*", c) for c in r)]
+    if rows:
+        ncol = max(len(r) for r in rows)
+        w = [max(len(r[i]) if i < len(r) else 0 for r in rows) for i in range(ncol)]
+        for r in rows:
+            out.append("  ".join((r[i] if i < len(r) else "").ljust(w[i])
+                                 for i in range(ncol)).rstrip())
+    buf.clear()
+
+for ln in lines:
+    s = ln.strip()
+    if s.startswith("|") and s.endswith("|") and s.count("|") >= 2:
+        buf.append(ln)
+    else:
+        flush()
+        out.append(ln)
+flush()
+text = "\n".join(out)
+text = re.sub(r"\*\*(.+?)\*\*", r"\1", text, flags=re.S)
+sys.stdout.write("\ufeff" + text)
+PYEOF
+    sendf="$tmpd" ;;
   esac
   r=$(curl -sS -X POST "$API/sendDocument" \
     -F chat_id="$CHAT" -F "document=@${sendf};filename=$(basename "$f")")
