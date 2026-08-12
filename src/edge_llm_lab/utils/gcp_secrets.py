@@ -48,7 +48,10 @@ SECRETS: Dict[str, str] = {
     # Telegram bot reporting sweep progress out of the lab.
     "TELEGRAM_BOT_TOKEN": "Edge_lab_fed_bot",
     # Numeric chat ID the bot writes to.
-    "TELEGRAM_CHAT_ID": "EDGE_LAB_CHAT_ID",
+    # USER_ID is Maria's real chat id. EDGE_LAB_CHAT_ID exists but holds the
+    # BOT's own id (== the token prefix), and Telegram forbids a bot messaging
+    # itself (403), so sending there silently never reached her.
+    "TELEGRAM_CHAT_ID": "USER_ID",
 }
 
 # Checked in order; the first non-empty one wins.

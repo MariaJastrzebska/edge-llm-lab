@@ -307,6 +307,7 @@ def main() -> int:
     if args.dry_run:
         return 0
 
+    names = [load_config(p)["name"] for p in queue]
     ok = all([run_one(p, args.no_commit) for p in queue])
 
     if not args.no_commit:
@@ -314,7 +315,38 @@ def main() -> int:
         if push.returncode != 0:
             print("⚠ push failed — run `git push` manually so Claude can analyze.")
     print("Done." if ok else "Done with failures — details in experiments/results/.")
+
+    # Report to Maria on Telegram — the whole point of an overnight run is that
+    # she wakes up to the result. Best-effort: a failure here must never change
+    # the exit code (the science already ran and is committed).
+    _notify_session_done(names, ok)
     return 0 if ok else 1
+
+
+def _notify_session_done(names: list[str], ok: bool) -> None:
+    """Send the finished session's report to Telegram (text + newest
+    NIGHT-REPORT file + a spoken summary), via scripts/telegram_report.sh.
+    Never raises — wrapped so a Telegram hiccup can't fail the run."""
+    try:
+        report = sorted(RESULTS_DIR.glob("NIGHT-REPORT-*.md"))
+        report = report[-1] if report else (RESULTS_DIR / "NIGHT-REPORT.md")
+        status = "✅ zakończona" if ok else "⚠️ zakończona z błędami"
+        n = len(names)
+        text = (f"🌙 Nocna sesja edge-llm-lab {status}.\n"
+                f"Eksperymenty ({n}): {', '.join(names)}.\n"
+                f"Raport w załączniku; szczegóły w repo.")
+        voice = (f"Nocna sesja laboratorium {status}. "
+                 f"Uruchomiłam {n} eksperyment{'y' if 1 < n < 5 else 'ów'}: "
+                 f"{', '.join(names)}. Pełny raport jest w załączonym pliku "
+                 f"i w repozytorium.")
+        script = REPO_ROOT / "scripts" / "telegram_report.sh"
+        cmd = ["bash", str(script), "-v", voice]
+        if report.exists():
+            cmd += ["-f", str(report)]
+        cmd.append(text)
+        subprocess.run(cmd, cwd=REPO_ROOT, timeout=180)
+    except Exception as e:  # noqa: BLE001 — reporting must never break the run
+        print(f"⚠ Telegram report failed (run is safe, already committed): {e}")
 
 
 if __name__ == "__main__":
