@@ -1,0 +1,89 @@
+{
+  "config": {
+    "name": "g1-enum-fixed-remeasure",
+    "description": "Re-measure G2 (Joules per VALID output) now that the prompt/schema enum contradiction is fixed. NIGHT-REPORT \u00a74 left this decision to the Linux side; the decision taken is FIX THE ASSET, not case-normalise the validator, because the schema is the contract and a prompt whose own worked example violates it is simply a bug.\nWhat changed in the repo before this run (commit alongside this config): examples/desktop/prompts/constant_data{,_en}.txt lines 70 and 73 showed \"status\": \"INCOMPLETE\" while MedScreeningInputStatus admits only ['incomplete','complete','skipped'] \u2014 the enum member NAMES are uppercase but their VALUES are lowercase, and JSON Schema validates values. Both files now say \"incomplete\". g1_mask_cost_pilot.py:485 reads constant_data_en.txt as the system prompt, so this asset is exactly what the model was copying.\nWHY THIS MATTERS: in 002 the unconstrained condition scored 1% valid, and 89 of its 99 failures were enum rejections with the model emitting INCOMPLETE \u00d747 and COMPLETE \u00d738 \u2014 faithfully copying the prompt. The grammar conditions could not emit uppercase by construction, so they were immune. The resulting 100x J-per-valid gap therefore measured \"constrained decoding masks a prompt bug\", NOT \"unconstrained decoding produces invalid tool calls\". This run separates those two claims for the first time.\nCOMPARABILITY WARNING for whoever analyses this: results here are NOT directly comparable to 002/003 validity or J-per-valid numbers. The system prompt changed. Latency and energy rows remain comparable (the prompt is the same length to within a few characters and the sampler settings are identical).\nModels: the two that failed 002/003 on the enum bug specifically. qwen3 is excluded here because its failure mode was truncation, not the enum \u2014 that is experiment 006's job.\nExpected reading: if unconstrained validity jumps from ~1% to something high, the 002 headline was an asset artifact and G2's claim must be restated. If it stays low with a DIFFERENT failure-mode breakdown, that breakdown is the real G2 finding. Either outcome is publishable; conflating them was not.\n",
+    "requires": [
+      "ollama",
+      "git"
+    ],
+    "repeats": 1,
+    "command": "caffeinate -i python3 scripts/g1_mask_cost_pilot.py --models granite3.1-dense:2b,phi4-mini --conditions unconstrained,gbnf,json_schema --repeats 3\n",
+    "timeout_minutes": 240
+  },
+  "manifest": {
+    "timestamp_utc": "2026-08-12T02:56:50.346687+00:00",
+    "git_sha": "14728a0e78fd666bee4f7b15748ba6e9e3635e73",
+    "git_dirty": true,
+    "python": "3.10.14 (main, Mar 19 2024, 21:46:16) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "hostname": "Marias-MacBook-Air.local",
+    "ollama_version": "ollama version is 0.20.6"
+  },
+  "repeats": [
+    {
+      "repeat": 1,
+      "resources_before": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 6.364959716796875,
+          "swap_used_gb": 4.87066650390625
+        },
+        "energy": {
+          "cpu_power_mw": 644.0,
+          "gpu_power_mw": 56.0,
+          "total_power_mw": 700.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      },
+      "exit_code": 0,
+      "status": "ok",
+      "duration_s": 7801.991599,
+      "resources_after": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 5.296600341796875,
+          "swap_used_gb": 4.83160400390625
+        },
+        "energy": {
+          "cpu_power_mw": 695.0,
+          "gpu_power_mw": 30.0,
+          "total_power_mw": 725.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      }
+    }
+  ],
+  "status": "ok"
+}
