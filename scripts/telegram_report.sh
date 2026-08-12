@@ -72,7 +72,11 @@ for f in ${FILES[@]+"${FILES[@]}"}; do
 import re
 import sys
 
-lines = open(sys.argv[1], encoding="utf-8-sig").read().split("\n")
+text = open(sys.argv[1], encoding="utf-8-sig").read()
+# ** musi zniknąć PRZED wyrównaniem tabel — inaczej komórki z pogrubieniem
+# liczą 4 znaki za dużo i kolumny schodkują.
+text = re.sub(r"\*\*(.+?)\*\*", r"\1", text, flags=re.S)
+lines = text.split("\n")
 out, buf = [], []
 
 def flush():
@@ -94,9 +98,7 @@ for ln in lines:
         flush()
         out.append(ln)
 flush()
-text = "\n".join(out)
-text = re.sub(r"\*\*(.+?)\*\*", r"\1", text, flags=re.S)
-sys.stdout.write("\ufeff" + text)
+sys.stdout.write("\ufeff" + "\n".join(out))
 PYEOF
     sendf="$tmpd" ;;
   esac
