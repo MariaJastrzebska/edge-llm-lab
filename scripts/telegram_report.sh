@@ -62,8 +62,20 @@ if [ -n "$TEXT" ]; then
     || { echo "FAIL tekst: $r"; fail=1; }
 fi
 for f in ${FILES[@]+"${FILES[@]}"}; do
+  # Podgląd Telegrama zgaduje kodowanie i psuje polskie znaki w plikach
+  # tekstowych — BOM UTF-8 wymusza poprawną dekodację. Wysyłamy kopię z BOM
+  # pod oryginalną nazwą pliku.
+  sendf="$f"; tmpd=""
+  case "$f" in *.md|*.txt)
+    if ! head -c 3 "$f" | grep -q "$(printf '\xef\xbb\xbf')"; then
+      tmpd=$(mktemp)
+      { printf '\xef\xbb\xbf'; cat "$f"; } > "$tmpd"
+      sendf="$tmpd"
+    fi ;;
+  esac
   r=$(curl -sS -X POST "$API/sendDocument" \
-    -F chat_id="$CHAT" -F document=@"$f")
+    -F chat_id="$CHAT" -F "document=@${sendf};filename=$(basename "$f")")
+  [ -n "$tmpd" ] && rm -f "$tmpd"
   echo "$r" | grep -q '"ok":true' && echo "OK  $f" \
     || { echo "FAIL $f: $r"; fail=1; }
 done
