@@ -179,7 +179,76 @@ the whole 768-token budget", not the cost of an answer.
 
 ---
 
-## 7. Standing caveats
+## 7. Experiment 004 — enum-fixed remeasure (COMPLETE), and a replication failure
+
+Ran 04:56 → 07:07 (7802 s). **360 runs, status ok, no model skipped**
+(both `granite3.1-dense:2b` and `phi4-mini` loaded cleanly), 71,601 power
+samples. Adds the `phi4-mini × json_schema` cell that neither 002 nor 003 covers.
+
+| model | condition | ms/token | schema-valid | J | tokens | truncated |
+|---|---|---|---|---|---|---|
+| granite3.1-dense:2b | unconstrained | 34.69 | 8/60 | 121.3 | 355.4 | 2/60 |
+| granite3.1-dense:2b | gbnf | 34.65 | 60/60 | 118.5 | 338.9 | 0/60 |
+| granite3.1-dense:2b | json_schema | 34.76 | 60/60 | 119.0 | 338.9 | 0/60 |
+| phi4-mini | unconstrained | 52.13 | 4/60 | 139.2 | 265.1 | 1/60 |
+| phi4-mini | gbnf | 52.99 | 59/60 | 155.1 | 310.4 | 1/60 |
+| phi4-mini | json_schema | 53.06 | 59/60 | 155.4 | 310.4 | 1/60 |
+
+### Paired effect vs unconstrained (within-run, by prompt+seed, n=60)
+
+| model | condition | paired diff | 95 % CI | relative |
+|---|---|---|---|---|
+| granite3.1-dense:2b | gbnf | −0.041 ms | [−0.238, +0.155] | −0.12 % |
+| granite3.1-dense:2b | json_schema | +0.069 ms | [−0.024, +0.161] | +0.20 % |
+| phi4-mini | gbnf | **+0.862 ms** | [+0.637, +1.087] | **+1.65 %** |
+| phi4-mini | json_schema | **+0.928 ms** | [+0.698, +1.157] | **+1.78 %** |
+
+### ⚠ The important result: one model replicates, one does not
+
+- **phi4-mini replicates cleanly.** 003 gave +0.794 ms [+0.573, +1.015]
+  (+1.51 %); 004 gives +0.862 [+0.637, +1.087] (+1.65 %) and +0.928
+  [+0.698, +1.157] (+1.78 %). Three independent intervals, all excluding zero,
+  all agreeing on roughly **+1.5 to +1.8 %**. This is the closest thing to a
+  real, reproducible structured-generation latency tax measured so far.
+- **granite does NOT replicate.** 003 gave +0.118 ms [+0.026, +0.209] — an
+  interval that excluded zero and which §4 reported as a resolved +0.34 %.
+  004, on the same model with more repeats per cell, gives **−0.041 ms
+  [−0.238, +0.155]** for gbnf and +0.069 [−0.024, +0.161] for json_schema —
+  **both including zero, and one with the opposite sign.**
+
+**Treat granite's §4 result as not established.** Its true effect is at or below
+this rig's noise floor, and the 003 interval that appeared to exclude zero looks
+like the ordinary consequence of running many comparisons near the resolution
+limit rather than a detection. Reporting this because it is the honest reading;
+selecting the 003 granite number and dropping the 004 one would manufacture a
+result that the data does not support.
+
+The model-size story is at least self-consistent: the effect that survives
+replication is on **phi4-mini**, and it is ~1.5–1.8 %, not the 3.6–8.2× the
+literature's high end claims.
+
+### Converter equivalence, now confirmed on a second model
+
+`gbnf` and `json_schema` produced **identical token counts** on both models
+(granite 338.9 / 338.9; phi4-mini 310.4 / 310.4) and per-token times within
+0.11 ms of each other. The committed Python converter and llama-server's
+internal C++ converter continue to behave equivalently. That control has now
+held across three models and two nights.
+
+### Energy note, reported not explained
+
+phi4-mini's constrained conditions cost **more** energy (155.1 / 155.4 J vs
+139.2 J unconstrained) while granite's cost **less** (118.5 / 119.0 vs 121.3 J).
+The direction tracks token count, not per-token cost: constrained phi4-mini
+emits 310.4 tokens against 265.1 unconstrained, while constrained granite emits
+338.9 against 355.4. In other words the grammar changes *how much* these models
+write, and on phi4-mini it makes them write more. Whether that is the grammar
+forcing completeness or suppressing early stopping is a question for the
+analysis side.
+
+---
+
+## 8. Standing caveats
 
 Unchanged from the previous report and still binding:
 
