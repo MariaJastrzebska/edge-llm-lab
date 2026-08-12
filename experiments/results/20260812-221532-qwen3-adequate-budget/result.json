@@ -1,0 +1,89 @@
+{
+  "config": {
+    "name": "qwen3-adequate-budget",
+    "description": "Close the loose end NIGHT-REPORT \u00a77(a) flagged as \"unfinished business\".\nIn 003, unconstrained qwen3:4b hit the 768-token cap in 60 of 60 runs. It emits prose reasoning first \u2014 a sampled output opens \"We are given a user message... Step 1: Analyze the entire conversation history...\" \u2014 and never reaches JSON inside the budget. Its 300.3 J is therefore the cost of burning the whole token budget, not the cost of producing an answer, and the apparent 44% energy saving from constraining (300.3 J vs 167.2 J) is CENSORING, not a saving. NIGHT-REPORT says explicitly: do not quote it. This run makes the number quotable or kills it.\nn_predict is raised 768 -> 3072 so a reasoning-style model has room to finish. That is the only variable changed.\nScope is deliberately narrow to keep the runtime sane: unconstrained qwen3 may spend up to 3072 tokens x ~66 ms = ~200 s per run, so this uses 10 prompts and 2 repeats rather than the full 20 x 3. The question is binary \u2014 does it complete when given room \u2014 and 40 runs answer it.\nThree outcomes, all informative: (a) it completes and produces valid JSON \u2014 then the 003 energy comparison was\n    censored and must be redone or dropped, and the honest claim becomes\n    \"reasoning models need a bigger budget\", not \"constraining saves energy\".\n(b) it completes but the JSON is invalid \u2014 a real unconstrained-validity\n    finding, now uncontaminated by the enum bug fixed in 004.\n(c) it still truncates at 3072 \u2014 then this model cannot do this task\n    unconstrained at any sane budget, which is itself a clean result worth\n    one sentence in the paper.\n\nNote this runs AFTER 004's asset fix, so its validity numbers are on the fixed prompt and are comparable to 004, not to 003.\n",
+    "requires": [
+      "ollama",
+      "git"
+    ],
+    "repeats": 1,
+    "command": "caffeinate -i python3 scripts/g1_mask_cost_pilot.py --models qwen3:4b --conditions unconstrained,gbnf --repeats 2 --limit-prompts 10 --n-predict 3072\n",
+    "timeout_minutes": 240
+  },
+  "manifest": {
+    "timestamp_utc": "2026-08-12T20:15:32.774527+00:00",
+    "git_sha": "124e7341bef3391871592d603c162351dc4c14b3",
+    "git_dirty": true,
+    "python": "3.10.14 (main, Mar 19 2024, 21:46:16) [Clang 15.0.0 (clang-1500.3.9.4)]",
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "arm",
+    "hostname": "Marias-MacBook-Air.local",
+    "ollama_version": "ollama version is 0.20.6"
+  },
+  "repeats": [
+    {
+      "repeat": 1,
+      "resources_before": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 5.7398834228515625,
+          "swap_used_gb": 4.865478515625
+        },
+        "energy": {
+          "cpu_power_mw": 1434.0,
+          "gpu_power_mw": 26.0,
+          "total_power_mw": 1460.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      },
+      "exit_code": 0,
+      "status": "ok",
+      "duration_s": 4638.68144,
+      "resources_after": {
+        "memory": {
+          "ram_total_gb": 16.0,
+          "ram_used_gb": 5.3966217041015625,
+          "swap_used_gb": 8.9608154296875
+        },
+        "energy": {
+          "cpu_power_mw": 805.0,
+          "gpu_power_mw": 27.0,
+          "total_power_mw": 832.0
+        },
+        "device": {
+          "platform": "macOS-26.3-arm64-arm-64bit",
+          "system": "Darwin",
+          "processor": "arm",
+          "architecture": [
+            "64bit",
+            ""
+          ],
+          "machine": "arm64",
+          "cpu_count": 8,
+          "cpu_freq": {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+          }
+        }
+      }
+    }
+  ],
+  "status": "ok"
+}

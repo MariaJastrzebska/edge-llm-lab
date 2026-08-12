@@ -1,0 +1,50 @@
+[g1] output → /Users/mariamalycha/Documents/edge-llm-lab/experiments/results/20260812-221532-qwen3-adequate-budget/repeat_01
+[g1] grammar: 59 rules
+[g1] models: ['qwen3:4b']
+[g1] resolving qwen3:4b (pulling if absent) …
+[g1]   ok — quant=Q4_K_M
+[g1] idle baseline: 893 mW
+[g1] === qwen3:4b (quant=Q4_K_M) === /Users/mariamalycha/.ollama/models/blobs/sha256-3e4cb14174460404e7a233e531675303b2fbf7749c02f91864fe311ab6344e4f
+[g1] server healthy for qwen3:4b
+[g1] warm-up …
+[g1] 1/40 qwen3:4b|r01-p01-gbnf: ok pred=20304.821ms n=374 valid=True J=193.7952 eta=159m
+[g1] 2/40 qwen3:4b|r01-p01-unconstrained: ok pred=177565.193ms n=3072 valid=False J=1186.77801 eta=136m
+[g1] 3/40 qwen3:4b|r01-p02-unconstrained: ok pred=178447.815ms n=3072 valid=False J=1183.09853 eta=127m
+[g1] 4/40 qwen3:4b|r01-p02-gbnf: ok pred=22404.834ms n=409 valid=True J=203.1069 eta=97m
+[g1] 5/40 qwen3:4b|r01-p03-gbnf: ok pred=18804.626ms n=339 valid=True J=192.78214 eta=79m
+[g1] 6/40 qwen3:4b|r01-p03-unconstrained: ok pred=183806.916ms n=3072 valid=False J=1185.06024 eta=82m
+[g1] 7/40 qwen3:4b|r01-p04-unconstrained: ok pred=180971.062ms n=3072 valid=False J=1137.68535 eta=84m
+[g1] 8/40 qwen3:4b|r01-p04-gbnf: ok pred=10316.166ms n=187 valid=True J=123.70882 eta=72m
+[g1] 9/40 qwen3:4b|r01-p05-gbnf: ok pred=24474.162ms n=443 valid=True J=205.80513 eta=64m
+[g1] 10/40 qwen3:4b|r01-p05-unconstrained: ok pred=147841.72ms n=2511 valid=False J=901.65934 eta=64m
+[g1] 11/40 qwen3:4b|r01-p06-unconstrained: ok pred=185424.221ms n=3072 valid=False J=1103.90788 eta=65m
+[g1] 12/40 qwen3:4b|r01-p06-gbnf: ok pred=7792.511ms n=145 valid=True J=106.2329 eta=58m
+[g1] 13/40 qwen3:4b|r01-p07-gbnf: ok pred=16764.231ms n=304 valid=True J=156.11759 eta=52m
+[g1] 14/40 qwen3:4b|r01-p07-unconstrained: ok pred=186593.13ms n=3072 valid=False J=1091.11111 eta=53m
+[g1] 15/40 qwen3:4b|r01-p08-unconstrained: ok pred=189379.581ms n=3072 valid=False J=1079.07047 eta=53m
+[g1] 16/40 qwen3:4b|r01-p08-gbnf: ok pred=13048.707ms n=229 valid=True J=131.65787 eta=48m
+[g1] 17/40 qwen3:4b|r01-p09-gbnf: ok pred=25343.587ms n=440 valid=True J=197.08865 eta=44m
+[g1] 18/40 qwen3:4b|r01-p09-unconstrained: ok pred=190940.11ms n=3072 valid=False J=1072.13963 eta=44m
+[g1] 19/40 qwen3:4b|r01-p10-unconstrained: ok pred=194503.495ms n=3072 valid=False J=1082.11188 eta=44m
+[g1] 20/40 qwen3:4b|r01-p10-gbnf: ok pred=34569.692ms n=592 valid=True J=243.03677 eta=40m
+[g1] 21/40 qwen3:4b|r02-p01-unconstrained: ok pred=192043.618ms n=3072 valid=False J=1069.82411 eta=39m
+[g1] 22/40 qwen3:4b|r02-p01-gbnf: ok pred=25492.939ms n=445 valid=True J=199.71789 eta=36m
+[g1] 23/40 qwen3:4b|r02-p02-gbnf: ok pred=24546.409ms n=424 valid=True J=192.07453 eta=33m
+[g1] 24/40 qwen3:4b|r02-p02-unconstrained: ok pred=192701.639ms n=3072 valid=False J=1078.61477 eta=32m
+[g1] 25/40 qwen3:4b|r02-p03-unconstrained: ok pred=194435.673ms n=3072 valid=False J=1097.09091 eta=31m
+[g1] 26/40 qwen3:4b|r02-p03-gbnf: ok pred=32818.761ms n=562 valid=True J=247.16825 eta=28m
+[g1] 27/40 qwen3:4b|r02-p04-gbnf: ok pred=11038.583ms n=192 valid=True J=117.45828 eta=25m
+[g1] 28/40 qwen3:4b|r02-p04-unconstrained: ok pred=142994.72ms n=2333 valid=True J=804.45778 eta=24m
+[g1] 29/40 qwen3:4b|r02-p05-unconstrained: ok pred=190351.47ms n=3072 valid=False J=1056.59627 eta=22m
+[g1] 30/40 qwen3:4b|r02-p05-gbnf: ok pred=19971.797ms n=340 valid=True J=166.01178 eta=20m
+[g1] 31/40 qwen3:4b|r02-p06-gbnf: ok pred=8364.493ms n=145 valid=True J=102.15763 eta=17m
+[g1] 32/40 qwen3:4b|r02-p06-unconstrained: ok pred=94093.634ms n=1548 valid=False J=545.0761 eta=15m
+[g1] 33/40 qwen3:4b|r02-p07-unconstrained: ok pred=192196.748ms n=3072 valid=False J=1064.78183 eta=14m
+[g1] 34/40 qwen3:4b|r02-p07-gbnf: ok pred=23326.032ms n=400 valid=True J=186.56531 eta=11m
+[g1] 35/40 qwen3:4b|r02-p08-gbnf: ok pred=27978.834ms n=476 valid=True J=204.57561 eta=9m
+[g1] 36/40 qwen3:4b|r02-p08-unconstrained: ok pred=191232.815ms n=3072 valid=False J=1059.41097 eta=8m
+[g1] 37/40 qwen3:4b|r02-p09-unconstrained: ok pred=190295.712ms n=3072 valid=False J=1064.52006 eta=6m
+[g1] 38/40 qwen3:4b|r02-p09-gbnf: ok pred=28338.039ms n=482 valid=True J=211.50282 eta=4m
+[g1] 39/40 qwen3:4b|r02-p10-gbnf: ok pred=28765.067ms n=495 valid=True J=210.29299 eta=2m
+[g1] 40/40 qwen3:4b|r02-p10-unconstrained: ok pred=191865.508ms n=3072 valid=False J=1056.70789 eta=0m
+[g1] wrote 40 runs → /Users/mariamalycha/Documents/edge-llm-lab/experiments/results/20260812-221532-qwen3-adequate-budget/repeat_01
