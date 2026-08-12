@@ -53,3 +53,15 @@ stdout/stderr capture — into `experiments/results/<timestamp>-<name>/`.
 - If a run crashes, the runner records the failure and CONTINUES the queue —
   a broken experiment must never cost you the whole night. Failures land in the
   result dir with `status: failed` for Claude to debug.
+
+## Night report format (REQUIRED — drives the Telegram voice summary)
+Every `experiments/results/NIGHT-REPORT-<date>.md` MUST open with a headline
+block titled `## TL;DR` (or `## Wnioski`). `run_experiments.py` reads that block
+verbatim and speaks it as the voice note Maria wakes up to — so it must be
+**conclusions and deltas, not a recitation of what ran**. State the result and
+how big it is: "phi4-mini tax replicated 3× at ~1.5–1.8%, all CIs exclude zero;
+granite collapsed to ~0% at larger n — so the effect is real but small and
+model-dependent, still contradicting the 3.6–8.2× literature." Put the detailed
+tables and per-model breakdowns in the sections BELOW the TL;DR, not in it. If
+the report has no TL;DR block, the voice note says so instead of inventing a
+conclusion.

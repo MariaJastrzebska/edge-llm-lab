@@ -323,22 +323,55 @@ def main() -> int:
     return 0 if ok else 1
 
 
+def _report_conclusions(report: Path) -> str:
+    """The conclusion the voice note should speak: findings and deltas, not a
+    list of what ran. Reads a headline section from the NIGHT-REPORT — the
+    first of TL;DR / Wnioski / Bottom line / Headline (see RUNBOOK: every
+    report MUST open with such a block). Falls back to '' if none exists."""
+    if not report.exists():
+        return ""
+    import re
+    text = report.read_text(encoding="utf-8", errors="ignore")
+    m = re.search(
+        r"^#{1,3}\s*(?:TL;?DR|Wnioski|Bottom line|Headline|Podsumowanie)\b.*?$"
+        r"(.*?)(?:^#{1,3}\s|\Z)",
+        text, re.IGNORECASE | re.MULTILINE | re.DOTALL)
+    if not m:
+        return ""
+    body = m.group(1).strip()
+    # Strip markdown tables/markers so it reads cleanly aloud.
+    lines = [ln for ln in body.splitlines() if not ln.strip().startswith("|")]
+    body = " ".join(lines)
+    body = re.sub(r"[*_`#>]+", "", body)
+    body = re.sub(r"\s+", " ", body).strip()
+    return body[:900]
+
+
 def _notify_session_done(names: list[str], ok: bool) -> None:
-    """Send the finished session's report to Telegram (text + newest
-    NIGHT-REPORT file + a spoken summary), via scripts/telegram_report.sh.
-    Never raises — wrapped so a Telegram hiccup can't fail the run."""
+    """Send the finished session's report to Telegram: a spoken CONCLUSION
+    (findings + deltas, read from the report's headline block) plus the full
+    NIGHT-REPORT file for detail. Never raises — a Telegram hiccup must not
+    fail a run whose science is already committed."""
     try:
         report = sorted(RESULTS_DIR.glob("NIGHT-REPORT-*.md"))
         report = report[-1] if report else (RESULTS_DIR / "NIGHT-REPORT.md")
         status = "✅ zakończona" if ok else "⚠️ zakończona z błędami"
-        n = len(names)
-        text = (f"🌙 Nocna sesja edge-llm-lab {status}.\n"
-                f"Eksperymenty ({n}): {', '.join(names)}.\n"
-                f"Raport w załączniku; szczegóły w repo.")
-        voice = (f"Nocna sesja laboratorium {status}. "
-                 f"Uruchomiłam {n} eksperyment{'y' if 1 < n < 5 else 'ów'}: "
-                 f"{', '.join(names)}. Pełny raport jest w załączonym pliku "
-                 f"i w repozytorium.")
+
+        conclusions = _report_conclusions(report)
+        if conclusions:
+            # Lead with the result, not the recitation of what ran.
+            voice = f"Nocna sesja {status}. Najważniejsze: {conclusions}"
+            text = (f"🌙 Nocna sesja edge-llm-lab {status}.\n\n"
+                    f"WNIOSKI: {conclusions}\n\n"
+                    f"Pełny raport w załączniku.")
+        else:
+            # No headline block — say so, don't fake a conclusion.
+            voice = (f"Nocna sesja {status}, ale raport nie ma sekcji wniosków "
+                     f"do streszczenia — zajrzyj do załączonego pliku.")
+            text = (f"🌙 Nocna sesja edge-llm-lab {status}.\n"
+                    f"Eksperymenty: {', '.join(names)}.\n"
+                    f"(Raport bez sekcji TL;DR/Wnioski — patrz załącznik.)")
+
         script = REPO_ROOT / "scripts" / "telegram_report.sh"
         cmd = ["bash", str(script), "-v", voice]
         if report.exists():
