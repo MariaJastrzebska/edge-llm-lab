@@ -1,3 +1,9 @@
+> **Superseded for the validity/energy-per-valid numbers.** This report covers the
+> 2026-08-10/11 runs, whose validity figures are confounded by the uppercase-enum
+> asset bug described in section 4. The unconfounded re-measure is
+> [NIGHT-REPORT-2026-08-12.md](NIGHT-REPORT-2026-08-12.md). The decode-time numbers
+> here are also inflated by observer contention — see section 3 of that report.
+
 # NIGHT REPORT — 2026-08-10 → 2026-08-11 (Mac session)
 
 **Instrument:** MacBook Air, `MacBookAir10,1`, Apple M1, macOS Darwin 25.3.0 arm64.

@@ -1,0 +1,145 @@
+{
+  "manifest": {
+    "experiment": "g1-mask-cost-pilot",
+    "hypothesis": "G1 \u2014 structured-generation energy tax on edge (docs/research/STATUS.md)",
+    "timestamp_utc": "2026-08-12T02:56:52.745447+00:00",
+    "repo_git_sha": "14728a0e78fd666bee4f7b15748ba6e9e3635e73",
+    "repo_git_dirty": true,
+    "llama_cpp_git_sha": "030ebb558a5820b444a8f836ed5cdd46c9b4bd7a",
+    "llama_server_version": "",
+    "model_refs_requested": [
+      "granite3.1-dense:2b",
+      "phi4-mini"
+    ],
+    "models_resolved": {
+      "granite3.1-dense:2b": {
+        "model": "granite3.1-dense:2b",
+        "manifest": "/Users/mariamalycha/.ollama/models/manifests/registry.ollama.ai/library/granite3.1-dense/2b",
+        "gguf_path": "/Users/mariamalycha/.ollama/models/blobs/sha256-5c56bb0256a2c402e95282a29bb5cb747bb805eda0e14a84b1f6c594a297ec1a",
+        "gguf_digest": "sha256:5c56bb0256a2c402e95282a29bb5cb747bb805eda0e14a84b1f6c594a297ec1a",
+        "gguf_size_bytes": 1569676320,
+        "quantization": "Q4_K_M"
+      },
+      "phi4-mini": {
+        "model": "phi4-mini",
+        "manifest": "/Users/mariamalycha/.ollama/models/manifests/registry.ollama.ai/library/phi4-mini/latest",
+        "gguf_path": "/Users/mariamalycha/.ollama/models/blobs/sha256-3c168af1dea0a414299c7d9077e100ac763370e5a98b3c53801a958a47f0a5db",
+        "gguf_digest": "sha256:3c168af1dea0a414299c7d9077e100ac763370e5a98b3c53801a958a47f0a5db",
+        "gguf_size_bytes": 2491874624,
+        "quantization": "Q4_K_M"
+      }
+    },
+    "models_skipped": {},
+    "prompt_set_id": "g1-medical-toolcall-v1",
+    "prompt_set_path": "experiments/prompts/g1-medical-toolcall-v1.json",
+    "system_prompt_path": "examples/desktop/prompts/constant_data_en.txt",
+    "n_prompts": 20,
+    "conditions": [
+      "unconstrained",
+      "gbnf",
+      "json_schema"
+    ],
+    "repeats": 3,
+    "seeds": [
+      1001,
+      1002,
+      1003
+    ],
+    "sampler": {
+      "n_predict": 768,
+      "temperature": 0.7,
+      "top_p": 0.95,
+      "top_k": 40,
+      "cache_prompt": false
+    },
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "hostname": "Marias-MacBook-Air.local",
+    "energy_backend": "PowermetricsRecorder(cpu_power, 100ms, integrated per window)",
+    "energy_caveat": "powermetrics reports whole-SoC package power, not per-process. Values are gross; baseline_idle_mw is recorded for subtraction.",
+    "energy_status": "ok",
+    "baseline_idle_mw_before": 1012.224848017198,
+    "llama_server_args": {
+      "granite3.1-dense:2b": [
+        "/Users/mariamalycha/Documents/edge-llm-lab/examples/desktop/llama.cpp/build/bin/llama-server",
+        "-m",
+        "/Users/mariamalycha/.ollama/models/blobs/sha256-5c56bb0256a2c402e95282a29bb5cb747bb805eda0e14a84b1f6c594a297ec1a",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8127",
+        "-c",
+        "8192",
+        "-ngl",
+        "99",
+        "--parallel",
+        "1",
+        "--no-webui"
+      ]
+    },
+    "rendered_prompt_chars": {
+      "granite3.1-dense:2b": {
+        "p01": 5475,
+        "p02": 5454,
+        "p03": 6752,
+        "p04": 5471,
+        "p05": 5464,
+        "p06": 5380,
+        "p07": 5471,
+        "p08": 5451,
+        "p09": 5435,
+        "p10": 5461,
+        "p11": 5407,
+        "p12": 5448,
+        "p13": 5444,
+        "p14": 5451,
+        "p15": 5434,
+        "p16": 5475,
+        "p17": 5478,
+        "p18": 5485,
+        "p19": 5425,
+        "p20": 6161
+      }
+    }
+  },
+  "runs": [
+    {
+      "condition": "gbnf",
+      "seed": 1001,
+      "status": "ok",
+      "wall_ms": 17938.66,
+      "energy_window_s": 17.9387,
+      "energy_n_samples": 170,
+      "energy_coverage": 0.9978,
+      "cpu_j": 59.35646,
+      "gpu_j": 141.39622,
+      "ane_j": 0.0,
+      "combined_j": 200.75289,
+      "mean_cpu_mw": 3316.1,
+      "mean_gpu_mw": 7899.4,
+      "mean_combined_mw": 11215.4,
+      "prompt_ms": 4928.243,
+      "prompt_n": 1377,
+      "prompt_per_token_ms": 3.578970951343501,
+      "predicted_ms": 13005.823,
+      "predicted_n": 386,
+      "predicted_per_token_ms": 33.69384196891192,
+      "predicted_per_second": 29.679013777136593,
+      "stopped_limit": null,
+      "stopped_eos": null,
+      "stop_type": "eos",
+      "output_chars": 1373,
+      "output": "{\n  \"tool_calls\": [\n    {\n      \"name\": \"send_medical_data_en\",\n      \"arguments\": {\n        \"thoughts\": [\n          {\n            \"thought\": \"History is not empty. Patient has provided data.\",\n            \"action\": \"Analyze provided data\",\n            \"action_input\": \"current_data: {name: 'Peter', gender: 'male', height: 178, blood_type: 'O-', date_of_birth: '12/06/1987'}\"\n          },\n          {\n            \"thought\": \"Current_info: All mandatory fields are collected.\",\n            \"action\": \"Update current_info\",\n            \"action_input\": \"current_info: {name: 'Peter', gender: 'male', height: 178, blood_type: 'O-', date_of_birth: '12/06/1987'}\"\n          },\n          {\n            \"thought\": \"Status: Complete, as all mandatory fields are present.\",\n            \"action\": \"Determine status\",\n            \"action_input\": \"status: complete\"\n          },\n          {\n            \"thought\": \"Missing_info: None. All data is collected.\",\n            \"action\": \"Formulate missing_info for complete data\",\n            \"action_input\": \"missing_info: null\"\n          }\n        ],\n        \"status\": \"complete\",\n        \"current_info\": {\n          \"name\": \"Peter\",\n          \"gender\": \"male\",\n          \"height\": 178,\n          \"blood_type\": \"O-\",\n          \"date_of_birth\": \"1206-11-12\"\n        },\n        \"missing_info\": null\n      },\n      \"id\": \"call_1\"\n    }\n  ]\n}",
+      "parses_json_strict": true,
+      "parses_json_lenient": true,
+      "schema_valid": true,
+      "validation_error": null,
+      "run_id": "granite3.1-dense:2b|r01-p01-gbnf",
+      "model": "granite3.1-dense:2b",
+      "quantization": "Q4_K_M",
+      "repeat": 1,
+      "prompt_id": "p01",
+      "prompt_category": "complete"
+    }
+  ]
+}
