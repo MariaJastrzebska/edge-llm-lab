@@ -7,6 +7,19 @@ on:
     branches: [ main, develop ]
   workflow_dispatch:
 
+# Kazdy push na galaz PR-a odpala DWA zdarzenia naraz (push: '**' oraz
+# pull_request), czyli dwa pelne matrixy 2 OS x 3 Pythony na jeden commit.
+#
+# UWAGA na klucz grupy: samo github.ref NIE laczy tych dwoch przebiegow, bo
+# dla push jest to refs/heads/<galaz>, a dla pull_request refs/pull/<nr>/merge
+# -- czyli dwie rozne grupy i oba przebiegi i tak ruszaja. Dopiero
+# head_ref || ref_name daje ten sam ciag w obu przypadkach: dla
+# pull_request head_ref to nazwa galezi zrodlowej, a dla push head_ref jest
+# pusty i ref_name zwraca nazwe galezi juz bez prefiksu refs/heads/.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test on Python ${{ matrix.python-version }}
@@ -111,7 +124,7 @@ jobs:
       continue-on-error: true
     
     - name: Upload Bandit report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: bandit-security-report
@@ -145,7 +158,7 @@ jobs:
         twine check dist/*
     
     - name: Upload package artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: python-package
         path: dist/
