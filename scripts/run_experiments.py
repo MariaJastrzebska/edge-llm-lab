@@ -323,61 +323,62 @@ def main() -> int:
     return 0 if ok else 1
 
 
-def _report_conclusions(report: Path) -> str:
-    """The conclusion the voice note should speak: findings and deltas, not a
-    list of what ran. Reads a headline section from the NIGHT-REPORT — the
-    first of TL;DR / Wnioski / Bottom line / Headline (see RUNBOOK: every
-    report MUST open with such a block). Falls back to '' if none exists."""
+def _report_for_voice(report: Path) -> str:
+    """Turn the WHOLE night report into a long, detailed spoken narration —
+    Maria wants to LISTEN to the full report, not read it. Keeps every prose
+    paragraph (which already carry the interpretation and deltas), turns
+    section headers into spoken breaks, and DROPS raw numeric tables (they
+    read terribly aloud — the prose beside them says the same thing in words).
+    No length cap: edge-tts handles multi-minute narration fine."""
     if not report.exists():
         return ""
     import re
-    text = report.read_text(encoding="utf-8", errors="ignore")
-    m = re.search(
-        r"^#{1,3}\s*(?:TL;?DR|Wnioski|Bottom line|Headline|Podsumowanie)\b.*?$"
-        r"(.*?)(?:^#{1,3}\s|\Z)",
-        text, re.IGNORECASE | re.MULTILINE | re.DOTALL)
-    if not m:
-        return ""
-    body = m.group(1).strip()
-    # Strip markdown tables/markers so it reads cleanly aloud.
-    lines = [ln for ln in body.splitlines() if not ln.strip().startswith("|")]
-    body = " ".join(lines)
-    body = re.sub(r"[*_`#>]+", "", body)
-    body = re.sub(r"\s+", " ", body).strip()
-    return body[:900]
+    out = []
+    for raw in report.read_text(encoding="utf-8", errors="ignore").splitlines():
+        s = raw.strip()
+        if not s:
+            continue
+        if s.startswith("|"):            # table row — skip, prose covers it
+            continue
+        if re.fullmatch(r"[-=_*]{3,}", s):  # horizontal rule
+            continue
+        h = re.match(r"^#{1,6}\s*(.+)$", s)
+        if h:                            # header → spoken section break
+            out.append(". " + h.group(1).strip().rstrip(".") + ".")
+            continue
+        out.append(s)
+    text = " ".join(out)
+    text = re.sub(r"`([^`]*)`", r"\1", text)     # inline code
+    text = re.sub(r"[*_>#\[\]]+", "", text)        # markdown markers
+    text = re.sub(r"https?://\S+", "", text)       # bare URLs read badly
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
 
 
 def _notify_session_done(names: list[str], ok: bool) -> None:
-    """Send the finished session's report to Telegram: a spoken CONCLUSION
-    (findings + deltas, read from the report's headline block) plus the full
-    NIGHT-REPORT file for detail. Never raises — a Telegram hiccup must not
-    fail a run whose science is already committed."""
+    """Send the finished session's report to Telegram: the full NIGHT-REPORT
+    file PLUS a detailed spoken narration of the whole report (Maria listens
+    instead of reading). Never raises — a Telegram hiccup must not fail a run
+    whose science is already committed."""
     try:
         report = sorted(RESULTS_DIR.glob("NIGHT-REPORT-*.md"))
         report = report[-1] if report else (RESULTS_DIR / "NIGHT-REPORT.md")
         status = "✅ zakończona" if ok else "⚠️ zakończona z błędami"
 
-        conclusions = _report_conclusions(report)
-        if conclusions:
-            # Lead with the result, not the recitation of what ran.
-            voice = f"Nocna sesja {status}. Najważniejsze: {conclusions}"
-            text = (f"🌙 Nocna sesja edge-llm-lab {status}.\n\n"
-                    f"WNIOSKI: {conclusions}\n\n"
-                    f"Pełny raport w załączniku.")
-        else:
-            # No headline block — say so, don't fake a conclusion.
-            voice = (f"Nocna sesja {status}, ale raport nie ma sekcji wniosków "
-                     f"do streszczenia — zajrzyj do załączonego pliku.")
-            text = (f"🌙 Nocna sesja edge-llm-lab {status}.\n"
-                    f"Eksperymenty: {', '.join(names)}.\n"
-                    f"(Raport bez sekcji TL;DR/Wnioski — patrz załącznik.)")
+        narration = _report_for_voice(report)
+        voice = (f"Raport z nocnej sesji, {status}. " + narration) if narration \
+            else (f"Nocna sesja {status}, ale nie znalazłam treści raportu do "
+                  f"odczytania — zajrzyj do załączonego pliku.")
+        text = (f"🌙 Nocna sesja edge-llm-lab {status}.\n"
+                f"Eksperymenty: {', '.join(names)}.\n"
+                f"Pełny raport w załączniku; głosówka czyta go w całości.")
 
         script = REPO_ROOT / "scripts" / "telegram_report.sh"
         cmd = ["bash", str(script), "-v", voice]
         if report.exists():
             cmd += ["-f", str(report)]
         cmd.append(text)
-        subprocess.run(cmd, cwd=REPO_ROOT, timeout=180)
+        subprocess.run(cmd, cwd=REPO_ROOT, timeout=300)
     except Exception as e:  # noqa: BLE001 — reporting must never break the run
         print(f"⚠ Telegram report failed (run is safe, already committed): {e}")
 

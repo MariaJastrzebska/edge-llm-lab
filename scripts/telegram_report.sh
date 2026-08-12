@@ -117,7 +117,13 @@ if [ -n "$VOICE_TEXT" ]; then
     echo "FAIL głosówka: brak edge-tts (zainstaluj: pip install edge-tts)"; fail=1
   else
     tmpv=$(mktemp /tmp/tg_voice_XXXXXX.mp3)
-    if edge-tts --voice "$TTS_VOICE" --text "$VOICE_TEXT" --write-media "$tmpv" \
+    # Auto-pick voice by language: Polish diacritics => PL voice, else EN —
+    # so an English report is narrated by an English voice (clean pronunciation).
+    vvoice="$TTS_VOICE"
+    if ! printf '%s' "$VOICE_TEXT" | grep -q '[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]'; then
+      vvoice="${TTS_VOICE_EN:-en-US-JennyNeural}"
+    fi
+    if edge-tts --voice "$vvoice" --text "$VOICE_TEXT" --write-media "$tmpv" \
         && [ -s "$tmpv" ]; then
       r=$(curl -sS -X POST "$API/sendVoice" -F chat_id="$CHAT" -F voice=@"$tmpv")
       echo "$r" | grep -q '"ok":true' && echo "OK  głosówka" \
