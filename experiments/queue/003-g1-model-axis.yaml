@@ -1,0 +1,39 @@
+name: g1-model-axis-pilot
+description: >
+  G1 pilot extension per Maria's review (2026-08-10): granite3.1 alone is too
+  old to carry the paper. Repeat the constrained-vs-unconstrained measurement
+  across a CURRENT small-model axis; granite stays as the continuity point
+  with the thesis pilot data. Reuse the same prompt set, conditions, and the
+  new PowermetricsRecorder (integrated Joules) from
+  src/edge_llm_lab/telemetry/powermetrics_stream.py. Pull models via Ollama
+  (q4_K_M-class tags); skip gracefully any model that fails to pull and record
+  which. n=3 per condition per model (pilot resolution).
+
+  ADAPTED ON THE MAC (2026-08-10, as this config's own NOTE instructs):
+  1. Script name — the Mac-side pilot script is scripts/g1_mask_cost_pilot.py,
+     not scripts/g1_pilot.py. Same CLI surface otherwise: --models,
+     --conditions, --repeats are all supported (multi-model support was added
+     tonight specifically to satisfy this config).
+  2. poetry -> python3 — the project's poetry .venv interpreter is unusable on
+     this Mac: a bare `import jsonschema` did not return in 180s, and that is
+     also what hung 001-pipeline-smoke into its 45-minute timeout. The system
+     python3 has every dependency this script needs. Left as a finding for the
+     Linux side rather than papered over.
+  3. requires: poetry dropped for the same reason — the runner's presence check
+     would pass (poetry IS installed) while the interpreter it selects hangs,
+     which is a worse failure than not using it.
+  4. Quantization is RECORDED per model (from `ollama show`), not assumed: the
+     config asks for "q4_K_M-class tags", so whatever Ollama actually ships for
+     each tag is written into the manifest and the tidy CSV.
+  5. Models are all resolved/pulled BEFORE the idle baseline and any
+     measurement, so a multi-GB download can never land inside another model's
+     energy window.
+
+requires: [ollama, git]
+repeats: 1
+command: >
+  caffeinate -i python3 scripts/g1_mask_cost_pilot.py
+  --models qwen3:4b,gemma3:4b,phi4-mini,granite3.1-dense:2b
+  --conditions unconstrained,gbnf
+  --repeats 3
+timeout_minutes: 420
