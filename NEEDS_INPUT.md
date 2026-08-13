@@ -1,90 +1,84 @@
-# ANSWERED 2026-08-11 — G1 go/no-go after the overnight pilot
+# NEEDS INPUT — what to do with a confirmed-but-messy G1 result (2026-08-13, iteration 6)
 
-> **Maria's decision: option 2 — fix the enum-case bug first, then re-run
-> 002/003 with the corrected prompt asset, before spending a night on the
-> short-decode regime.**
->
-> Status of that decision as of this commit:
-> - Enum bug **fixed** in both `constant_data_en.txt` and the Polish
->   `constant_data.txt` (lines 70 and 73 in each; the PL copy had the identical
->   bug and was not previously logged). CLAUDE.md known-bugs updated.
-> - Two adjacent enum-case suspects found and **deliberately left alone** —
->   the `*_expected.json` ground-truth fixtures and `validation.txt:19`. See
->   CLAUDE.md "Still-open enum-case suspects". Resolve before the next
->   *scored* eval; they do not block a decode-time/energy re-run.
-> - Re-run of 002/003 queued for Maria's Mac.
->
-> **The gate is closed. The pace governor no longer applies** — the loop may
-> queue Mac-hardware time again. The short-decode regime (option 1) is
-> explicitly *deferred*, not rejected: revisit once 002/003 come back clean.
-
----
-
-<details><summary>Original gate text (2026-08-11, iteration 3)</summary>
-
-# NEEDS INPUT — G1 go/no-go after the overnight pilot (2026-08-11, iteration 3)
-
-**This is a [NEEDS-INPUT] event under BRIEF's constitution: the overnight
-pilot's effect is at or below statistical resolution in the regime tested
-(a kill-adjacent signal), but the regime G1 actually predicts a tax in was
-never reached — so this is a real decision, not a research question a
-worker can resolve alone.** Full analysis: `docs/research/digests/2026-08-11.md`
-Part 1. Raw report: `experiments/results/NIGHT-REPORT.md`.
+**This is a [NEEDS-INPUT] event under BRIEF's constitution.** Stage 4's exit
+criterion just fired ("a 1-week pilot on Maria's Mac supports or kills the
+hypothesis" — it supports), which per BRIEF is exactly the point where "Maria
+picks." Full analysis: `docs/research/digests/2026-08-13.md`. Raw report:
+`experiments/results/NIGHT-REPORT-2026-08-13.md`.
 
 ## What happened, in short
 
-Your Mac ran two pilots overnight (300 + 360 runs, clean telemetry, real
-Joules) testing G1 — the claim that grammar-constrained decoding has a real
-energy/latency cost on edge because the CPU mask-walk can't hide behind a
-short GPU forward pass. **Result: no model showed a positive tax. One
-(qwen3) was significantly *faster* under constraint — the wrong direction
-for G1.** But nothing tested decoded faster than 36.8 ms/token, and G1's
-mechanism specifically needs a *short* forward pass to fail to hide the
-mask cost — that regime was never reached. So this isn't "G1 is dead," it's
-"G1 is untested where it matters, and the one place it was tested, it
-didn't show up."
+Overnight (2026-08-12/13, outside this loop's tracking — already committed by the
+time this iteration ran), your Mac ran experiment 005: four sub-1B models at
+11–25 ms/token, 480/480 runs. **For the first time in five pilot rounds, all four
+models show a positive, statistically clean (CI excludes zero) latency tax under
+grammar-constrained decoding** — the crossover G1 predicted. That's the good news,
+and it's real: qwen2.5:0.5b +1.8%, qwen3:0.6b +2.4%, llama3.2:1b +6.2%, gemma3:1b
++30%.
 
-Also found and logged (not fixed): a real pre-existing bug in
-`constant_data_en.txt` (uppercase `"INCOMPLETE"` vs. the schema's lowercase
-enum) that confounds the validity/energy-per-valid numbers in the pilot —
-now in CLAUDE.md's known-bugs list.
+**The complication:** the tax is not one number. It spans 28× in absolute terms
+across four models decoding at nearly the same speed, and it isn't even monotone
+in decode speed — the slowest of the four pays the smallest tax, the second-fastest
+pays the largest by an order of magnitude. Model identity, not decode speed, seems
+to drive it. The leading candidate explanation (vocabulary size — mask cost is
+`O(vocab)`, gemma3 has an unusually large one) is plausible from the general
+literature but **untested on this data** — nobody extracted `n_vocab` from the
+server logs.
+
+**Also new this iteration:** literature reading (arXiv 2605.26128, "The Constraint
+Tax") found that on a near-identical task shape — small models under a hard
+tool-call JSON schema — schema-valid outputs can hide a collapse in actual
+answer correctness (one example: 91.5%→48.0% correctness while validity stays
+100%→100%). 005/006 currently grade only schema validity. Nothing in the pilot
+harness currently checks whether the 60/60-valid constrained runs are also
+*correct* medical envelopes, as opposed to schema-valid noise. This is a gap in
+the measurement, not a result — it could go either way once measured.
 
 ## The decision
 
-1. **Keep going — target the short-decode regime.** Design a follow-up
-   pilot with a genuinely small model (sub-1B, e.g. Qwen2.5-0.5B) and/or
-   faster hardware, so a config actually decodes in the low single-digit
-   ms/token range where a mask-walk could plausibly matter. This is the
-   real falsification test BRIEF's Stage 4 asks for. Costs: another
-   Mac-hardware night (or Pi 5/Jetson if you want that hardware in the
-   loop — tell us whether to treat that purchase as load-bearing now).
-2. **Keep going, but only after fixing the enum-case bug** — re-run 002/003
-   with a corrected prompt asset so the validity/energy-per-valid metric
-   stops being confounded, before spending a night on the short-decode
-   regime. Slower, cleaner.
-3. **Kill G1 as scoped** — the null result on 2–4B models is enough for
-   you; not worth more Mac-hardware nights chasing a shrinking effect
-   given MLSys is ~11 weeks out. Go back to Stage 2's demoted axes
-   (federated SLM, edge VLM) for a top-up sweep, or open a new axis.
-4. **Something else** — e.g. narrow G1 to a claim the data *does* support:
-   "on 2–4B-class edge models, constrained decoding's energy cost is a
-   wash, contradicting the 3.6–8.2× literature claims for this hardware
-   class" is itself a small, defensible, low-effort finding, just a much
-   smaller paper than the original G1 pitch.
+1. **Commit to drafting now.** Write the one-page paper skeleton around the honest
+   claim the data supports: *"the constrained-decoding latency tax is real on
+   sub-25ms/token edge models, can be large (up to 30%), and its magnitude is
+   governed by an unidentified model-specific property — not decode speed alone."*
+   Queue the vocab-size and correctness-tax follow-ups in parallel as strengthening
+   experiments, not gates to drafting. Fastest path to MLSys (~11 weeks out), but
+   commits to a paper whose central mechanism claim ("what actually drives the
+   28× spread") is still an open question at submission time unless the parallel
+   experiments land first.
+2. **One more validation round before committing.** Queue two more Mac experiments
+   first: (a) a `n_vocab`-controlled test (isolate vocabulary size as the driver —
+   need at least one large-vocab small model and one small-vocab small model
+   matched on other properties), (b) add semantic/task-correctness grading (not
+   just schema validity) to 005-style runs, re-score the existing runs where
+   possible before spending new hardware time. Only after both land does the
+   paper skeleton get written. Slower, but the central claim would be load-bearing
+   at draft time instead of retrofitted.
+3. **Reframe down to what's already solid.** Skip chasing the model-specific driver
+   entirely; write the smaller, fully-supported claim only — "grammar-constrained
+   decoding's latency cost becomes significant once decode speed drops below
+   ~25ms/token on edge hardware, magnitude model-dependent" — and leave the 28×
+   spread as an explicitly open question in the paper's limitations, not something
+   promised as explained. Lowest effort, weakest single contribution, still
+   truthful.
+4. **Something else** — e.g. treat the correctness-tax gap as disqualifying until
+   fixed (no paper claim about constrained decoding being "good" here without a
+   correctness axis), independent of the vocab-size question.
 
 ## Why a worker can't pick this
 
-Every option spends a scarce resource that's genuinely yours to allocate —
-either your Mac's overnight hardware time on a specific new bet, or the
-decision to stop chasing G1 with ~11 weeks left before MLSys. BRIEF's
-constitution reserves exactly this call for you ("pilot effect smaller than
-our statistical resolution" is a named kill-criterion trigger).
+Every option trades scarce resources only you can allocate: Mac-hardware nights
+against an ~11-week runway to MLSys, versus writing time on a claim that may need
+walking back if the driver experiment lands a surprise. This is also exactly the
+significance call `DECISIONS.md` (2026-08-10, point 2) reserved for you — the
+pilot no longer returns "below meaningful," it returns "meaningful but not yet
+explained," which the constitution didn't anticipate as a distinct case and this
+loop is not positioned to resolve by fiat. Fixing the correctness-tax gap also
+means adding grading code to the harness — outside `docs/research/`, outside what
+this worker touches.
 
 ## What happens on no answer
 
-Per BRIEF's pace governor: this loop will not queue new Mac-hardware
-experiments or draft further G1 hypotheses without an answer here. Next
-iterations will do literature-only tracking (re-check MLSys 2027 CFP
-status, re-run the PSC scoop query) at reduced pace until you respond.
-
-</details>
+Per BRIEF's pace governor: this loop will not draft a paper skeleton, queue new
+Mac-hardware experiments, or advance past Stage 4 without an answer here. Next
+iterations do literature-only tracking (MLSys 2027 CFP re-check, scoop-query
+top-up) at reduced pace until you respond.

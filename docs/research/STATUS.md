@@ -1,49 +1,75 @@
-# Paper machine — STATUS (updated 2026-08-12, iteration 5)
+# Paper machine — STATUS (updated 2026-08-13, iteration 6)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-12 (iter 5): no new scope-narrowing decision. Caught STATUS.md up
+1. 2026-08-13 (iter 6): no new scope-narrowing decision, but a new
+   `[NEEDS-INPUT]` gate opened — see below. Analyzed the overnight 005/006
+   results (already committed by the time this iteration ran, same
+   check-the-working-tree-before-trusting-STATUS discipline as iterations 3
+   and 5) and one new literature confound found this iteration (Constraint
+   Tax's tool-call correctness collapse, arXiv 2605.26128 — read in full
+   this iteration, previously only skimmed on 2026-08-12).
+2. 2026-08-12 (iter 5): no new scope-narrowing decision. Caught STATUS.md up
    to reality — the `NEEDS_INPUT.md` gate from iteration 3 was **answered by
    Maria on 2026-08-11 (option 2: fix the enum bug, then re-run)** and is
    closed; this file had not been updated to reflect that. Since the answer,
    outside this loop's own tracking (same pattern as iteration 3): the enum
    fix landed (`b64b4ed`), 002/003 were re-run clean, and a new **experiment
-   004 (enum-fixed remeasure) completed** overnight 2026-08-12 with a
-   genuinely new result — see below. Two follow-up experiments (005
-   short-forward-pass, 006 qwen3-budget-fix) are already queued in
-   `experiments/queue/` for Maria's next Mac session; they do not require a
-   new gate to exist, only her hardware time to run.
-2. 2026-08-11 (iter 4): light tracking pass only, per the (then-open) gate.
-3. 2026-08-11 (iter 3): Stage corrected 3 → 4 — a Stage-4 pilot had already
+   004 (enum-fixed remeasure) completed** overnight 2026-08-12.
+3. 2026-08-11 (iter 4): light tracking pass only, per the (then-open) gate.
+4. 2026-08-11 (iter 3): Stage corrected 3 → 4 — a Stage-4 pilot had already
    run outside this loop's tracking.
-4. 2026-08-10 (iter 2): axes **federated SLM** and **edge VLM/VLA for
+5. 2026-08-10 (iter 2): axes **federated SLM** and **edge VLM/VLA for
    robots** DEMOTED — both scooped by mid-2026 work. Surviving axis:
    **energy-aware edge inference, narrowed to the decode loop's
    structured-generation machinery.**
-5. 2026-08-10: direction = **edge × robotics × privacy and/or medical**;
+6. 2026-08-10: direction = **edge × robotics × privacy and/or medical**;
    must be low-level/systems-strong; should ideally (not necessarily) feed
    bigos later.
-6. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level
+7. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level
    enough).
 
-**Current stage: 4 — VALIDATION. Gate closed, no new blocking gate open.**
-The G1 pilot now has four measurement rounds across two nights. The headline
-change since iteration 4: **phi4-mini's latency tax replicated cleanly three
-times running (+1.51%, +1.65%, +1.78%, all CIs excluding zero)**; granite's
-earlier apparent effect (+0.34%–+0.66%, CIs excluding zero in 002/003) **did
-not survive** a larger-n rerun in 004 (CI spans zero, one arm flips sign) —
-the source report itself declines to keep the earlier granite number. This
-is the first genuinely informative (not null, not wrong-direction) data
-point in the whole G1 investigation. Full analysis:
-`docs/research/digests/2026-08-12.md` Part 1; raw report:
-`experiments/results/NIGHT-REPORT-2026-08-12.md`.
+**Current stage: 4 — VALIDATION. NEW GATE OPEN — see `NEEDS_INPUT.md` at
+repo root.**
 
-No new `[NEEDS-INPUT]` gate opened this iteration — the natural next
-experiments (005, 006) are already queued and don't need permission to
-exist, only Mac time. But the significance question Maria reserved for
-herself in `DECISIONS.md` (2026-08-10, point 2: "if the tax is below
-meaningful, G1 dies, no attachment to the candidate") now has real data to
-apply to on at least one model, independent of whatever 005/006 show. Flagged
-in the digest as worth her direct read, not gated on a worker decision.
+Stage 4's own exit criterion just fired: "a 1-week pilot on Maria's Mac
+supports or kills the hypothesis." Experiment 005 (480/480 runs, all four
+sub-1B models, overnight 2026-08-12/13) is the first pilot round where **all
+four tested models show a positive, CI-clean latency tax** — the crossover
+G1 predicted, at the sub-25ms/token regime the mechanism actually needs.
+Numbers: qwen2.5:0.5b +1.84%, qwen3:0.6b +2.42%, llama3.2:1b +6.15%,
+gemma3:1b **+30.36%**. Full analysis: `docs/research/digests/2026-08-13.md`
+Part 1; raw report: `experiments/results/NIGHT-REPORT-2026-08-13.md`.
+
+**This is genuinely new footing, not just "more of the same":** in four
+prior pilot rounds (002–004) nothing ever showed a clean positive effect on
+more than one model at a time, and the strongest replicated signal was
+phi4-mini's flat +1.5–1.8%. 005 is the first time the *mechanism itself*
+(short forward pass can't hide the mask cost) shows up cleanly and
+everywhere it was predicted to.
+
+**But it doesn't resolve to one number.** Absolute mask cost varies 28×
+across the four models in the same 11–25ms decode-speed band, and the
+relative tax is not monotone in decode speed — gemma3:1b pays 30% while
+decoding *faster* than qwen3:0.6b's 2.4%. Model identity dominates. The
+report's candidate driver (vocabulary size — mask cost is O(vocab),
+supported as mechanistically plausible by the general grammar-decoding
+literature, see digest Part 2) is untested on this data. **A new
+literature finding this iteration adds a second open thread**: arXiv
+2605.26128 ("The Constraint Tax," read in full this iteration) shows that
+on a near-identical tool-call-schema task, schema-valid outputs can hide a
+collapsed answer-correctness rate (91.5%→48.0% in one worked example,
+while validity holds at 100%→100%). 005/006 grade only schema validity —
+nothing in the harness currently checks whether the 60/60-valid constrained
+runs in 005 are semantically correct medical envelopes, as opposed to
+schema-valid noise.
+
+Because Stage 4's exit condition fired with a result that's real but not
+yet a single clean claim, and because the correctness-tax gap needs harness
+code (outside this loop's `docs/research/`-only scope) to close, this
+iteration opened `NEEDS_INPUT.md` — the question is how Maria wants to
+spend the runway to MLSys 2027: draft now on the honest-but-messy claim, or
+spend one more validation round (vocab-size isolation + correctness
+grading) before committing to draft.
 
 <details><summary>Stage-2 exit justification (honest accounting, unchanged since iter 2)</summary>
 
@@ -53,47 +79,58 @@ sources each by the kill criterion, not exhaustive sweep.
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-12, iter 5)
+## Nearest deadlines (re-checked 2026-08-13, iter 6)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | Sep 15, 2026 | out of reach, unchanged |
-| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | Aggregators (mlsys-deadlines.github.io, casys-kaist.github.io) still show 2027 as TBD/predicted off the 2026 date. **New this iteration: `mlsys.org` is blocked by this session's network egress policy** — could not attempt direct verification against the primary source this pass (prior iterations reported it as merely unreachable/no-CFP-yet; this iteration it's an explicit access block). Re-check every iteration; try again from a session without the block if one is available. |
+| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org` still blocked by this session's network egress policy (same block as iteration 5, no change). Aggregators (mlsys-deadlines.github.io) still show only a *predicted* date carried over from 2026, no official 2027 CFP page found. Re-check every iteration; try again from a session without the block if one is available. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle |
 
-## G1 status — four measurement rounds, mixed but informative (2026-08-10 → 2026-08-12)
+## G1 status — five measurement rounds, first clean crossover (2026-08-10 → 2026-08-13)
 
 | model | rounds w/ CI excluding zero | direction | best estimate |
 |---|---|---|---|
-| **phi4-mini** | 3 of 3 (003, 004-gbnf, 004-json_schema) | positive, consistent | **+1.5–1.8%**, replicated |
-| granite3.1-dense:2b | 2 of 4 (002-rerun, 003-rerun); NOT in 004 (larger n) | inconsistent, effect not established | treat as null |
-| qwen3:4b | 2 of 2 | negative | **artifact** — 60/60 unconstrained runs hit the 768-token cap mid-reasoning-prose; not a like-for-like comparison, queued experiment 006 targets this directly |
+| **qwen2.5:0.5b** (005) | 1 of 1, cleanest number (near-zero length confound) | positive | **+1.84%** |
+| **qwen3:0.6b** (005) | 1 of 1 | positive | **+2.42%** (likely understated, see length-drift note) |
+| **llama3.2:1b** (005) | 1 of 1 | positive | **+6.15%** (~+3.4% length-corrected) |
+| **gemma3:1b** (005) | 1 of 1, largest effect seen to date | positive | **+30.36%** (length-correction negligible) |
+| phi4-mini | 3 of 3 (003, 004-gbnf, 004-json_schema) | positive, consistent | +1.5–1.8%, replicated, but at 52ms/tok — outside the regime that now matters most |
+| granite3.1-dense:2b | 2 of 4; NOT in 004 (larger n) | inconsistent | treat as null |
+| qwen3:4b | 006 budget fix did NOT resolve truncation; length-confounded, unusable for speed comparison | — | not comparable, needs thinking disabled or length-matched design |
 
-**Reading:** magnitude on the one model with a real signal is ~1.5–1.8%, far
-below the 3.6–8.2× literature high end — consistent with what iterations 3–4
-already suspected, now on firmer footing (replicated, not just "not
-detected"). **G1's actual predicted mechanism (short forward pass) is still
-untested** — nothing measured decodes faster than ~34.6ms/token. Queued
-experiment 005 targets that regime directly (sub-1B models via Ollama,
-should reach <20ms/token). Absolute decode-time is **not comparable across
-nights** (suspected observer-contention confound, not thermal — see
-NIGHT-REPORT-2026-08-12.md §3); only within-run paired comparisons are valid,
-and all numbers above already are.
+**Reading:** the crossover G1 predicted (tax appears once the forward pass gets
+short enough to stop hiding the mask cost) is now directly observed, at
+sub-25ms/token, on every model tested there. What's not yet established is
+*why* the size of that tax varies 28× by model rather than tracking decode
+speed — vocabulary size is the leading untested candidate. Absolute
+decode-time remains not comparable across nights (observer-contention
+confound, unchanged); paired within-run comparisons (all numbers above) are
+unaffected.
 
-## Scoop-check status (iter 5 top-up: 5 new sources, none a kill)
-Re-ran the PSC kill-upgrade query ("algorithmic mask speedup + CPU/GPU
-pipelining + Joules + edge hardware") — still nothing found. Two new
-algorithmic mask-speedup papers (GRID, arXiv 2607.11951; "Attention Meets
-Reachability," arXiv 2603.05540) join PSC in the same erosion-risk bucket —
-neither measures edge hardware or energy, neither touches the sync-stall
-mechanism. Two new validity-axis "tax" papers found (Constraint Tax, arXiv
-2605.26128; Format Tax, arXiv 2604.03616) — different mechanism from G1
-(correctness/prompt-framing, not latency/energy), cited as adjacent
-background; Constraint Tax specifically worth reading before 005 runs, since
-its sub-1B/1.5B results suggest constrained small models may trade validity
-for correctness in exactly the size class 005 targets — a confound the
-current pilot's grading may not currently distinguish. Full list and
-verdicts: digest 2026-08-12.md Part 2.
+## Correctness-tax gap (new this iteration — see digest Part 2 for the full read)
+005/006 measure schema validity, not answer correctness. arXiv 2605.26128
+("The Constraint Tax") shows the two can diverge sharply on this exact task
+shape (tool-call JSON schema, small models): one worked example goes
+91.5%→48.0% correctness while staying 100%→100% valid. Until the harness
+scores constrained outputs for semantic correctness (not just schema
+validity) — a code change outside this loop's scope — G1's validity numbers
+cannot rule out that some fraction of "valid" constrained runs are
+schema-valid junk. Flagged in `NEEDS_INPUT.md`, not fixed by this loop.
+
+## Scoop-check status (iter 6 top-up: re-ran the standard query, nothing new)
+PSC / GRID / Attention-Meets-Reachability query re-run — same three papers,
+no new entries, verdict unchanged (algorithmic mask-cost work, none on edge
+hardware, none in Joules, none touching the CPU/GPU sync-stall mechanism).
+Re-surfaced (not new — already logged 2026-08-10) arXiv 2606.25605 ("Tool
+Calling Suppression Under Structured Output Constraints") as relevant
+related work given 005's tool-call domain — different mechanism
+(constraint priority inversion suppresses tool-call tokens entirely) from
+both G1 and the correctness-tax paper above; not a scoop, worth a
+related-work line. No genuinely new URLs entered `seen.json` this
+iteration — an honest empty literature-sweep result, all substantive
+findings this iteration came from reading a previously-seen paper in full
+rather than finding new ones.
 
 ## Known competitive pressure
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
@@ -101,9 +138,11 @@ MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
 (EnerInfer, HeteroMosaic, Agent.xpu, KAIROS, BiScale). Algorithmic mask-speedup
 work (PSC, GRID, Attention-Meets-Reachability) is a growing but still
 non-overlapping erosion-risk cluster — none on edge hardware, none in Joules,
-none with CPU/GPU pipelining measured against a short forward pass. **All of
-it still optimizes *unconstrained* generation or mask *computation* cost —
-none touches the constrained-decode sync-stall mechanism G1 is about.**
+none with CPU/GPU pipelining measured against a short forward pass. A quick
+architecture check this iteration found no evidence llama.cpp currently
+overlaps mask computation with the GPU forward pass the way SGLang/vLLM are
+reported to — supports "pipeline the mask" as still novel *for llama.cpp
+specifically*, even though the general idea has prior art on other engines.
 
 ## Open debt
 - `VENUES.md` (Stage-1 artifact) never written; only worth writing if MLSys
@@ -111,27 +150,35 @@ none touches the constrained-decode sync-stall mechanism G1 is about.**
 - The three draft hypothesis *shapes* from iteration 3 (pipeline the mask
   across the CPU/GPU sync boundary; energy-per-valid-output as metric;
   tail-latency framing for robotics) are still sound and still not written
-  up as commitment-ready. With phi4-mini's replicated effect now in hand,
-  the "pipeline the mask" shape is the one most directly motivated by data —
-  worth drafting once 005/006 land, not before (their result changes what
-  the hypothesis should claim).
-- Constraint Tax (arXiv 2605.26128) not yet read in full — flagged as a
-  pre-read for 005, not done this iteration (time budget).
+  up as commitment-ready. "Pipeline the mask" is now the best-motivated of
+  the three, but writing it up is explicitly gated on `NEEDS_INPUT.md`'s
+  answer, not free to do this iteration.
+- Correctness-tax grading gap (new this iteration, see above) — needs a
+  harness change outside `docs/research/`; not this loop's to fix.
+- Vocab-size (or grammar-stack-depth, or tokenizer-fragmentation) as the
+  driver of the 28× spread in mask cost — untested; candidate follow-up
+  experiment described in `NEEDS_INPUT.md` option 2.
 
-## Next action (iteration 6)
-1. **Literature tracking (repeat, ~5 min):** re-check MLSys 2027 CFP status
-   (retry `mlsys.org` directly in case the egress block was session-specific
-   rather than durable; otherwise stick with aggregator TBD reading);
+## Next action (iteration 7)
+1. **Check `NEEDS_INPUT.md` first.** If Maria has answered, close the gate
+   per her choice (same pattern as iteration 5 closing iteration 3's gate)
+   and resume normal pacing. If not yet answered, this loop stays in
+   reduced-pace literature-tracking mode per the pace governor — do not
+   queue new Mac-hardware experiments or draft the paper skeleton without
+   an answer.
+2. **Literature tracking (repeat, ~5 min):** re-check MLSys 2027 CFP status
+   (retry `mlsys.org` directly in case the block is session-specific);
    re-run the PSC/GRID/Attention-Meets-Reachability kill-upgrade query.
-2. **Read Constraint Tax (arXiv 2605.26128) in full** and note in the next
-   digest whether its validity/correctness tradeoff on sub-1B/1.5B models is
-   likely to confound queued experiment 005's grading (i.e. does 005 need a
-   correctness check added to its scope, not just schema-validity, before it
-   runs) — a research-literature question this loop can answer without
-   Mac hardware, and worth resolving *before* 005 runs rather than after.
-3. Continue watching for 005/006 results landing in `experiments/results/`
-   (same "check the working tree before trusting STATUS.md" discipline that
-   caught iterations 3 and 5's stale gate state) — if they've run, analyzing
-   them is Stage-4 priority work over any of the above.
-4. No new Mac-hardware experiments or new `[NEEDS-INPUT]` gate needed from
-   this loop; 005/006 are Maria's to run on her own schedule.
+3. If time remains and the gate is still open: a *research-only* pass on
+   the vocab-size hypothesis is fair game without Maria's answer (it's
+   literature work, not new hardware time or a drafting commitment) — try
+   to find published `n_vocab` figures for qwen2.5:0.5b, qwen3:0.6b,
+   gemma3:1b, llama3.2:1b and check whether they rank-order with the
+   28× mask-cost spread from 005. That would upgrade "plausible" to
+   "consistent with public model specs" ahead of any new Mac-hardware
+   measurement.
+4. Continue the check-the-working-tree-before-trusting-STATUS discipline
+   (caught stale gate state in iterations 3, 5, and unreported results
+   landing before tracking in iteration 6) — if new experiment results
+   have landed in `experiments/results/`, analyzing them is Stage-4
+   priority work over any of the above.
