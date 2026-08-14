@@ -82,3 +82,22 @@ Per BRIEF's pace governor: this loop will not draft a paper skeleton, queue new
 Mac-hardware experiments, or advance past Stage 4 without an answer here. Next
 iterations do literature-only tracking (MLSys 2027 CFP re-check, scoop-query
 top-up) at reduced pace until you respond.
+
+## Update (2026-08-14, iteration 7) — vocab-size premise in option 2 is weaker than it looked
+
+Research-only check (public model specs, no new hardware): vocab size does **not**
+cleanly rank-order with the 28× tax spread. Gemma3:1b (largest vocab, 262,144)
+having the largest tax fits; but llama3.2:1b has the *smallest* vocab of the four
+(128,256) and the *second-highest* tax — bigger than both Qwen models, which have
+~19% more vocab than llama3.2 yet a 2.5–3.3× smaller tax. The two Qwen models even
+share the same vocab_size (151,936) and still differ 32% relative in tax. Full
+table in `docs/research/digests/2026-08-14.md` Part 1.
+
+**What this changes:** option 2's `n_vocab`-controlled experiment is still doable,
+but it should not be sold (to yourself or a reviewer) as "confirm the known
+driver" — on current evidence vocab size explains at most 1 of the 4 data points.
+If you pick option 2, worth widening the isolation experiment's design beyond pure
+vocab size (e.g. tokenizer/BPE-merge structure, attention head count, or something
+else specific to llama3.2's architecture) rather than assuming a single controlled
+variable will resolve it. Does not change options 1, 3, or 4, and does not by
+itself answer the question this file asks.

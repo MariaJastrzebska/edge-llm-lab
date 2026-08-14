@@ -1,7 +1,19 @@
-# Paper machine — STATUS (updated 2026-08-13, iteration 6)
+# Paper machine — STATUS (updated 2026-08-14, iteration 7)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-13 (iter 6): no new scope-narrowing decision, but a new
+1. 2026-08-14 (iter 7): no new scope-narrowing decision. `NEEDS_INPUT.md` (iter 6)
+   still unanswered — stayed in reduced-pace literature-tracking mode per the pace
+   governor, no new hardware queued, no drafting. Checked the working tree first:
+   no new files in `experiments/results/` since 005/006. Did the research-only
+   vocab-size rank-order check STATUS asked for last iteration: **it does not
+   cleanly explain the 28× spread** (llama3.2:1b has the smallest vocab of the
+   four tested models but the second-highest tax — contradicts a clean
+   vocab-size-as-sole-driver story). Appended an update note to `NEEDS_INPUT.md`
+   since it weakens (doesn't kill) that file's option 2 premise. Two new
+   literature items logged (arXiv 2605.07698, 2608.10137) — both adjacent, neither
+   a scoop. MLSys 2027 CFP still unconfirmed, still blocked at the network level,
+   no change from iteration 6. Full detail: `docs/research/digests/2026-08-14.md`.
+2. 2026-08-13 (iter 6): no new scope-narrowing decision, but a new
    `[NEEDS-INPUT]` gate opened — see below. Analyzed the overnight 005/006
    results (already committed by the time this iteration ran, same
    check-the-working-tree-before-trusting-STATUS discipline as iterations 3
@@ -79,11 +91,11 @@ sources each by the kill criterion, not exhaustive sweep.
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-13, iter 6)
+## Nearest deadlines (re-checked 2026-08-14, iter 7)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | Sep 15, 2026 | out of reach, unchanged |
-| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org` still blocked by this session's network egress policy (same block as iteration 5, no change). Aggregators (mlsys-deadlines.github.io) still show only a *predicted* date carried over from 2026, no official 2027 CFP page found. Re-check every iteration; try again from a session without the block if one is available. |
+| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org` and `mlsys-deadlines.github.io` both still blocked by this session's network egress policy (same block as iterations 5–6, no change). WebSearch snippets still show only a *predicted* date carried over from 2026, no official 2027 CFP page found. Re-check every iteration; try again from a session without the block if one is available. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle |
 
@@ -103,10 +115,18 @@ sources each by the kill criterion, not exhaustive sweep.
 short enough to stop hiding the mask cost) is now directly observed, at
 sub-25ms/token, on every model tested there. What's not yet established is
 *why* the size of that tax varies 28× by model rather than tracking decode
-speed — vocabulary size is the leading untested candidate. Absolute
-decode-time remains not comparable across nights (observer-contention
-confound, unchanged); paired within-run comparisons (all numbers above) are
-unaffected.
+speed. **Vocabulary size, checked against public model specs this iteration
+(iter 7, no new hardware), does NOT cleanly rank-order with the spread** —
+llama3.2:1b has the smallest vocab of the four (128,256) but the
+second-highest tax (+6.15%), higher than both Qwen models despite their
+~19% larger vocab (151,936) and lower tax (+1.84%, +2.42%); the two Qwen
+models even share the same vocab_size and still differ 32% relative in tax.
+Only gemma3:1b (largest vocab, largest tax) fits. Full table:
+`docs/research/digests/2026-08-14.md` Part 1. Downgraded from "leading
+untested candidate" to "explains at most 1 of 4 data points" — see
+`NEEDS_INPUT.md` update note. Absolute decode-time remains not comparable
+across nights (observer-contention confound, unchanged); paired within-run
+comparisons (all numbers above) are unaffected.
 
 ## Correctness-tax gap (new this iteration — see digest Part 2 for the full read)
 005/006 measure schema validity, not answer correctness. arXiv 2605.26128
@@ -118,19 +138,18 @@ validity) — a code change outside this loop's scope — G1's validity numbers
 cannot rule out that some fraction of "valid" constrained runs are
 schema-valid junk. Flagged in `NEEDS_INPUT.md`, not fixed by this loop.
 
-## Scoop-check status (iter 6 top-up: re-ran the standard query, nothing new)
-PSC / GRID / Attention-Meets-Reachability query re-run — same three papers,
-no new entries, verdict unchanged (algorithmic mask-cost work, none on edge
-hardware, none in Joules, none touching the CPU/GPU sync-stall mechanism).
-Re-surfaced (not new — already logged 2026-08-10) arXiv 2606.25605 ("Tool
-Calling Suppression Under Structured Output Constraints") as relevant
-related work given 005's tool-call domain — different mechanism
-(constraint priority inversion suppresses tool-call tokens entirely) from
-both G1 and the correctness-tax paper above; not a scoop, worth a
-related-work line. No genuinely new URLs entered `seen.json` this
-iteration — an honest empty literature-sweep result, all substantive
-findings this iteration came from reading a previously-seen paper in full
-rather than finding new ones.
+## Scoop-check status (iter 7 top-up: two new adjacent papers, neither a scoop)
+PSC / GRID / Attention-Meets-Reachability query re-run plus a general
+grammar-constrained-decoding sweep. Two new URLs entered `seen.json`:
+arXiv 2605.07698 ("Future Validity is the Missing Statistic" — grammar-faithful
+*speculative* decoding sampling-correctness, different mechanism from G1,
+differentiate-from) and arXiv 2608.10137 ("The Parser Already Knows" —
+lightweight bias correction for GCD's valid-but-suboptimal distortion,
+reinforces the correctness-tax thread already open in `NEEDS_INPUT.md`, cite).
+Full read: `docs/research/digests/2026-08-14.md` Part 2. Everything else the
+sweep surfaced was already in `seen.json` from prior iterations, verdicts
+unchanged — no direct scoop of G1's specific claim (edge-hardware,
+latency/Joules, mask-cost-hidden-by-forward-pass mechanism) found.
 
 ## Known competitive pressure
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
@@ -155,28 +174,38 @@ specifically*, even though the general idea has prior art on other engines.
   answer, not free to do this iteration.
 - Correctness-tax grading gap (new this iteration, see above) — needs a
   harness change outside `docs/research/`; not this loop's to fix.
-- Vocab-size (or grammar-stack-depth, or tokenizer-fragmentation) as the
-  driver of the 28× spread in mask cost — untested; candidate follow-up
-  experiment described in `NEEDS_INPUT.md` option 2.
+- Vocab-size as the *sole* driver of the 28× spread in mask cost — now
+  **tested against public specs (iter 7) and only partially consistent**
+  (explains gemma3, contradicted by llama3.2 vs. the two Qwen models). A
+  co-driver or different explanation (grammar-stack-depth,
+  tokenizer-fragmentation, something llama3.2-architecture-specific) is
+  still open. See `NEEDS_INPUT.md` update note before choosing option 2's
+  experiment design.
 
-## Next action (iteration 7)
+## Next action (iteration 8)
 1. **Check `NEEDS_INPUT.md` first.** If Maria has answered, close the gate
    per her choice (same pattern as iteration 5 closing iteration 3's gate)
    and resume normal pacing. If not yet answered, this loop stays in
    reduced-pace literature-tracking mode per the pace governor — do not
    queue new Mac-hardware experiments or draft the paper skeleton without
-   an answer.
+   an answer. Note for the pace governor: iter 7 is not itself an "empty"
+   iteration under BRIEF's "3 consecutive empty iterations → 1/day" rule —
+   it produced the vocab-size test and two new literature items — so the
+   empty-iteration counter is still at 0. It would start counting from the
+   first iteration that finds genuinely nothing new while the gate stays
+   open.
 2. **Literature tracking (repeat, ~5 min):** re-check MLSys 2027 CFP status
    (retry `mlsys.org` directly in case the block is session-specific);
    re-run the PSC/GRID/Attention-Meets-Reachability kill-upgrade query.
-3. If time remains and the gate is still open: a *research-only* pass on
-   the vocab-size hypothesis is fair game without Maria's answer (it's
-   literature work, not new hardware time or a drafting commitment) — try
-   to find published `n_vocab` figures for qwen2.5:0.5b, qwen3:0.6b,
-   gemma3:1b, llama3.2:1b and check whether they rank-order with the
-   28× mask-cost spread from 005. That would upgrade "plausible" to
-   "consistent with public model specs" ahead of any new Mac-hardware
-   measurement.
+3. If time remains and the gate is still open: research-only follow-up on
+   *why* llama3.2:1b breaks the vocab-size ranking — candidates worth a
+   literature check (not new hardware) are tokenizer/BPE-merge structure
+   (llama3.2 uses a different BPE than the Qwen/Gemma tokenizers), grammar-
+   stack depth for the specific JSON schema used in 005, and whether
+   llama.cpp's grammar implementation has any known per-architecture cost
+   asymmetry. Goal: find a candidate that's at least directionally
+   consistent across all four models, or confirm no single public-spec
+   variable explains it and say so plainly in the next digest.
 4. Continue the check-the-working-tree-before-trusting-STATUS discipline
    (caught stale gate state in iterations 3, 5, and unreported results
    landing before tracking in iteration 6) — if new experiment results
