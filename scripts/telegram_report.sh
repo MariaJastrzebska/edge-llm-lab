@@ -116,22 +116,49 @@ if [ -n "$VOICE_TEXT" ]; then
   if ! command -v edge-tts >/dev/null 2>&1; then
     echo "FAIL głosówka: brak edge-tts (zainstaluj: pip install edge-tts)"; fail=1
   else
-    tmpv=$(mktemp /tmp/tg_voice_XXXXXX.mp3)
-    # Auto-pick voice by language: Polish diacritics => PL voice, else EN —
-    # so an English report is narrated by an English voice (clean pronunciation).
+    # Auto-pick voice by language: Polish diacritics => PL voice, else EN.
     vvoice="$TTS_VOICE"
     if ! printf '%s' "$VOICE_TEXT" | grep -q '[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]'; then
       vvoice="${TTS_VOICE_EN:-en-US-JennyNeural}"
     fi
-    if edge-tts --voice "$vvoice" --text "$VOICE_TEXT" --write-media "$tmpv" \
-        && [ -s "$tmpv" ]; then
-      r=$(curl -sS -X POST "$API/sendVoice" -F chat_id="$CHAT" -F voice=@"$tmpv")
-      echo "$r" | grep -q '"ok":true' && echo "OK  głosówka" \
-        || { echo "FAIL głosówka: $r"; fail=1; }
-    else
-      echo "FAIL głosówka: edge-tts nie wygenerował audio"; fail=1
-    fi
-    rm -f "$tmpv"
+    # Split long narration into <=2400-char segments at sentence/space
+    # boundaries and send each as its own voice note IN ORDER — the whole
+    # message is heard, never cut off mid-sentence.
+    segdir=$(mktemp -d)
+    python3 - "$VOICE_TEXT" "$segdir" <<'PYSEG'
+import re, sys
+text, outdir = sys.argv[1], sys.argv[2]
+limit = 2400
+segs, cur = [], ""
+for s in re.split(r"(?<=[.!?…])\s+", text):
+    while len(s) > limit:
+        cut = s[:limit].rsplit(" ", 1)[0] or s[:limit]
+        segs.append(cut); s = s[len(cut):].lstrip()
+    if len(cur) + len(s) + 1 > limit:
+        if cur: segs.append(cur)
+        cur = s
+    else:
+        cur = (cur + " " + s).strip()
+if cur: segs.append(cur)
+import os
+for i, seg in enumerate(segs):
+    open(os.path.join(outdir, f"{i:03d}.txt"), "w", encoding="utf-8").write(seg)
+PYSEG
+    vok=1
+    for segfile in "$segdir"/*.txt; do
+      [ -f "$segfile" ] || continue
+      tmpv=$(mktemp /tmp/tg_voice_XXXXXX.mp3)
+      if edge-tts --voice "$vvoice" --file "$segfile" --write-media "$tmpv" \
+          && [ -s "$tmpv" ]; then
+        r=$(curl -sS -X POST "$API/sendVoice" -F chat_id="$CHAT" -F voice=@"$tmpv")
+        echo "$r" | grep -q '"ok":true' || { echo "FAIL głosówka: $r"; vok=0; fail=1; }
+      else
+        echo "FAIL głosówka: edge-tts nie wygenerował audio ($segfile)"; vok=0; fail=1
+      fi
+      rm -f "$tmpv"
+    done
+    rm -rf "$segdir"
+    [ "$vok" = 1 ] && echo "OK  głosówka"
   fi
 fi
 exit $fail
