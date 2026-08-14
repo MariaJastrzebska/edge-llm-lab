@@ -97,3 +97,14 @@ VLMs for medical/robotic vision" is a STRONGER top-paper than the text-LLM
 version (G1/G3). Harness extends to VLMs via llama.cpp/Ollama (llava,
 moondream, qwen2-VL). Not crowded the way generic VLA-on-edge energy is —
 distinguish taken vs open.
+
+## 2026-08-14 (via chat with Claude — hardware framing, Maria's challenge)
+Maria: "nikt nie robi tego na Apple, bo Apple nie jest naturalnym środowiskiem
+wykonawczym" — uznane za trafne ryzyko recenzenckie. Korekta ramy (dotyczy
+każdej trasy): teza naukowa dotyczy KLASY unified-memory edge SoC, nie
+"Apple"; M1 = instrument deweloperski + use case laptopa klinicysty
+(prywatność on-device); środowisko wdrożeniowe = Jetson. Plan MUSI mieć nogę
+replikacyjną na Jetson Orin (tegrastats backend już zaprojektowany w
+harnessie) — jedna tabela cross-device zamyka zarzut "n=1 / nienaturalne
+środowisko". Decyzja zakupowa z bramki iter-3 (Pi5/Jetson) => TAK,
+load-bearing: kupić Jetson Orin Nano.
