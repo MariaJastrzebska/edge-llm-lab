@@ -87,3 +87,13 @@ with device identity so laptop/Pi/phone runs land in one comparable table.
 The lab drives **llama.cpp** (llama-server subprocess + Ollama for model registry).
 The app uses fllama (also llama.cpp) — same core family, so lab and app numbers are
 comparable. Keep it that way.
+
+## Styl raportów dla Marii (WYMAGANE)
+Wszystkie raporty/wiadomości do Marii (Telegram, głosówki, digesty) pisz
+POWIEŚCIOWO i WARSTWOWO, nie maszynowo:
+1. najpierw kontekst i wyjaśnienie po ludzku, z dość detalem, żeby zrozumiała;
+2. potem wniosek/propozycja prostymi słowami (bez żargonu);
+3. na końcu „Tło techniczne:" które UCZY — terminy fachowe wolno, ale każdy
+   krótko wytłumacz w nawiasie (co znaczy + czemu ważne).
+Pełne, płynne zdania (nie fragmenty, nie strzałki, nie tabele jako komunikacja),
+po polsku, najpierw sens potem szczegóły. Maria chce rozumieć I uczyć się przy okazji.
