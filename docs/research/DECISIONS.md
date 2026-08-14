@@ -108,3 +108,9 @@ replikacyjną na Jetson Orin (tegrastats backend już zaprojektowany w
 harnessie) — jedna tabela cross-device zamyka zarzut "n=1 / nienaturalne
 środowisko". Decyzja zakupowa z bramki iter-3 (Pi5/Jetson) => TAK,
 load-bearing: kupić Jetson Orin Nano.
+
+## 2026-08-14 (via chat — hardware: na razie M1)
+Maria: testy zostają na M1; zakup Jetsona (Nano ~1.5k / NX 16GB ~4k PLN,
+NX = sprzęt z 2607.26128^W2607.09520 — head-to-head) ODŁOŻONY, wrócimy do
+tematu po pierwszych wynikach. Rama unified-memory-SoC + planowana noga
+replikacyjna bez zmian — po prostu jeszcze nie kupujemy.
