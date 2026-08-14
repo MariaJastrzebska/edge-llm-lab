@@ -83,3 +83,17 @@ LITERATURE-ONLY tracking — do NOT queue new Mac experiments, do NOT build the
 G1 optimization fork, do NOT draft. G1 experiment specs (vocab matrix,
 correctness re-score, 007 mask-pipelining) remain designed and on hold, not
 cancelled.
+
+## 2026-08-14 (via chat with Claude — extend scope to VLMs)
+Maria: consider VISION models, not just text LLMs — extend testing/benchmark
+to VLMs. Rationale: her real area (medical/surgical robotics) is vision-centric
+(endoscopy, surgical-scene understanding, imaging, VLA), which fixes the
+"medical JSON is arbitrary" problem; and VLMs have a different compute profile
+(heavy vision ENCODER prefill + short LM decode) that changes the
+constrained-decoding-tax mechanism and opens a less-explored systems angle
+(on-device VLM inference energy/latency/thermal). The slate/synthesis must
+evaluate whether "constrained/structured decoding tax + pipelining on EDGE
+VLMs for medical/robotic vision" is a STRONGER top-paper than the text-LLM
+version (G1/G3). Harness extends to VLMs via llama.cpp/Ollama (llava,
+moondream, qwen2-VL). Not crowded the way generic VLA-on-edge energy is —
+distinguish taken vs open.
