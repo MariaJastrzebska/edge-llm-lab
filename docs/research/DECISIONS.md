@@ -42,3 +42,20 @@ docs/research/from-science/ (2026-08-14-optimization-methods.md and
 vocab-isolation experiment, correctness-grading (code + re-score), then the
 hero optimization method's before/after experiment. Advance to paper drafting
 only once the optimization method has a measured effect.
+
+## 2026-08-14 (via chat with Claude — controlled experimental design)
+Maria: 005's four models (qwen2.5:0.5b, qwen3:0.6b, llama3.2:1b, gemma3:1b)
+differ on EVERYTHING at once — vendor, size, vocab, architecture — so the 28×
+tax spread is unattributable; as designed it "tests nothing." All future
+driver experiments MUST use a CONTROLLED matrix varying ONE factor at a time:
+1. Same-family size sweep (tokenizer/vocab/arch fixed, only param count varies):
+   Qwen2.5 0.5B/1.5B/3B (~152k vocab), Llama-3.2 1B/3B (128k vocab). Tests
+   tax ≈ mask_cost / forward_pass_time — should scale ~1/decode_time.
+2. Vocab isolation: models matched on decode speed but very different vocab
+   (~32k vs ~150k–256k).
+3. Cross-vendor replication at matched size+vocab (≥2 companies, 2 models/cell
+   where feasible) — is the effect universal or architecture-family-specific?
+Record per model: n_vocab, n_layers/params, hidden size, measured decode speed.
+Analysis regresses relative tax on mask predictors (vocab, allowed-tokens/state)
+vs forward-pass predictor (decode time), within- and across-family, to ATTRIBUTE
+variance. No single-factor claim about the driver without this control.
