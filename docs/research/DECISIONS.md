@@ -59,3 +59,27 @@ Record per model: n_vocab, n_layers/params, hidden size, measured decode speed.
 Analysis regresses relative tax on mask predictors (vocab, allowed-tokens/state)
 vs forward-pass predictor (decode time), within- and across-family, to ATTRIBUTE
 variance. No single-factor claim about the driver without this control.
+
+## 2026-08-14 (via chat with Claude — STRATEGIC DIRECTION REVIEW, pause G1 build)
+Maria: G1 was chosen from what was at hand (the replay + available data), not
+from a systematic survey of what is important AND unexplored in her actual
+interest area. Before committing the lab to G1's optimization machinery, run a
+proper direction review:
+- Survey PREVIOUS ROUNDS of the target venues (MLSys + robotics/medical:
+  ICRA/IROS/RA-L/CoRL, medical AI) — map what is saturated vs open.
+- Return to her stated interests: medical/surgical robotics, PRIVACY, edge
+  medical-AI inference optimization, edge ENERGY on edge AI; systems-strong;
+  should ideally feed bigos (OS for agents on edge).
+- Produce a SCORED SLATE of candidate top-paper hypotheses (G1 included),
+  ranked on impact × novelty("blue ocean", unexplored, not taken) × fit-to-
+  interests × feasibility-on-EXISTING-edge-llm-lab-code × top-venue-fit.
+  BENCHMARK G1 against the best alternatives; keep G1 only if it still wins.
+- KEEP THE REPO. The lab (energy/latency/memory telemetry on edge, structured
+  generation, tool-calling eval, LLM-judge, llama.cpp harness) is an asset;
+  the goal is its highest-impact use, not discarding it.
+
+Until Maria picks a direction from the slate: the paper-worker does
+LITERATURE-ONLY tracking — do NOT queue new Mac experiments, do NOT build the
+G1 optimization fork, do NOT draft. G1 experiment specs (vocab matrix,
+correctness re-score, 007 mask-pipelining) remain designed and on hold, not
+cancelled.
