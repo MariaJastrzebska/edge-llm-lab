@@ -94,5 +94,12 @@
   "https://openreview.net/forum?id=SEjxNfQTHN": "2026-08-11",
   "https://v-chandra.github.io/on-device-llms/": "2026-08-10",
   "https://www.clocate.com/conference-on-machine-learning-and-systems-mlsys/97234/": "2026-08-11",
-  "https://icml.cc/virtual/2026/poster/62339": "2026-08-17"
+  "https://icml.cc/virtual/2026/poster/62339": "2026-08-17",
+  "https://arxiv.org/abs/2607.00501": "BaseRT: Best-in-Class LLM Inference on Apple Silicon via Native Metal",
+  "https://arxiv.org/abs/2607.19438": "BaseRT: Advancing Best-in-Class LLM Inference with Apple M5 Neural Accelerators",
+  "https://arxiv.org/abs/2604.10410": "CWCD: Category-Wise Contrastive Decoding for Structured Medical Report Generation",
+  "https://arxiv.org/abs/2511.05502": "A Comparative Study of MLX, MLC-LLM, Ollama, llama.cpp",
+  "https://arxiv.org/abs/2506.17538": "ConsumerBench: Benchmarking Generative AI Applications on End-User Devices",
+  "https://arxiv.org/abs/2411.00136": "LLM-Inference-Bench: Inference Benchmarking of Large Language Models on AI Accelerators",
+  "https://mlciv.com/ai-deadlines/conference/?id=mlsys27": "mlciv.com MLSys 2027 specific page (checked iter 11, blocked)"
 }
