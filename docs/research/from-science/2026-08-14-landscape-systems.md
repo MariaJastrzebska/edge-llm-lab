@@ -11,10 +11,9 @@ sub-1B–4B (VLM: up to ~7B) models via llama.cpp/Ollama, ~3-month runway.***
 *ID-confidence note: 2026-prefixed arXiv IDs (26xx.xxxxx) came from live searches and
 most were abs-page-verified by the survey agents; the load-bearing ones (2607.09520,
 2604.27476, 2604.24447, 2604.18231, 2605.27599) were individually confirmed. Re-verify
-any ID before it enters a related-work section. Two of five survey passes (the
-KV/quant/spec-decode cluster deep-dive and the venue-deadline confirmation pass) had
-not returned at write time; those sections below rest on the repo's prior scoop
-checks + this session's direct searches and are marked accordingly.*
+any ID before it enters a related-work section. One of five survey passes (the
+venue-deadline confirmation pass) had not returned at write time; §3's dates rest on
+STATUS.md's repeated checks + this session's direct searches and are marked accordingly.*
 
 ---
 
@@ -26,16 +25,20 @@ essentially unoccupied.
 
 ### 1.1 Core efficiency cluster (KV-cache, quantization, speculative decoding, sparsity/offload, unified memory)
 
-*(Verdicts from repo scoop history + direct searches; the dedicated deep-dive pass was
-still running at write time — treat as high-confidence directionally.)*
+*(Dedicated deep-dive pass, confirmed. Its cross-cutting finding: all five sub-areas
+are saturated on latency/throughput/memory, and all five share the SAME empty cell —
+**Joules/token, single-stream, Apple-Silicon unified memory** — each with a
+falsifiable "energy-optimal ≠ latency/memory-optimal" hypothesis. The window is
+closing: EnerInfer, TokenPowerBench, Silicon Showdown (2605.00519) are circling;
+estimated ~12 months to stake the M1+powermetrics framing.)*
 
 | Sub-area | Verdict | Key papers / owners | Rig-shaped opening? |
 |---|---|---|---|
-| KV-cache compression/eviction/quantized-KV | **RED** | H2O, StreamingLLM, SnapKV, KIVI, Quest; FlashInfer (MLSys'25 best paper). Owned by the big serving groups (Berkeley Sky, CMU/MLC, UW). | None as headline. KV-budget is at most a *knob* inside a deadline/energy study. |
-| Weight/activation quantization for edge | **RED** | GPTQ, AWQ (MLSys'24 best paper), SmoothQuant, QuIP#; ~3.5 BPW threshold (2505.15030) is prior art; "Sustainable LLM Inference for Edge AI" (2504.03360) already did 28 Ollama-quantized models with J/token. | Only as an axis (quant tier as an energy-utility frontier), never the contribution. |
-| Speculative decoding | **RED, and its edge-ENERGY slice is now contested** | Medusa, EAGLE-1/2/3; on consumer/Apple hardware: "Lossless but Not Free" (2607.17283), cross-family spec-decode on Apple Silicon MLX (2604.16368), SLED (2506.09397). | Avoid. The "spec-decode Joules on consumer hardware" square got taken in 2026. |
-| Sparsity / MoE offload / flash offload | **RED** | PowerInfer/PowerInfer-2 (SJTU), LLM in a Flash (Apple, 2312.11514), EdgeMoE; "SSD Offloading for MoE Considered Harmful in Energy" (2508.06978, SNU) already owns the storage-tier-energy angle. | None on a 8–16 GB M1 Air. |
-| Unified-memory scheduling / heterogeneous SoC | **YELLOW** | Agent.xpu (2506.24045, PKU — reactive/proactive agentic flows on Intel SoC, kernel-level preemption), ActiveFlow (2504.08378, MSRA), KAIROS/BiScale-class schedulers. Generic edge scheduling is crowded (STATUS.md already flags this). | **Open slice: nobody has published the energy/wall-clock cost curve of MODEL SWAPPING on unified memory** (llama-swap / Ollama keep_alive are universally used, never characterized) — see Gap 5. |
+| KV-cache compression/eviction/quantized-KV | **RED core; energy corner GREEN** | H2O (2306.14048), StreamingLLM (2309.17453), SnapKV, KIVI (2402.02750), KVQuant, CacheGen/CacheBlend; "Rethinking KV Cache Compression" (MLSys'25) itself notes limited real-world adoption. Owners: UT Austin, MIT HAN Lab, Berkeley, Rice, U Chicago. | An Apple-Silicon KV cluster exists but stops at latency/memory: "When Quantization Is Free: int4 KV Outruns fp16 on Apple Silicon" (2605.05699 — the tradeoff *inverts* on unified memory) and "Non-Monotonic Latency in Apple MPS Decoding" (2605.08913). **Nobody has measured Joules/token vs KV policy (bit-width via `-ctk/-ctv`, window budget, context length) on M-series.** Knob-level, not headline. |
+| Weight/activation quantization for edge | **RED algorithms; narrow energy-per-format lane** | GPTQ, AWQ (MLSys'24 best paper), SmoothQuant, QuIP#, QServe (MLSys'25), BitNet; ~3.5 BPW threshold (2505.15030). Owners: MIT HAN Lab, ISTA, Cornell, Microsoft, + the ggml community which owns the *deployed* K/IQ-quant formats yet is unrepresented in academic eval. Energy-aware studies exist on the wrong hardware: 2504.03360 (Pi 4), 2508.16712 (ASPLOS'26, A100/H100), 2601.14277 (13 GGUF formats, Xeon, no energy). | **Untaken: GGUF format → perplexity + ms/token + memory + J/token Pareto on M1** — IQ-quants trade ALU for footprint; whether IQ4_XS costs more or fewer Joules than Q4_K_M on a bandwidth-bound unified-memory GPU has never been measured. An *axis* for Gaps 1–2, or a HotCarbon/measurement-track paper alone. |
+| Speculative decoding | **RED core; Apple-Silicon JOULES still open but contested** | Leviathan (ICML'23), Medusa, EAGLE-1/2/3, SpecInfer (ASPLOS'24), LayerSkip. Edge-energy thread emerging off-Mac: mobile-NPU speculation (2510.15312, phone energy), EdgeXpert (ASIC sim), SLED (2506.09397); on consumer/Apple hardware "Lossless but Not Free" (2607.17283) and MLX cross-family spec-decode (2604.16368) cover latency. | **No runtime-measured J/token for speculation on Apple Silicon yet.** Sharp contrarian thesis: speculation trades FLOPs for steps — on a bandwidth-bound UMA GPU where draft contends with target for the same bus, it may *save latency but spend Joules*. Measurable today via llama.cpp `--model-draft`. Treat as contested (two 2026 papers adjacent) — a strong section, risky as a whole paper. |
+| Sparsity / MoE offload / flash offload | **RED, franchise-owned; one assumption-breaking question open** | PowerInfer (SOSP'24)/PowerInfer-2 (SJTU IPADS), LLM in a Flash (Apple, 2312.11514), Deja Vu, TEAL (ICLR'25), CATS; EdgeMoE, Fiddler; "SSD Offloading for MoE Considered Harmful in Energy" (2508.06978, SNU). | Open question nobody pairs with Joules: **does activation sparsity save energy, or only FLOPs, once unified memory removes the transfer penalty that justified it?** (Sub-4B SwiGLU models have near-zero natural sparsity — Sparsing Law 2411.02335 — so induced sparsity adds predictor/gather overhead.) Kernel-heavy: a *second* paper, not the first. |
+| Unified-memory scheduling / bandwidth-bound decoding | **YELLOW — characterization crowding fast, energy rectangle OPEN** | "Profiling LLM Inference on Apple Silicon" (2508.08531, F.X. Lin/UVA — M2 Ultra/M4 Pro, no energy, no M1), RooflineBench (2602.11506 — perf-roofline only), vllm-mlx (EuroMLSys'26), Agent.xpu (2506.24045, PKU), ActiveFlow (2504.08378, MSRA), EnerInfer (NPU/phone-centric). | **The empirical ENERGY roofline for unified memory is undrawn** (J/token vs bytes-moved/token, {quant × size × context × sampling} on one M1); no energy-aware scheduler exists for M-series GPU decode; fanless-M1 throttle-map unstudied — the M1 Air is the differentiator, not the limitation. Feeds Gap 6 and the swap-energy slice of Gap 5 (llama-swap/keep_alive never characterized). |
 
 ### 1.2 Energy / power / thermal (dedicated survey pass)
 
@@ -64,9 +67,18 @@ even on servers; the edge single-stream square is (still) unoccupied.**
   citations, not scoops.
 - **G1's square — constrained-decoding tax in ms AND Joules, single-stream edge,
   mechanism = un-overlapped O(vocab) CPU mask-walk in llama.cpp — remains unscooped
-  as of 2026-08-14.** The risk to G1 is not scooping; it is *narrowness* (one
-  engine, one mechanism, arbitrary JSON schema) and the internal mechanism-attribution
-  problem (the 28× spread; see `2026-08-14-mechanism-and-gaps.md` attack #9).
+  as of 2026-08-16** (re-verified by a dedicated pass that fetched the tax papers
+  directly: both 2605.26128 and 2605.02363 confirmed accuracy/latency-only, no
+  energy, no edge). Two framing notes from that pass: (a) JSONSchemaBench itself
+  flags llama.cpp as the engine doing *runtime checking over all tokens* — the
+  worst and most-deployed case, which is the paper's hook; (b) shadow-mask
+  pipelining MUST be framed as the edge/single-stream instantiation of overlap and
+  shown absent from llama.cpp today, or reviewers will call it a port of the known
+  server-side trick (XGrammar/llguidance overlap; llguidance ≈1 ms single-core per
+  100k-token mask). The risk to G1 is therefore not scooping; it is *narrowness*
+  (one engine, one mechanism, arbitrary JSON schema) and the internal
+  mechanism-attribution problem (the 28× spread; see
+  `2026-08-14-mechanism-and-gaps.md` attack #9).
 
 ### 1.4 Privacy / confidential / federated
 
@@ -167,13 +179,18 @@ reframing RouteLLM/FrugalGPT's $-cost logic for the edge.
 *Why top paper:* llama-swap and Ollama keep_alive are used by everyone and
 characterized by no one; it is the multi-model scheduling primitive bigos needs.
 
-**Gap 6 — The M1 measurement-validity substrate (methodology paper or killer §2).**
+**Gap 6 — The M1 measurement-validity substrate + energy roofline (methodology
+paper or killer §2).**
 Powermetrics sample-to-token alignment at 10–40 tok/s, M1's missing DRAM/ANE
 counters, package-vs-GPU accounting, cross-validation vs RAPL and tegrastats on
-one llama.cpp build.
+one llama.cpp build — culminating in the **undrawn empirical energy roofline for
+unified memory** (J/token vs bytes-moved/token across quant × size × context;
+RooflineBench 2602.11506 did perf only, and 2605.05699 already shows the
+latency/quant tradeoff *inverts* on UMA, so the energy curve is genuinely
+non-obvious).
 *Why top paper (or paper-section):* Zeus provides primitives but no one has
-published the Apple-Silicon single-stream validity study; it hardens every other
-gap's numbers and answers the "n=1 hardware" reviewer attack.
+published the Apple-Silicon single-stream validity study or the energy roofline;
+it hardens every other gap's numbers and answers the "n=1 hardware" reviewer attack.
 
 **Explicitly avoid as headline:** generic J/token characterization, speculative-decoding
 energy on consumer hardware (taken in 2026), prompt-wording energy (2607.22568 owns it),
@@ -182,26 +199,32 @@ tool-calling accuracy benchmarks, datacenter SLO serving.
 
 ---
 
-## 3. Venue fit and deadlines (~3-month runway from mid-Aug 2026)
+## 3. Venue fit and deadlines (~3-month runway from mid-Aug 2026 → ~mid-Nov 2026)
 
-*(Deadline-confirmation pass still pending at write time; dates below are from
-STATUS.md's repeated checks + this session's searches. MLSys 2027 CFP remains
-unconfirmed on mlsys.org — treat Oct 30 as planning date, re-check weekly.)*
+*(Deadline pass completed; dates below verified where possible. MLSys 2027 CFP is
+still not posted — its date is inferred from the 2026 cycle. ✅ = inside runway,
+⚠️ = at/just past the edge, ❌ = unreachable.)*
 
-| Venue | Deadline (est.) | Fit for single-M1, single-stream, 3 months |
-|---|---|---|
-| **MLSys 2027** | **~Oct 30, 2026 (UNCONFIRMED)** | **Primary target.** MLSys accepts rigorous measurement+mechanism+optimization on real hardware (MEADOW, CORE precedents). Tight but feasible if the pilot data already exists (it does for G1; VLM leg needs ~4–6 weeks). |
-| **EuroMLSys (@EuroSys 2027)** | ~Jan–Feb 2027 | **Excellent fit** — workshop explicitly welcomes single-device edge measurement (energy-per-token position paper, AgenTEE precedents). Ideal fallback / fast first publication. |
-| HotMobile 2027 | ~Nov 2026 | Good fit for a provocative short paper (Gap 3 or 5 as an 8-pager). |
-| MobiSys 2027 | ~Nov–Dec 2026 | Fits if framed as mobile-systems measurement; expects more device breadth (add Jetson via tegrastats backend). |
-| RA-L | rolling | **Absorbs any slip**; takes the robotics/deadline framing (Gap 4) directly. Keep as the standing backup per the go/no-go doc. |
-| OSDI / NSDI / ATC 2027 | spring 2027 | **Poor fit** — expect distributed scale; single-device measurement studies are structurally disadvantaged. |
-| ASPLOS / EuroSys 2027 | multiple cycles / ~Oct 2026 | Marginal — possible only with a strong architectural mechanism story (the unified-memory contention analysis could qualify at ASPLOS, but it's a stretch in 3 months). |
-| IISWC / ISPASS 2027 | ~spring 2027 | Natural home for the characterization if MLSys slips; measurement-first venues. |
+| Venue | Deadline | In runway? | Fit for single-M1, single-stream |
+|---|---|---|---|
+| **HotMobile 2027** | **Oct 9, 2026 (hard, AoE)**; notify Dec 16 | ✅ ~8 wks | **BEST FIT + best timing.** 6-page workshop, explicitly early-work-friendly ("preliminary evaluations suffice"), topics include platform efficiency/energy and on-device ML/agents. Ideal for Gap 1's characterization + pipelining preview, or Gap 3/5 standalone. |
+| **MLSys 2027** | ~late Oct/early Nov 2026 (**inferred** — 2026 was Oct 30, 2025; CFP page 404s) | ✅ at the edge | **Stretch full-paper target.** Accepts rigorous measurement+mechanism+optimization on real hardware (MEADOW, CORE precedents); single-device acceptable if methodology is airtight. Feasible only by reusing the existing harness ≥80%. Re-check CFP weekly. |
+| **EuroMLSys (@EuroSys 2027, Rabat)** | est. ~Jan–Feb 2027 (CFP not posted) | ⚠️ just past | **Excellent fit** — the archetypal home for early-stage single-device ML-systems measurement (AgenTEE, energy-per-token position precedents). Primary fallback if HotMobile slips. |
+| NeurIPS 2026 efficient-ML / on-device workshops | typically ~Sep–Oct 2026 (verify per-workshop) | ✅ likely | Good fit for an energy/efficiency short paper; verify dates directly. |
+| **EuroSys 2027** | abstract Sep 17, paper Sep 24, 2026 | ✅ ~6 wks, very tight | Medium — needs a strong systems artifact (the pipelining) to clear the bar; tight for a full paper from here. |
+| ASPLOS 2027 (Sept cycle) | Sep 9, 2026 | ⚠️ ~3.5 wks | Fit is medium-high (energy + CPU/GPU pipelining on real HW) but the deadline is unrealistic from a standing start. Realistic: ASPLOS 2028 April cycle. |
+| OSDI 2027 | abstract Dec 1, paper Dec 8, 2026 | ⚠️ just past | Low-medium — expects OS-level novelty/scale; only viable if shadow-mask pipelining becomes a substantial artifact. |
+| MobiSys 2027 | ~Dec 5, 2026 (first round) | ⚠️ just past | Medium — higher bar than HotMobile for the same work; expects device breadth (add Jetson via tegrastats). |
+| NSDI 2027 | fall abstract Sep 10, 2026 | ✅ but | **Skip** — networked systems, off-topic. |
+| USENIX ATC | — | — | **Discontinued after 2025** (SIGOPS revival unconfirmed). Do not plan around it. |
+| **RA-L** | rolling | ✅ always | **Absorbs any slip**; takes the robotics/deadline framing (Gap 4) directly. Standing backup per the go/no-go doc. |
+| IISWC / ISPASS 2027 | ~spring 2027 | ❌ | Natural measurement-first home for the characterization if MLSys slips. |
 
-**Timeline reality:** the only combination that hits MLSys 2027 is one that reuses
-the existing harness ≥80%. Gap 1 (VLM constrained-decoding tax) and Gap 2
-(J-per-correct-task) both do; Gaps 3–5 are EuroMLSys/HotMobile-sized in this runway.
+**Timeline reality:** the calendar now has a sharp structure — **HotMobile Oct 9 is
+the anchor** (short paper: crossover characterization + Joules numbers + pipelining
+preview), with **MLSys ~late Oct as the full-paper stretch** if the VLM leg and
+optimization land in time, and EuroMLSys ~Jan–Feb as the safety net. Gap 1 and
+Gap 2 are the only candidates that reuse the harness enough to hit the first two.
 
 ---
 
