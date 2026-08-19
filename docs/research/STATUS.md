@@ -1,7 +1,32 @@
-# Paper machine — STATUS (updated 2026-08-18, iteration 11)
+# Paper machine — STATUS (updated 2026-08-19, iteration 12)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-18 (iter 11): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+1. 2026-08-19 (iter 12): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+   confirmation, opened iter 8) is still open, gate age now ~96h (~4 days).
+   Checked `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
+   `experiments/results/` for anything new since iter 11's commit — nothing
+   found. The constitution's one-reminder-ping already went out at iter 10;
+   **not re-pinged this iteration** (no new blocking event opened — a longer
+   silence on an already-reported gate is not itself a new event). Stayed in
+   reduced-pace literature-only mode: no new Mac experiments, no Route-A
+   build, no drafting. MLSys 2027 re-check: still unconfirmed — same
+   TBD/predicted-date state as iterations 5–11, no official CFP page found.
+   Re-anchored the general sweep on the "algorithmic mask/grammar-speedup
+   cluster" named in the Known-competitive-pressure section (avoiding a
+   third iteration on the Apple-Silicon-engine angle, per iter 11's own
+   instruction not to repeat a query two iterations running) and found three
+   new items, none competitive with G1/Route A: Pre³ (arXiv 2506.03887, ACL
+   2025) and XGrammar-2 (arXiv 2601.04426) both attack constrained-decoding
+   mask overhead but in large-batch/multi-request cloud-serving contexts
+   (SGLang/vLLM) — differentiate-from, both now explicit cluster members
+   alongside PSC/GRID/Attention-Meets-Reachability/Token-Space-Compression;
+   "The Speedup Paradox" (arXiv 2606.28529, embodied-task lossy-optimization
+   framework TISED) is a different optimization class (not grammar masking)
+   but independently shows optimization effects are hardware-configuration-
+   dependent — cite as framing support, useful if Route B is ever revived.
+   **Non-empty iteration** — empty-iteration counter stays at 0 of 3. Full
+   detail: `docs/research/digests/2026-08-19.md`.
+2. 2026-08-18 (iter 11): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~72h. The
    constitution's one-reminder-ping already went out at iter 10; **not
    re-pinged this iteration** (no new blocking event opened). Stayed in
@@ -171,11 +196,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-18, iter 11)
+## Nearest deadlines (re-checked 2026-08-19, iter 12)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3.5 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org`, `mlsys-deadlines.github.io`, and `mlciv.com` (both its general deadlines page and, new this iteration, its per-conference `?id=mlsys27` URL) are all still blocked by this session's network egress policy — unchanged from iterations 5–10. WebSearch snippets still show only a *predicted* date carried over from the 2025→2026 cycle pattern, no official 2027 CFP page found. Re-check every iteration; try again from a session without the block if one is available. |
+| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org`, `mlsys-deadlines.github.io`, and `mlciv.com` all still blocked by this session's network egress policy (direct `arxiv.org` fetches are blocked the same way this iteration — same policy, not venue-specific). WebSearch snippets still show only a *predicted* date carried over from the 2025→2026 cycle pattern, no official 2027 CFP page found. Unchanged from iterations 5–11. Re-check every iteration; try again from a session without the block if one is available. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -223,7 +248,31 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 12 re-anchored the sweep on the "algorithmic mask/grammar-speedup
+cluster" already named in Known-competitive-pressure below (avoiding a third
+iteration on the Apple-Silicon-engine angle, per iter 11's own instruction).
+Three new items, none competitive with G1/Route A's hardware-cost claim.
+**Pre³** (arXiv 2506.03887, ACL 2025) precomputes prefix-conditioned edges to
+turn LR(1) grammar parsing into a deterministic pushdown automaton, removing
+runtime path-exploration overhead from constrained decoding — but explicitly
+targets large-batch cloud serving ("especially inefficient under large
+inference batches"), not edge/single-stream. **XGrammar-2** (arXiv
+2601.04426, AI & Agentic Systems 2026) adds tag-triggered structure switching
+and cross-request grammar caching for agentic tool-calling, claims >6× faster
+compilation and near-zero overhead — but benchmarked inside SGLang/vLLM
+multi-request serving, not on-device. Both **differentiate-from**: they now
+join PSC/GRID/Attention-Meets-Reachability/Token-Space-Compression as named
+members of the mask-speedup cluster (see below) — the pattern holds that
+every entrant in this cluster optimizes batched cloud serving, none touch
+edge hardware, Joules, or a short single-stream forward pass. **The Speedup
+Paradox** (arXiv 2606.28529, embodied-task lossy-optimization framework
+TISED) is a different optimization class (quantization/pruning-style, not
+grammar masking) but independently shows task-level optimization effects are
+non-monotonic and hardware-configuration-dependent — **cite** as framing
+support (same shape of claim G1 is building toward), useful ammunition if
+Route B is ever revived. Full detail: `docs/research/digests/2026-08-19.md`.
+
 Iter 11 widened the sweep beyond the DCCD/schema-key-wording-specific checks
 (empty two iterations running) to edge-VLM/medical-structured-generation and
 Apple-Silicon-inference-engine angles. Six new items, none touching grammar/
@@ -287,26 +336,35 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 11)
+## Known competitive pressure (updated iter 12)
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
 (2505.15030) is prior art; generic energy-aware edge scheduling is crowded
 (EnerInfer, HeteroMosaic, Agent.xpu, KAIROS, BiScale, and now also DynaSplit,
 CarbonCall — split-computing and tool-selection layers, still non-overlapping
 with per-token mask cost). Algorithmic mask-speedup work (PSC, GRID,
-Attention-Meets-Reachability, and now Token-Space-Compression 2605.29986) is
-a growing but still non-overlapping erosion-risk cluster — none on edge
-hardware, none in Joules, none with CPU/GPU pipelining measured against a
-short forward pass, and none on VLMs either. A **correctness-tax literature
-cluster** (2605.26128, 2603.03305, 2604.14862) is forming independently of
-this loop — not a threat to G1/Route A's hardware-cost claim, but raises the
-bar for the correctness-grading gate below: any final paper claiming
-"constrained decoding is cheap" now has to reckon with three separate 2026
-papers showing it isn't free on the accuracy axis. New this iteration: a
+Attention-Meets-Reachability, Token-Space-Compression 2605.29986, and now
+also Pre³ 2506.03887 and XGrammar-2 2601.04426) is a growing but still
+non-overlapping erosion-risk cluster — none on edge hardware, none in Joules,
+none with CPU/GPU pipelining measured against a short forward pass, none on
+VLMs either, and the two newest entrants are explicitly batched/multi-request
+cloud-serving optimizations (large-batch and SGLang/vLLM respectively) —
+the cluster's defining trait (batch-serving-side, not edge single-stream) is
+now four-for-four across its most recent members. A **correctness-tax
+literature cluster** (2605.26128, 2603.03305, 2604.14862) is forming
+independently of this loop — not a threat to G1/Route A's hardware-cost
+claim, but raises the bar for the correctness-grading gate below: any final
+paper claiming "constrained decoding is cheap" now has to reckon with three
+separate 2026 papers showing it isn't free on the accuracy axis. A
 **general-purpose inference-engine speedup cluster** (BaseRT 2607.00501 /
-2607.19438) is improving raw decode throughput on the exact unified-memory
-hardware class and model families this work uses — still non-overlapping
-(no grammar/constrained-decoding angle) but a baseline-drift risk to watch,
-not act on.
+2607.19438, iter 11) is improving raw decode throughput on the exact
+unified-memory hardware class and model families this work uses — still
+non-overlapping (no grammar/constrained-decoding angle) but a baseline-drift
+risk to watch, not act on. New this iteration: an independent **embodied
+hardware-dependent-optimization framing** (TISED / "The Speedup Paradox"
+2606.28529) is not competitive pressure at all — it's citable support for
+the general shape of G1's claim (device class changes an optimization's net
+effect), from a different optimization class (lossy quantization/pruning on
+robot tasks, not grammar masking).
 
 ## Open debt
 - `VENUES.md` (Stage-1 artifact) never written; only worth writing if MLSys
@@ -320,31 +378,34 @@ not act on.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 12)
-1. **Check `NEEDS_INPUT.md` first.** Still open as of iter 11 — no chat
+## Next action (iteration 13)
+1. **Check `NEEDS_INPUT.md` first.** Still open as of iter 12 — no chat
    decision or `DECISIONS.md` entry answering the route question landed
-   between iter 10 and iter 11 (gate age ~72h at iter 11). **The one
-   constitution-mandated reminder ping was already sent at iter 10** — do
+   between iter 11 and iter 12 (gate age ~96h / ~4 days at iter 12). **The
+   one constitution-mandated reminder ping was already sent at iter 10** — do
    NOT send another one for this same gate; only re-ping if a genuinely new
    blocking event opens later (the current long silence is not itself a new
-   event). If Maria has answered by iter 12: close the gate per her choice,
+   event). If Maria has answered by iter 13: close the gate per her choice,
    update the "Current stage" line to reflect the confirmed route, and —
    only if she also said the literature-only restriction is lifted — resume
    normal pacing (queue the route's first hardware step, e.g. Route A's
    mtmd smoke test). If not yet answered: stay in reduced-pace
-   literature-only mode. Pace-governor note: iteration 11 was **non-empty**
-   (six new items in `seen.json`); empty-iteration counter is back to 0 of 3.
+   literature-only mode. Pace-governor note: iteration 12 was **non-empty**
+   (three new items in `seen.json`); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (repeat, ~5 min):** re-check MLSys 2027 CFP status
-   (still blocked/unconfirmed as of iter 11 across `mlsys.org`,
-   `mlsys-deadlines.github.io`, `mlciv.com` — try again in case the egress
-   block or the venue's own CFP page changes). For the general sweep: either
-   continue the Apple-Silicon-inference-engine angle opened this iteration
-   (check if BaseRT, 2607.00501/2607.19438, or any successor starts touching
-   grammar/schema-constrained decoding specifically — currently it doesn't),
-   or pick a fresh angle (e.g. Jetson Orin VLM inference benchmarks, given
-   Jetson is still the planned replication leg per decision #9 even though
-   postponed) — avoid repeating the same specific query two iterations
-   running, as iter 10/11 both found that unproductive.
+   (still blocked/unconfirmed as of iter 12 across `mlsys.org`,
+   `mlsys-deadlines.github.io`, `mlciv.com`, and now also direct `arxiv.org`
+   fetches — try again in case the egress block or the venue's own CFP page
+   changes). For the general sweep: the mask/grammar-speedup cluster angle
+   opened this iteration turned up two new cloud-serving-side entrants
+   (Pre³, XGrammar-2) with no sign either is moving toward edge — a fresh
+   angle is likely more productive next time, e.g. Jetson Orin VLM inference
+   benchmarks (Jetson is still the planned replication leg per decision #9
+   even though postponed), or check whether "The Speedup Paradox" (2606.28529)
+   has any citing/follow-up work that touches grammar-constrained decoding
+   specifically rather than lossy quantization/pruning. Avoid repeating the
+   same specific query two iterations running, as iter 10/11 and iter 11/12
+   both found narrow repeats unproductive.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md` and `docs/research/from-science/` for
    new files every iteration, not just `experiments/results/`.
