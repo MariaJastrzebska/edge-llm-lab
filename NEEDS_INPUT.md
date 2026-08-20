@@ -90,3 +90,50 @@ groundwork for Route A specifically (mtmd+grammar support check, a scoop
 check for adjacent edge-medical-VLM papers) since that prep is safe to do
 regardless of which way you land — see `docs/research/digests/2026-08-15.md`.
 No new hardware runs queued, no paper skeleton drafted, no route assumed.
+
+## Update — iteration 13 (2026-08-20): this gate and your new protocol are the same question
+
+Gate age is now ~5 days. No chat decision or `DECISIONS.md` entry answered it
+in the meantime — but you weren't silent: on 2026-08-19 you committed
+`docs/WSPOLPRACA-BADAWCZA.md`, `docs/MAPA-WIEDZY.md`, and
+`docs/lekcje/LEKCJA-01-maska-i-3-procent.md` directly to `main`. Reading
+those (this loop only reads `docs/`, it doesn't author them — they're the
+science track's territory), your own words there are: *"mój osąd jest
+konieczny; nie uczę się, gdy wszystko robisz i każdą decyzję podejmujesz;
+skrót raportu nie wystarcza do decyzji"* (my judgment is required; I don't
+learn when you do everything and make every decision; a report summary
+isn't enough to decide on). That is a direct explanation for why this gate
+has sat open 5 days — it wasn't ready to be decided from a digest-level
+summary, and now there's an explicit process for fixing that.
+
+**Two things worth flagging so nothing falls between the two tracking
+systems (this loop's route gate vs. the science track's night reports):**
+
+1. **LEKCJA-01 §6.A is the same fork as this gate, from the other side.**
+   The lesson asks you to choose between: (1) repeat G1 on weaker hardware
+   where the forward pass is shorter; (2) call G1 closed and chase the
+   residual 82/100 wrong-type errors; (3) the VLM bridge. Option (3) *is*
+   Route A. Option (2) *is* Route D (the fallback already described in this
+   file as "classic G1, text-only"). Option (1) is a variant of staying in
+   the text-only frame with a different device, which doesn't map cleanly
+   to any of A–D as written — worth naming explicitly as a fifth option
+   ("D′: replicate G1's crossover on weaker/edge-class hardware before
+   generalizing") when you two work through Monday's package, so it isn't
+   lost by only offering A–D.
+2. **Your new hard rule ("nocne sesje realizują TYLKO hipotezy wybrane przez
+   Ciebie w poniedziałkowym bloku") is honored by this loop already** — it
+   has been running literature-only since iteration 8 specifically so as
+   not to pick a route for you. Nothing changes operationally for this loop
+   from the new protocol; it's confirmation that the existing restriction
+   should stay in force until you choose, through whatever forum (chat,
+   Monday block, or a `DECISIONS.md` entry) you actually use — this file
+   doesn't assume the Monday-block rhythm is this loop's own trigger to
+   resume, since this loop isn't the one authoring the Sunday package.
+
+**No re-ping sent this iteration.** The constitution's one-reminder-ping
+already fired at iteration 10; per its own text ("then silence") this isn't
+re-sent just because the gate is now older, and you clearly aren't silent —
+you're actively working the underlying problem, just through a different
+artifact than this gate. This loop will keep the gate open, keep tracking
+literature, and fold in whichever answer lands, from whichever channel it
+lands in.
