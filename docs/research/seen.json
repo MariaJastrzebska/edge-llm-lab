@@ -105,5 +105,9 @@
   "https://arxiv.org/abs/2506.03887": "2026-08-19",
   "https://arxiv.org/abs/2601.04426": "2026-08-19",
   "https://arxiv.org/abs/2606.28529": "2026-08-19",
-  "https://arxiv.org/abs/2604.03616": "2026-08-20"
+  "https://arxiv.org/abs/2604.03616": "2026-08-20",
+  "https://github.com/ollama/ollama/pull/7900": "2026-08-21 (verified: XGrammar explicitly not adopted, grammar+sampling kept coupled — resolves iter-13 baseline-drift flag)",
+  "https://arxiv.org/abs/2604.13006": "2026-08-21 (cites Format Tax, decoder-level connection unconfirmed)",
+  "https://arxiv.org/abs/2603.27905": "2026-08-21",
+  "https://arxiv.org/abs/2606.25987": "2026-08-21"
 }

@@ -1,7 +1,36 @@
-# Paper machine — STATUS (updated 2026-08-20, iteration 13)
+# Paper machine — STATUS (updated 2026-08-21, iteration 14)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-20 (iter 13): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+1. 2026-08-21 (iter 14): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+   confirmation, opened iter 8) is still open, gate age now ~6 days. Local
+   `main` was 4 commits behind `origin/main` at the start of this iteration
+   (a leftover detached-HEAD checkout, not new remote work); fast-forwarded
+   via `git pull` — the 4 commits were all iteration 13's own already-known
+   content (STATUS.md, digests 18–20, Maria's collab-protocol files), nothing
+   new since iter 13. No `DECISIONS.md` entry or chat/docs decision has
+   answered the route question. **No re-ping** — same reasoning as iter
+   11–13 (one constitution-mandated ping already fired at iter 10, no new
+   blocking event this iteration). Did the two literature tasks iter 13
+   queued: (1) **verified the Ollama/XGrammar claim directly** — fetched
+   `ollama/ollama#7900` (the actual structured-outputs PR) and found the
+   team explicitly declined to adopt XGrammar, keeping grammar generation
+   and sampling coupled in their own implementation; **resolves iter 13's
+   flagged baseline-drift risk as a non-issue**, no action needed. (2)
+   **MLSys 2027 CFP still unconfirmed** — `mlsys.org` etc. blocked by egress
+   again this iteration, but WebSearch surfaced MLSys 2026's actual dates
+   (May 17–22, 2026, Bellevue WA, deadline Oct 30, 2025), which firms up
+   (doesn't change) the ~Oct 30, 2026 extrapolation for MLSys 2027 already
+   carried since iter 5. General sweep: two new items, neither competitive
+   — ATLAS-RTC (arXiv 2603.27905, closed-loop token-level runtime control
+   for structured generation, correctness/reliability angle with its own
+   latency claims, differentiate-from) and Weave of Formal Thought (arXiv
+   2606.25987, sound/complete constrained decoder for *code* generation,
+   different domain, ignore). Format Tax citing-work check inconclusive
+   (one citing paper found, arXiv 2604.13006, but `arxiv.org` was blocked
+   this iteration so its actual argument couldn't be confirmed — carried
+   forward, not resolved). **Non-empty iteration** — empty-iteration counter
+   stays at 0 of 3. Full detail: `docs/research/digests/2026-08-21.md`.
+2. 2026-08-20 (iter 13): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~5 days (~120h).
    **Found something important while doing the standing repo-state check**:
    local `main` was 3 commits stale (fetch showed `origin/main` already had
@@ -37,7 +66,7 @@
    be a real baseline-drift risk for G1's own measurements. **Non-empty
    iteration** — empty-iteration counter stays at 0 of 3. Full detail:
    `docs/research/digests/2026-08-20.md`.
-2. 2026-08-19 (iter 12): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+3. 2026-08-19 (iter 12): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~96h (~4 days).
    Checked `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `experiments/results/` for anything new since iter 11's commit — nothing
@@ -62,7 +91,7 @@
    dependent — cite as framing support, useful if Route B is ever revived.
    **Non-empty iteration** — empty-iteration counter stays at 0 of 3. Full
    detail: `docs/research/digests/2026-08-19.md`.
-3. 2026-08-18 (iter 11): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+4. 2026-08-18 (iter 11): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~72h. The
    constitution's one-reminder-ping already went out at iter 10; **not
    re-pinged this iteration** (no new blocking event opened). Stayed in
@@ -84,7 +113,7 @@
    a future baseline-drift risk to watch. **Non-empty iteration** — empty-
    iteration counter resets to 0 of 3 (was 1 of 3 after iter 10). Full
    detail: `docs/research/digests/2026-08-18.md`.
-4. 2026-08-17 (iter 10): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+5. 2026-08-17 (iter 10): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8, 2026-08-15 06:15:57 UTC) crossed the
    constitution's 48h blocked-on-Maria threshold during this iteration (gate
    age at iter 10: ~48h11m). Per the pace governor ("Blocked on Maria >48h →
@@ -106,7 +135,7 @@
    iteration counter now at 1 of 3 (iter 9 was non-empty, so counter reset
    there; needs 2 more consecutive empty iterations to trigger the 1/day
    pace drop). Full detail: `docs/research/digests/2026-08-17.md`.
-5. 2026-08-16 (iter 9): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+6. 2026-08-16 (iter 9): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open and unanswered; no chat
    decision or `DECISIONS.md` entry landed since commit `cd62ba8`. Stayed in
    reduced-pace literature-only mode per the gate's own instructions: no new
@@ -115,7 +144,7 @@
    change; edge-VLM-energy and medical-structured-generation sweep — 7 new
    items, none competitive with G1/Route A, two reinforce the open
    correctness-tax gap). Full detail: `docs/research/digests/2026-08-16.md`.
-6. 2026-08-15 (iter 8): reconciliation iteration, not a new scope-narrowing
+7. 2026-08-15 (iter 8): reconciliation iteration, not a new scope-narrowing
    decision by the loop itself — but it caught STATUS.md up to five real
    decisions/artifacts that landed between iter 7 and now without ever being
    folded in (see "What changed since iter 7" below). Opened a **new
@@ -127,7 +156,7 @@
    (mtmd+grammar support check — de-risked, no llama.cpp fork needed for the
    smoke test) plus a 2-item literature scoop-check (neither a scoop). Full
    detail: `docs/research/digests/2026-08-15.md`.
-7. 2026-08-14 (via chat, outside loop tracking — answered the iter-6 gate):
+8. 2026-08-14 (via chat, outside loop tracking — answered the iter-6 gate):
    experiment 005 CONFIRMED G1's crossover (all four sub-1B models, positive
    paired latency tax, 28× spread). Maria's decision on how to spend the
    runway: (a) NOT a characterization-only paper — must be characterization +
@@ -136,12 +165,12 @@
    experiment before drafting; (c) a correctness-tax gate (task-correctness
    grading, not just schema validity) must exist before any "constrained
    decoding is harmless" claim. See `docs/research/DECISIONS.md`.
-8. 2026-08-14 (via chat): controlled-experimental-design correction — 005's
+9. 2026-08-14 (via chat): controlled-experimental-design correction — 005's
    four models differ on vendor/size/vocab/architecture simultaneously, so the
    28× spread is unattributable as designed. Future driver experiments MUST
    vary one factor at a time (same-family size sweep, vocab isolation at
    matched decode speed, cross-vendor replication at matched size+vocab).
-9. 2026-08-14 (via chat — STRATEGIC DIRECTION REVIEW, pause G1 build): before
+10. 2026-08-14 (via chat — STRATEGIC DIRECTION REVIEW, pause G1 build): before
    committing to G1's optimization machinery, Maria asked for a from-scratch
    direction review — survey previous rounds of the target venues, return to
    her actual stated interests (medical/surgical robotics, privacy, edge
@@ -150,14 +179,14 @@
    of outcome**. Until she picks from the slate: **literature-only tracking —
    no new Mac experiments, no G1-optimization-fork build, no drafting.** This
    restriction is still in force (see gate below).
-10. 2026-08-14 (via chat — extend scope to VLMs): consider vision-language
+11. 2026-08-14 (via chat — extend scope to VLMs): consider vision-language
    models, not just text LLMs. Her real area (medical/surgical robotics) is
    vision-centric (endoscopy, surgical-scene understanding, VLA); VLMs also
    have a different compute profile (heavy vision-encoder prefill + short LM
    decode) that changes the constrained-decoding-tax mechanism and opens a
    less-explored angle. Harness extends via llama.cpp/Ollama (llava,
    moondream, qwen2-VL, etc. — mtmd tool).
-11. 2026-08-14 (via chat — hardware framing, Maria's reviewer-grade
+12. 2026-08-14 (via chat — hardware framing, Maria's reviewer-grade
    challenge): "Apple isn't a natural deployment environment" accepted as a
    valid reviewer risk. Reframed every route's scientific claim around the
    **unified-memory edge-SoC class**, not "Apple" specifically: M1 = dev
@@ -165,21 +194,21 @@
    deployment environment. Approved as **load-bearing**: buy a Jetson Orin
    Nano for a cross-device replication leg (closes the "n=1 / unnatural
    environment" reviewer objection).
-12. 2026-08-14 (via chat — hardware, stay on M1 for now): Jetson purchase
+13. 2026-08-14 (via chat — hardware, stay on M1 for now): Jetson purchase
    (Nano ~1.5k / NX 16GB ~4k PLN) **postponed** — return to it after first
    results on M1. The unified-memory-SoC framing and planned replication leg
    stand unchanged; just not buying yet.
-13. 2026-08-11 (iter 3, closed by iter 5): Stage corrected 3 → 4 — a Stage-4
+14. 2026-08-11 (iter 3, closed by iter 5): Stage corrected 3 → 4 — a Stage-4
    pilot had already run outside this loop's tracking.
-14. 2026-08-10 (iter 2): axes **federated SLM** and **edge VLA for robots**
+15. 2026-08-10 (iter 2): axes **federated SLM** and **edge VLA for robots**
     DEMOTED — both scooped by mid-2026 work at the time. (Note: "edge VLM" —
     vision *models*, not the VLA/robot-action framing — was independently
     revived by decision #6 above under the medical/vision-centric lens; not a
     contradiction, different axis.)
-15. 2026-08-10: direction = **edge × robotics × privacy and/or medical**;
+16. 2026-08-10: direction = **edge × robotics × privacy and/or medical**;
     must be low-level/systems-strong; should ideally (not necessarily) feed
     bigos later.
-16. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level
+17. 2026-08-10: "multi-turn agentic eval" framing DEMOTED (not low-level
     enough).
 
 ## What changed since iter 7 (why this reconciliation was needed)
@@ -232,11 +261,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-20, iter 13)
+## Nearest deadlines (re-checked 2026-08-21, iter 14)
 | Venue | Deadline | Note |
 |---|---|---|
-| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3.5 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | WebSearch this iteration (this session's egress allowed the query, unlike some prior iterations) still shows no official 2027 CFP page — `mlsys.org`'s "2027 Conference" page exists but planning is described as "underway," dates "to be announced." WebSearch snippets still show only the same *predicted* date carried over from the 2025→2026 cycle pattern. Unchanged from iterations 5–12. Re-check every iteration. |
+| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3.3 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
+| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org`, `mlsys-deadlines.github.io`, and `mlciv.com` all blocked by network egress again this iteration (WebFetch); no official 2027 CFP page found. WebSearch (unblocked) did surface MLSys 2026's own confirmed dates — May 17–22, 2026, Bellevue WA, deadline Oct 30, 2025 — which is the concrete data point the "~Oct 30, 2026" extrapolation for 2027 has been resting on since iter 5; this iteration is the first to see it stated directly rather than inferred. Firms up the estimate, doesn't change it. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -284,7 +313,26 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 14 found two new items, neither competitive with G1/Route A's hardware-
+cost claim. **ATLAS-RTC** (arXiv 2603.27905) is a closed-loop token-level
+runtime-control system for structured generation — monitors decoding for
+drift and intervenes with biasing/masking/rollback, claiming 20–37.8pp
+first-attempt-success gains and up to 88% latency reduction "in
+failure-dominated settings." Differentiate-from: it's a correctness/
+reliability mechanism (fewer retries), not a hardware-cost-of-masking
+mechanism — no edge, Joules, or single-stream angle in the abstract, but
+worth carrying as a correctness-tax-cluster-adjacent citation (same spirit
+as DCCD's draft-then-constrain fix). **Weave of Formal Thought** (arXiv
+2606.25987) is a sound-and-complete constrained decoder for *code*
+generation against the full Tree-sitter grammar — different domain, no
+latency/energy/edge content — ignore. Iter 14 also resolved iter 13's
+flagged Ollama/XGrammar risk (see the top scope-decision entry above):
+verified directly against `ollama/ollama#7900` that Ollama's team explicitly
+declined to adopt XGrammar, so G1's baseline (llama.cpp/Ollama's own GBNF
+engine) stands as previously assumed — not a scoop or a baseline-drift risk.
+Full detail: `docs/research/digests/2026-08-21.md`.
+
 Iter 13 found one new citable item, **"The Format Tax"** (arXiv 2604.03616,
 Apr 2026) — joins the correctness-tax cluster (2605.26128, 2603.03305,
 2604.14862), not competitive with G1/Route A's hardware-cost claim. It tests
@@ -384,7 +432,7 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 12)
+## Known competitive pressure (updated iter 14)
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
 (2505.15030) is prior art; generic energy-aware edge scheduling is crowded
 (EnerInfer, HeteroMosaic, Agent.xpu, KAIROS, BiScale, and now also DynaSplit,
@@ -412,7 +460,14 @@ hardware-dependent-optimization framing** (TISED / "The Speedup Paradox"
 2606.28529) is not competitive pressure at all — it's citable support for
 the general shape of G1's claim (device class changes an optimization's net
 effect), from a different optimization class (lossy quantization/pruning on
-robot tasks, not grammar masking).
+robot tasks, not grammar masking). New this iteration: **ATLAS-RTC**
+(2603.27905) joins the correctness-tax cluster's orbit as a *fix*-side
+paper (closed-loop biasing/masking/rollback to cut structured-generation
+failures) rather than a *problem*-side one — still not competitive with
+G1/Route A's hardware-cost claim (no edge/Joules/single-stream angle), but
+another sign that "make constrained decoding not silently wrong" is an
+active, multi-approach research line the eventual paper's framing should
+acknowledge.
 
 ## Open debt
 - `VENUES.md` (Stage-1 artifact) never written; only worth writing if MLSys
@@ -426,39 +481,46 @@ robot tasks, not grammar masking).
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 14)
-1. **Check `NEEDS_INPUT.md` first, including its iter-13 "Update" section.**
-   Still open as of iter 13 (gate age ~5 days). No `DECISIONS.md` entry or
-   chat decision answering the route question yet, but Maria is actively
-   engaged via the new protocol (`docs/WSPOLPRACA-BADAWCZA.md` et al.,
-   committed 2026-08-19) — **do not treat continued gate silence as grounds
-   to re-ping**; the one constitution-mandated ping already fired at iter 10,
-   and this isn't the "blocked and silent" case that rule exists for. If
-   Maria has answered by iter 14 (via chat, `DECISIONS.md`, or a Monday-block
-   artifact under `docs/`): close the gate per her choice, update "Current
-   stage," and — only if she also said the literature-only restriction is
-   lifted — resume normal pacing. If not yet answered: stay in reduced-pace
-   literature-only mode. Pace-governor note: iteration 13 was **non-empty**
-   (one new item in `seen.json`); empty-iteration counter stays at 0 of 3.
-2. **Verify the XGrammar/Ollama claim.** Iteration 13's sweep surfaced an
-   unverified search-snippet assertion that "Ollama uses XGrammar under the
-   hood" for constrained decoding — could not corroborate on a follow-up
-   search, explicitly not asserted as fact in the digest. If true, this is a
-   real baseline-drift risk (G1's measurements are of llama.cpp/Ollama's own
-   GBNF grammar engine, not XGrammar) and worth escalating; try Ollama's own
-   GitHub repo/release notes or changelog directly rather than search
-   snippets.
-3. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status (still
-   "planning underway, dates TBA" as of iter 13 — re-check `mlsys.org`
-   directly next time in case the 2027 CFP page has gone live). For the
-   general sweep: check whether "The Format Tax" (2604.03616, new this
-   iteration) has any early citing work connecting its prompt-level-tax
-   finding back to decoder-level/grammar-masking costs specifically — that
-   would strengthen (or complicate) the correctness-tax gate's framing.
-   Avoid repeating the same narrow query two iterations running.
+## Next action (iteration 15)
+1. **Check `NEEDS_INPUT.md` first, including its iter-13 "Update" section**
+   (still the latest — iter 14 added no new update to the file itself, since
+   nothing new arrived to fold in). Still open as of iter 14 (gate age ~6
+   days). No `DECISIONS.md` entry or chat decision answering the route
+   question yet, but Maria is actively engaged via the collab protocol
+   (`docs/WSPOLPRACA-BADAWCZA.md` et al., committed 2026-08-19) — **do not
+   treat continued gate silence as grounds to re-ping**; the one
+   constitution-mandated ping already fired at iter 10, and this isn't the
+   "blocked and silent" case that rule exists for. If Maria has answered by
+   iter 15 (via chat, `DECISIONS.md`, or a Monday-block artifact under
+   `docs/`): close the gate per her choice, update "Current stage," and —
+   only if she also said the literature-only restriction is lifted — resume
+   normal pacing. If not yet answered: stay in reduced-pace literature-only
+   mode. Pace-governor note: iteration 14 was **non-empty** (two new items in
+   `seen.json` plus a resolved risk-flag); empty-iteration counter stays at
+   0 of 3.
+2. **Format Tax citing-work check, unfinished.** Iteration 14 found one
+   citing paper (arXiv 2604.13006, "One Token Away from Collapse") but
+   `arxiv.org` was blocked by egress this iteration, so it's unconfirmed
+   whether that paper actually connects Format Tax's prompt-level-tax finding
+   back to decoder-level/grammar-masking cost. Try `arxiv.org` directly next
+   time (it cycles between blocked/unblocked iteration to iteration); if
+   still blocked, try Semantic Scholar or a direct WebSearch quote-check
+   instead of another arXiv fetch attempt.
+3. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
+   at `mlsys.org` (blocked again this iteration; try again — the domain block
+   has been inconsistent run to run) in case the 2027 CFP page has gone live.
+   For the general sweep: pick a fresh angle not yet covered two iterations
+   running — iter 14 covered the mask/grammar-speedup and correctness-tax
+   clusters again, so iter 15 should widen back out (e.g. re-check the
+   edge-VLM/medical-structured-generation angle last swept at iter 11, or the
+   Apple-Silicon-engine baseline-drift watch last touched at iter 11/12) per
+   the standing instruction not to repeat the same narrow query twice running.
 4. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
-   now also `docs/` more broadly (per iter 13's find, real decisions can land
-   as direct commits outside `docs/research/` too, even though this loop
-   only ever writes inside `docs/research/`) for anything new every
-   iteration, not just `experiments/results/`.
+   `docs/` more broadly (real decisions can land as direct commits outside
+   `docs/research/` too, even though this loop only ever writes inside
+   `docs/research/`) for anything new every iteration, not just
+   `experiments/results/`. Also re-verify local `main` is not behind
+   `origin/main` before trusting any local file state (iteration 14 found it
+   4 commits stale from a leftover detached-HEAD checkout — harmless this
+   time, but worth checking early every iteration rather than assuming).
