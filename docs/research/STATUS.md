@@ -1,7 +1,38 @@
-# Paper machine — STATUS (updated 2026-08-21, iteration 14)
+# Paper machine — STATUS (updated 2026-08-22, iteration 15)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-21 (iter 14): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+1. 2026-08-22 (iter 15): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+   confirmation, opened iter 8) is still open, gate age now ~7 days. Verified
+   local `main` matched `origin/main` at start of iteration (both `b9ef59a`,
+   no drift this time). No `DECISIONS.md` entry or chat/docs decision has
+   answered the route question. **No re-ping** — same reasoning as iter
+   11–14. Did the two carried-over literature tasks: (1) **resolved iter
+   14's open Format Tax citing-work check** — `arxiv.org` and
+   `semanticscholar.org` both still blocked, so used a WebSearch quote-check
+   instead; "One Token Away from Collapse" (2604.13006) turns out to be
+   about *lexical*-constraint fragility (banning a punctuation char/word),
+   not a decoder-level extension of Format Tax's prompt-vs-decoder
+   argument — closing as differentiate-from, not carrying forward again.
+   (2) **Widened sweep to the Apple-Silicon-engine baseline-drift watch**
+   (last touched iter 11/12) and found something more concrete than the
+   BaseRT/MetalRT third-party watch already on file: **Ollama itself**
+   (the actual tool the harness drives, not a third-party alternative)
+   shipped **Ollama 0.19 (March 2026)**, switching its own Apple Silicon
+   backend from direct Metal to Apple's MLX framework — reported ~2× decode
+   speedup, ~60% faster prefill. Gated by two conditions that keep it from
+   being an action item today: needs 32GB+ unified memory (unconfirmed
+   whether Maria's M1 qualifies, but G1's sub-1B models don't need it
+   either way), and at preview only one model architecture (Qwen3.5-35B-A3B,
+   none of G1's four families) is MLX-accelerated. Recorded as the concrete
+   trigger condition for iter 11's standing "rerun sanity-check if the
+   harness's underlying engine is upgraded" note — **not** an action item
+   now. MLSys 2027 CFP re-check: still unconfirmed, `mlsys.org` blocked
+   again, WebSearch confirms the organizing committee itself isn't
+   finalized yet — no change to the ~Oct 30, 2026 extrapolated estimate.
+   **Non-empty iteration** (one new baseline-drift-risk event recorded,
+   one open item closed) — empty-iteration counter stays at 0 of 3. Full
+   detail: `docs/research/digests/2026-08-22.md`.
+2. 2026-08-21 (iter 14): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~6 days. Local
    `main` was 4 commits behind `origin/main` at the start of this iteration
    (a leftover detached-HEAD checkout, not new remote work); fast-forwarded
@@ -261,11 +292,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-21, iter 14)
+## Nearest deadlines (re-checked 2026-08-22, iter 15)
 | Venue | Deadline | Note |
 |---|---|---|
-| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3.3 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org`, `mlsys-deadlines.github.io`, and `mlciv.com` all blocked by network egress again this iteration (WebFetch); no official 2027 CFP page found. WebSearch (unblocked) did surface MLSys 2026's own confirmed dates — May 17–22, 2026, Bellevue WA, deadline Oct 30, 2025 — which is the concrete data point the "~Oct 30, 2026" extrapolation for 2027 has been resting on since iter 5; this iteration is the first to see it stated directly rather than inferred. Firms up the estimate, doesn't change it. Re-check every iteration. |
+| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3.1 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
+| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch). WebSearch (unblocked) confirms the organizing committee itself isn't finalized yet — no official 2027 CFP page exists. No change to the extrapolated estimate carried since iter 5. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -313,7 +344,19 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 15 found no new competitive papers, but one new non-paper event worth
+recording: **Ollama 0.19** (March 2026) switched Ollama's own Apple Silicon
+backend from Metal to MLX (~2× decode speedup), gated by 32GB+ RAM and (at
+preview) a single MLX-accelerated model architecture, neither of which
+applies to G1's current setup — not an action item, but the concrete
+trigger condition for the standing "rerun sanity-check if the harness's
+engine is upgraded" note. Also closed iter 14's carried-over Format Tax
+citing-work check: "One Token Away from Collapse" (2604.13006) is a
+lexical-constraint fragility paper, not a decoder-level extension of Format
+Tax's argument — differentiate-from, not carried forward again. Full
+detail: `docs/research/digests/2026-08-22.md`.
+
 Iter 14 found two new items, neither competitive with G1/Route A's hardware-
 cost claim. **ATLAS-RTC** (arXiv 2603.27905) is a closed-loop token-level
 runtime-control system for structured generation — monitors decoding for
@@ -432,7 +475,19 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 14)
+## Known competitive pressure (updated iter 15)
+Iter 15 adds one item to the **general-purpose inference-engine speedup
+cluster** (BaseRT/MetalRT, iter 11) — but this one is different in kind:
+**Ollama 0.19** (March 2026) is a backend change in the harness's own tool,
+not a third-party alternative runtime. It swapped Ollama's Apple Silicon
+path from direct Metal to MLX for ~2× decode speedup, currently gated to
+32GB+ RAM and one model architecture (neither matching G1's setup) — so
+still a watch-not-act item, but the most direct baseline-drift risk found
+yet, since a future Ollama upgrade on the test machine could shift decode
+speeds under G1's own numbers without any code change on this project's
+side. Worth checking what Ollama version 002–006 actually ran on before
+trusting any future re-run's numbers against the old ones.
+
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
 (2505.15030) is prior art; generic energy-aware edge scheduling is crowded
 (EnerInfer, HeteroMosaic, Agent.xpu, KAIROS, BiScale, and now also DynaSplit,
@@ -481,46 +536,45 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 15)
+## Next action (iteration 16)
 1. **Check `NEEDS_INPUT.md` first, including its iter-13 "Update" section**
-   (still the latest — iter 14 added no new update to the file itself, since
-   nothing new arrived to fold in). Still open as of iter 14 (gate age ~6
+   (still the latest — iter 15 added no new update to the file itself, since
+   nothing new arrived to fold in). Still open as of iter 15 (gate age ~7
    days). No `DECISIONS.md` entry or chat decision answering the route
-   question yet, but Maria is actively engaged via the collab protocol
-   (`docs/WSPOLPRACA-BADAWCZA.md` et al., committed 2026-08-19) — **do not
-   treat continued gate silence as grounds to re-ping**; the one
-   constitution-mandated ping already fired at iter 10, and this isn't the
-   "blocked and silent" case that rule exists for. If Maria has answered by
-   iter 15 (via chat, `DECISIONS.md`, or a Monday-block artifact under
-   `docs/`): close the gate per her choice, update "Current stage," and —
-   only if she also said the literature-only restriction is lifted — resume
-   normal pacing. If not yet answered: stay in reduced-pace literature-only
-   mode. Pace-governor note: iteration 14 was **non-empty** (two new items in
-   `seen.json` plus a resolved risk-flag); empty-iteration counter stays at
-   0 of 3.
-2. **Format Tax citing-work check, unfinished.** Iteration 14 found one
-   citing paper (arXiv 2604.13006, "One Token Away from Collapse") but
-   `arxiv.org` was blocked by egress this iteration, so it's unconfirmed
-   whether that paper actually connects Format Tax's prompt-level-tax finding
-   back to decoder-level/grammar-masking cost. Try `arxiv.org` directly next
-   time (it cycles between blocked/unblocked iteration to iteration); if
-   still blocked, try Semantic Scholar or a direct WebSearch quote-check
-   instead of another arXiv fetch attempt.
-3. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
+   question yet, but Maria remains actively engaged via the collab protocol
+   (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
+   silence as grounds to re-ping**; the one constitution-mandated ping
+   already fired at iter 10, and this isn't the "blocked and silent" case
+   that rule exists for. If Maria has answered by iter 16 (via chat,
+   `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
+   per her choice, update "Current stage," and — only if she also said the
+   literature-only restriction is lifted — resume normal pacing. If not yet
+   answered: stay in reduced-pace literature-only mode. Pace-governor note:
+   iteration 15 was **non-empty** (one baseline-drift-risk event recorded,
+   one open item closed); empty-iteration counter stays at 0 of 3.
+2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
-   has been inconsistent run to run) in case the 2027 CFP page has gone live.
-   For the general sweep: pick a fresh angle not yet covered two iterations
-   running — iter 14 covered the mask/grammar-speedup and correctness-tax
-   clusters again, so iter 15 should widen back out (e.g. re-check the
-   edge-VLM/medical-structured-generation angle last swept at iter 11, or the
-   Apple-Silicon-engine baseline-drift watch last touched at iter 11/12) per
-   the standing instruction not to repeat the same narrow query twice running.
+   has been inconsistent run to run) in case the organizing committee has
+   been announced. For the general sweep: pick a fresh angle not yet covered
+   two iterations running — iter 15 covered the Format-Tax-citing-work
+   follow-up and the Apple-Silicon-engine watch, so iter 16 should return to
+   the edge-VLM/medical-structured-generation angle (last swept at iter 11)
+   or open a genuinely fresh one, per the standing instruction not to repeat
+   the same narrow query twice running.
+3. **New: verify what Ollama version the existing G1 experiments (002–006)
+   actually ran on**, if that's cheaply checkable from `experiments/results/`
+   manifests or run logs without leaving `docs/research/`'s write scope (this
+   loop only reads outside `docs/research/`, doesn't need to write there to
+   check a version string). This closes the loop on iter 15's Ollama-0.19
+   baseline-drift flag: knowing the baseline version now, before any future
+   re-run, avoids having to reconstruct it retroactively later. Not urgent —
+   no re-run is currently planned — but cheap to check while the question is
+   fresh.
 4. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state (iteration 14 found it
-   4 commits stale from a leftover detached-HEAD checkout — harmless this
-   time, but worth checking early every iteration rather than assuming).
+   `origin/main` before trusting any local file state (iteration 15 found no
+   drift this time — both at `b9ef59a` at start — but keep checking).
