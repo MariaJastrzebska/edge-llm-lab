@@ -1,7 +1,38 @@
-# Paper machine — STATUS (updated 2026-08-22, iteration 15)
+# Paper machine — STATUS (updated 2026-08-23, iteration 16)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-22 (iter 15): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+1. 2026-08-23 (iter 16): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+   confirmation, opened iter 8) is still open, gate age now ~8 days. Verified
+   local `main` matched `origin/main` at start of iteration (both `dcbccc5`,
+   no drift). No `DECISIONS.md` entry or chat/docs decision has answered the
+   route question. **No re-ping** — same reasoning as iter 11–15. Closed
+   iter 15's flagged Ollama-0.19-MLX baseline-drift-risk item with hard
+   evidence instead of leaving it as "gated, unconfirmed": grepped
+   `ollama_version` out of every G1 result manifest (002–006) — all ran on
+   **Ollama 0.20.6**; the `g1-mask-cost-pilot` manifest records
+   `ram_total_gb: 16.0` on `Marias-MacBook-Air.local`, well under the 32GB+
+   unified memory Ollama's MLX backend requires; and v0.20.6's actual GitHub
+   release notes (Gemma 4 tool calling, streaming tool calls, a Hermes agent
+   guide, an image bugfix) mention no MLX/backend changes. **Verdict:
+   resolved, not carried forward** — 002–006 definitively ran on the classic
+   llama.cpp/Metal backend, no re-run needed to trust their numbers. Did the
+   literature sweep on a fresh angle (grammar-constrained decoding cost
+   specifically on VLMs, per iter 15's instruction not to repeat a narrow
+   query twice running): found nothing new/competitive — every relevant hit
+   was already in `seen.json`, one new-to-`seen.json` item (2407.08103, a
+   2024 foundational automata-constrained-decoding paper, predates the whole
+   2026 cluster) scored differentiate-from. MLSys 2027: `mlsys.org` still
+   blocked; WebSearch surfaced a more specific but still-unofficial estimate
+   (submission deadline Oct 31 2026 11:59 UTC, conference Feb 16–23 2027
+   Montréal) from the same third-party deadline aggregators already on
+   file — a 1-day refinement of the ~Oct 30 2026 estimate, not new
+   information. A citation search for "Seeing is Free, Speaking is Not"
+   (2607.09520) follow-up work came up empty (title collides with unrelated
+   free-speech-law content) — not resolved, not worth a second attempt this
+   iteration. **Non-empty iteration** (one baseline-drift-risk item fully
+   resolved with hard evidence) — empty-iteration counter stays at 0 of 3.
+   Full detail: `docs/research/digests/2026-08-23.md`.
+2. 2026-08-22 (iter 15): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~7 days. Verified
    local `main` matched `origin/main` at start of iteration (both `b9ef59a`,
    no drift this time). No `DECISIONS.md` entry or chat/docs decision has
@@ -292,11 +323,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-22, iter 15)
+## Nearest deadlines (re-checked 2026-08-23, iter 16)
 | Venue | Deadline | Note |
 |---|---|---|
-| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3.1 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch). WebSearch (unblocked) confirms the organizing committee itself isn't finalized yet — no official 2027 CFP page exists. No change to the extrapolated estimate carried since iter 5. Re-check every iteration. |
+| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
+| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch). WebSearch surfaced a more specific third-party estimate (Oct 31 2026 11:59 UTC submission, conference Feb 16–23 2027 Montréal) from the same deadline-aggregator sites already tracked — a 1-day refinement of the ~Oct 30 estimate carried since iter 5, still not an official CFP page. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -344,7 +375,22 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 16 found no new competitive papers, but fully resolved iter 15's
+Ollama-0.19-MLX baseline-drift flag: G1 experiments 002–006 all ran on
+**Ollama 0.20.6** (confirmed from every `result.json` manifest), and the
+`g1-mask-cost-pilot` manifest records `ram_total_gb: 16.0` on
+`Marias-MacBook-Air.local` — well under the 32GB+ unified memory Ollama's
+MLX backend requires, so this machine cannot have used the MLX path
+regardless of version. v0.20.6's actual GitHub release notes confirm no
+MLX/backend changes shipped in that release either. **002–006's numbers
+need no re-run or caveat** — they're on the classic llama.cpp/Metal backend,
+full stop. The literature sweep (grammar-constrained decoding cost on VLMs,
+a fresh angle) found nothing new/competitive: one new-to-`seen.json` item
+(2407.08103, a 2024 foundational automata-constrained-decoding paper) scored
+differentiate-from, everything else already tracked. Full detail:
+`docs/research/digests/2026-08-23.md`.
+
 Iter 15 found no new competitive papers, but one new non-paper event worth
 recording: **Ollama 0.19** (March 2026) switched Ollama's own Apple Silicon
 backend from Metal to MLX (~2× decode speedup), gated by 32GB+ RAM and (at
@@ -475,18 +521,16 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 15)
-Iter 15 adds one item to the **general-purpose inference-engine speedup
-cluster** (BaseRT/MetalRT, iter 11) — but this one is different in kind:
-**Ollama 0.19** (March 2026) is a backend change in the harness's own tool,
-not a third-party alternative runtime. It swapped Ollama's Apple Silicon
-path from direct Metal to MLX for ~2× decode speedup, currently gated to
-32GB+ RAM and one model architecture (neither matching G1's setup) — so
-still a watch-not-act item, but the most direct baseline-drift risk found
-yet, since a future Ollama upgrade on the test machine could shift decode
-speeds under G1's own numbers without any code change on this project's
-side. Worth checking what Ollama version 002–006 actually ran on before
-trusting any future re-run's numbers against the old ones.
+## Known competitive pressure (updated iter 16)
+Iter 16 **closes** iter 15's Ollama-0.19-MLX watch item for the *existing*
+data: 002–006 ran on Ollama 0.20.6 on a 16GB machine, definitively under the
+32GB+ MLX gate, and 0.20.6's own release notes confirm no backend change —
+so those numbers are settled, not a live risk. The **general-purpose
+inference-engine speedup cluster** (BaseRT/MetalRT, iter 11; Ollama's own
+MLX backend, iter 15) stays on file as a **future** watch-not-act item only:
+if Maria's hardware or Ollama version changes before any re-run, re-check
+the RAM/version gate again then — it's a baseline-drift risk for *future*
+runs, not a caveat on 002–006.
 
 MLPerf Edge Agentic owns generic tool-calling benchmarks; ~3.5 BPW threshold
 (2505.15030) is prior art; generic energy-aware edge scheduling is crowded
@@ -536,45 +580,43 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 16)
+## Next action (iteration 17)
 1. **Check `NEEDS_INPUT.md` first, including its iter-13 "Update" section**
-   (still the latest — iter 15 added no new update to the file itself, since
-   nothing new arrived to fold in). Still open as of iter 15 (gate age ~7
+   (still the latest — iter 16 added no new update to the file itself, since
+   nothing new arrived to fold in). Still open as of iter 16 (gate age ~8
    days). No `DECISIONS.md` entry or chat decision answering the route
    question yet, but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
    already fired at iter 10, and this isn't the "blocked and silent" case
-   that rule exists for. If Maria has answered by iter 16 (via chat,
+   that rule exists for. If Maria has answered by iter 17 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 15 was **non-empty** (one baseline-drift-risk event recorded,
-   one open item closed); empty-iteration counter stays at 0 of 3.
+   iteration 16 was **non-empty** (the Ollama-0.19-MLX baseline-drift item
+   fully resolved with hard evidence); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
    has been inconsistent run to run) in case the organizing committee has
-   been announced. For the general sweep: pick a fresh angle not yet covered
-   two iterations running — iter 15 covered the Format-Tax-citing-work
-   follow-up and the Apple-Silicon-engine watch, so iter 16 should return to
-   the edge-VLM/medical-structured-generation angle (last swept at iter 11)
-   or open a genuinely fresh one, per the standing instruction not to repeat
-   the same narrow query twice running.
-3. **New: verify what Ollama version the existing G1 experiments (002–006)
-   actually ran on**, if that's cheaply checkable from `experiments/results/`
-   manifests or run logs without leaving `docs/research/`'s write scope (this
-   loop only reads outside `docs/research/`, doesn't need to write there to
-   check a version string). This closes the loop on iter 15's Ollama-0.19
-   baseline-drift flag: knowing the baseline version now, before any future
-   re-run, avoids having to reconstruct it retroactively later. Not urgent —
-   no re-run is currently planned — but cheap to check while the question is
-   fresh.
+   been announced and the Oct 31/Montréal figure gets an official source.
+   For the general sweep: pick a fresh angle not yet covered two iterations
+   running — iter 16 covered VLM-specific grammar-constrained-decoding cost
+   and the Ollama-version check, so iter 17 should return to the edge-VLM/
+   medical-structured-generation angle (last general sweep at iter 11) or
+   open a genuinely fresh one, per the standing instruction not to repeat the
+   same narrow query twice running.
+3. **Retry the "Seeing is Free, Speaking is Not" (2607.09520) citing-work
+   check** with a more specific query (author names, or quoted phrases from
+   the abstract rather than the title alone) — iter 16's plain-title search
+   collided with unrelated free-speech-law content and came up empty. This is
+   Route A's own named prior work to extend; worth knowing if anyone else has
+   already built on it.
 4. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state (iteration 15 found no
-   drift this time — both at `b9ef59a` at start — but keep checking).
+   `origin/main` before trusting any local file state (iteration 16 found no
+   drift this time — both at `dcbccc5` at start — but keep checking).
