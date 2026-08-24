@@ -1,7 +1,32 @@
-# Paper machine — STATUS (updated 2026-08-23, iteration 16)
+# Paper machine — STATUS (updated 2026-08-24, iteration 17)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-23 (iter 16): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+1. 2026-08-24 (iter 17): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+   confirmation, opened iter 8) is still open, gate age now ~9 days. Verified
+   local `main` matched `origin/main` at start of iteration (both `500a0f9`,
+   no drift). Checked `DECISIONS.md`, `docs/research/from-science/`,
+   `docs/lekcje/`, and `docs/` broadly via `find -newer` against the iter-13
+   collab-protocol commit — nothing new since iter 13, no second lesson file,
+   no Monday-block package yet. **No re-ping** — same reasoning as iter
+   11–16. Did the three items STATUS.md queued: (1) MLSys 2027 CFP re-check —
+   `mlsys.org` still `EGRESS_BLOCKED`, no change to the ~Oct 30–31, 2026
+   estimate. (2) **Resolved iter 16's carried-over "Seeing is Free, Speaking
+   is Not" (2607.09520) citing-work check** — the earlier plain-title search
+   collided with unrelated free-speech-law content; a quoted-full-title retry
+   resolved correctly to the actual paper and found no citing/follow-up work
+   yet, a clean negative result (Route A's claim to be first-to-extend stands
+   unchallenged) rather than an inconclusive one. (3) General sweep on the
+   edge-VLM/medical-structured-generation angle (last touched iter 11, per
+   the no-repeat-two-iterations-running rule): four new-to-`seen.json` items,
+   all 2024-era accuracy/fine-tuning-focused medical-VLM papers with no
+   edge-systems angle — all scored ignore. Confirms the standing pattern:
+   this literature area has exactly one differentiate-from paper (the ACM
+   edge-deployed dual-report paper, found iter 10) and no systems-cost/
+   constrained-decoding work — the gap Route A would fill stays open.
+   **Non-empty iteration** (the 2607.09520 citing-work item, open since iter
+   16, was definitively closed) — empty-iteration counter stays at 0 of 3.
+   Full detail: `docs/research/digests/2026-08-24.md`.
+2. 2026-08-23 (iter 16): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~8 days. Verified
    local `main` matched `origin/main` at start of iteration (both `dcbccc5`,
    no drift). No `DECISIONS.md` entry or chat/docs decision has answered the
@@ -323,11 +348,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-23, iter 16)
+## Nearest deadlines (re-checked 2026-08-24, iter 17)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch). WebSearch surfaced a more specific third-party estimate (Oct 31 2026 11:59 UTC submission, conference Feb 16–23 2027 Montréal) from the same deadline-aggregator sites already tracked — a 1-day refinement of the ~Oct 30 estimate carried since iter 5, still not an official CFP page. Re-check every iteration. |
+| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch, `EGRESS_BLOCKED`). WebSearch found no update beyond the same third-party deadline-aggregator estimates already on file. No change to the ~Oct 30–31 estimate carried since iter 5, still not an official CFP page. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -375,7 +400,21 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 17 found no new competitive papers. Resolved iter 16's carried-over
+"Seeing is Free, Speaking is Not" (2607.09520) citing-work check — the
+earlier plain-title search collided with unrelated free-speech-law content;
+a quoted-full-title retry resolved correctly to the actual paper and found
+no citing/follow-up work, a clean negative (Route A's claim to be
+first-to-extend stands unchallenged). The general sweep on the edge-VLM/
+medical-structured-generation angle (last touched iter 11) returned four
+new-to-`seen.json` items, all 2024-era accuracy/fine-tuning-focused medical-
+VLM papers with no edge-systems angle — all scored ignore, confirming the
+standing pattern that this literature area has exactly one differentiate-
+from paper (the ACM edge-deployed dual-report paper, iter 10) and nothing
+touching constrained-decoding/systems cost. Full detail:
+`docs/research/digests/2026-08-24.md`.
+
 Iter 16 found no new competitive papers, but fully resolved iter 15's
 Ollama-0.19-MLX baseline-drift flag: G1 experiments 002–006 all ran on
 **Ollama 0.20.6** (confirmed from every `result.json` manifest), and the
@@ -521,7 +560,7 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 16)
+## Known competitive pressure (updated iter 16; re-checked iter 17, no change)
 Iter 16 **closes** iter 15's Ollama-0.19-MLX watch item for the *existing*
 data: 002–006 ran on Ollama 0.20.6 on a 16GB machine, definitively under the
 32GB+ MLX gate, and 0.20.6's own release notes confirm no backend change —
@@ -580,43 +619,42 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 17)
+## Next action (iteration 18)
 1. **Check `NEEDS_INPUT.md` first, including its iter-13 "Update" section**
-   (still the latest — iter 16 added no new update to the file itself, since
-   nothing new arrived to fold in). Still open as of iter 16 (gate age ~8
+   (still the latest — iter 17 added no new update to the file itself, since
+   nothing new arrived to fold in). Still open as of iter 17 (gate age ~9
    days). No `DECISIONS.md` entry or chat decision answering the route
    question yet, but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
    already fired at iter 10, and this isn't the "blocked and silent" case
-   that rule exists for. If Maria has answered by iter 17 (via chat,
+   that rule exists for. If Maria has answered by iter 18 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 16 was **non-empty** (the Ollama-0.19-MLX baseline-drift item
-   fully resolved with hard evidence); empty-iteration counter stays at 0 of 3.
+   iteration 17 was **non-empty** (the 2607.09520 citing-work check, open
+   since iter 16, was resolved); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
    has been inconsistent run to run) in case the organizing committee has
    been announced and the Oct 31/Montréal figure gets an official source.
    For the general sweep: pick a fresh angle not yet covered two iterations
-   running — iter 16 covered VLM-specific grammar-constrained-decoding cost
-   and the Ollama-version check, so iter 17 should return to the edge-VLM/
-   medical-structured-generation angle (last general sweep at iter 11) or
-   open a genuinely fresh one, per the standing instruction not to repeat the
-   same narrow query twice running.
-3. **Retry the "Seeing is Free, Speaking is Not" (2607.09520) citing-work
-   check** with a more specific query (author names, or quoted phrases from
-   the abstract rather than the title alone) — iter 16's plain-title search
-   collided with unrelated free-speech-law content and came up empty. This is
-   Route A's own named prior work to extend; worth knowing if anyone else has
-   already built on it.
-4. Continue the check-the-working-tree-before-trusting-STATUS discipline —
+   running — iter 17 covered edge-VLM/medical-structured-generation, so
+   iter 18 should open a genuinely new angle. Suggested: a direct novelty
+   check on Route A's own "hero optimization" mechanism (CPU/GPU mask-walk
+   pipelining across the sync boundary, or mask caching keyed on grammar-
+   stack state) rather than the tax-exists literature already swept
+   repeatedly — nobody has been checked yet for having proposed the specific
+   *pipelining* mitigation itself, as opposed to alternative masking-speedup
+   approaches (the already-tracked PSC/GRID/Pre³/XGrammar-2 cluster, all
+   batch-serving-side). This is the closest thing to a direct novelty check
+   on the paper's actual headline contribution.
+3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state (iteration 16 found no
-   drift this time — both at `dcbccc5` at start — but keep checking).
+   `origin/main` before trusting any local file state (iteration 17 found no
+   drift this time — both at `500a0f9` at start — but keep checking).
