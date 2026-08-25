@@ -116,5 +116,10 @@
   "https://arxiv.org/pdf/2511.20145": "2026-08-24 (Vision-Language Models for Automated 3D PET/CT Report Generation — accuracy-focused medical VLM, cloud-scale, no edge/systems angle — ignore)",
   "https://arxiv.org/pdf/2403.02469": "2026-08-24 (2024 VLM medical report generation work, accuracy-focused, no edge/systems angle — ignore, predates 2026 cluster anyway)",
   "https://arxiv.org/pdf/2401.02797": "2026-08-24 (PeFoMed — PEFT for multimodal medical LLMs, accuracy/fine-tuning focused, no edge/systems angle — ignore)",
-  "https://arxiv.org/pdf/2411.16523": "2026-08-24 (LaB-RAG — retrieval-augmented radiology report generation, accuracy-focused, cloud-scale, no edge/systems angle — ignore)"
+  "https://arxiv.org/pdf/2411.16523": "2026-08-24 (LaB-RAG — retrieval-augmented radiology report generation, accuracy-focused, cloud-scale, no edge/systems angle — ignore)",
+  "https://arxiv.org/abs/2505.06461": "2026-08-25 (Challenging GPU Dominance: When CPUs Outperform for On-Device LLM Inference — llama.cpp on iPhone 15 Pro, CPU beats GPU for 1B model; cite, sharpens Route A's mask-pipelining design question for the CPU-decode case)",
+  "https://arxiv.org/abs/2601.07525": "2026-08-25 (Thinking Before Constraining / In-Writing, Nokia Bell Labs — decouples reasoning from constrained formatting via trigger token; cite, correctness-tax cluster fix-side, not a hardware-cost paper)",
+  "https://arxiv.org/abs/2604.20913": "2026-08-25 (FairyFuse — multiplication-free CPU ternary kernels for LLM inference; differentiate-from, low-level CPU optimization but different mechanism than grammar masking)",
+  "https://arxiv.org/abs/2504.09246": "2026-08-25 (Type-Constrained Code Generation with Language Models — code-gen domain, no edge/latency angle — ignore)",
+  "https://arxiv.org/abs/2606.21619": "2026-08-25 (The Alignment Problem in Constrained Code Generation — code-gen domain, accuracy/alignment framing, no systems angle — ignore)"
 }

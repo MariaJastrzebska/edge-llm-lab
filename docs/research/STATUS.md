@@ -1,7 +1,44 @@
-# Paper machine — STATUS (updated 2026-08-24, iteration 17)
+# Paper machine — STATUS (updated 2026-08-25, iteration 18)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-24 (iter 17): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+1. 2026-08-25 (iter 18): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+   confirmation, opened iter 8) is still open, gate age now ~10 days. Verified
+   local `main` matched `origin/main` at start of iteration (both `fa2db03`,
+   no drift). Checked `DECISIONS.md`, `docs/research/from-science/`, and
+   `docs/` broadly — nothing new since iter 17. **No re-ping** — same
+   reasoning as iter 11–17. Did iter 17's queued next action: a direct
+   novelty check on Route A's own "hero optimization" (mask-generation
+   pipelined with the forward pass across the CPU/GPU sync boundary).
+   **Result: not a new find, and not a scoop — the mechanism has been on
+   file since iteration 2.** Rereading `docs/research/digests/2026-08-10-2.md`
+   confirmed **XGrammar** (arXiv 2411.15100) already documents the exact
+   mechanism ("the mask is computed on the CPU in parallel with the GPU's
+   forward pass"), and it was swept and filed on day one of this loop —
+   before Route A's pipelining framing existed (that came iter 6,
+   2026-08-14). This iteration's actual contribution is narrower: (a) fixed
+   an ambiguity in this file's "Known competitive pressure" section, which
+   named only XGrammar-2 as a tracked cluster member and could read as
+   implying no cluster member does CPU/GPU pipelining, when the original
+   XGrammar (not XGrammar-2) is exactly that; (b) confirmed llama.cpp/Ollama
+   — G1's actual measured engine — still doesn't have this (XGrammar is a
+   separate, non-integrated engine; Ollama declined it, iter 14) so the
+   open contribution is porting + characterizing where it breaks, not
+   inventing it; (c) found one genuinely new, relevant paper — "Challenging
+   GPU Dominance: When CPUs Outperform for On-Device LLM Inference" (arXiv
+   2505.06461) — showing llama.cpp on an iPhone 15 Pro with a 1B model runs
+   *faster on CPU-only than with GPU acceleration* (17 vs 12.8 tok/s). This
+   matters directly for Route A's design: the CPU/GPU pipelining trick
+   assumes mask-on-CPU and forward-pass-on-GPU are genuinely separate
+   resources to hide one under the other; if small on-device models are
+   already running their forward pass on CPU (because CPU wins there), that
+   assumption doesn't hold and the pipelining fix needs a CPU-decode answer,
+   not just a GPU-decode one — sharpens rather than threatens the open gap.
+   Four more new-to-`seen.json` items, all low-relevance (code-gen domain or
+   correctness-tax-cluster fix-side, no hardware-cost angle) — see digest.
+   **Non-empty iteration** (one design-relevant new paper found, one
+   standing ambiguity in this file fixed) — empty-iteration counter stays
+   at 0 of 3. Full detail: `docs/research/digests/2026-08-25.md`.
+2. 2026-08-24 (iter 17): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~9 days. Verified
    local `main` matched `origin/main` at start of iteration (both `500a0f9`,
    no drift). Checked `DECISIONS.md`, `docs/research/from-science/`,
@@ -348,7 +385,7 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-24, iter 17)
+## Nearest deadlines (re-checked 2026-08-25, iter 18)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
@@ -400,7 +437,17 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 18 found no new competitive papers — the mechanism-level check on
+XGrammar (2411.15100) confirmed it's been on file, correctly characterized,
+since iteration 2; not a scoop, see "Known competitive pressure" above for
+the full account. One genuinely new, design-relevant paper: "Challenging GPU
+Dominance" (arXiv 2505.06461) shows llama.cpp on iPhone 15 Pro running a 1B
+model faster CPU-only than with GPU acceleration — sharpens (doesn't kill)
+Route A's mask-pipelining design question. Four more new-to-`seen.json`
+items, all low-relevance (code-gen domain or correctness-tax-cluster
+fix-side). Full detail: `docs/research/digests/2026-08-25.md`.
+
 Iter 17 found no new competitive papers. Resolved iter 16's carried-over
 "Seeing is Free, Speaking is Not" (2607.09520) citing-work check — the
 earlier plain-title search collided with unrelated free-speech-law content;
@@ -560,7 +607,29 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 16; re-checked iter 17, no change)
+## Known competitive pressure (updated iter 18)
+Iter 18 fixed a standing ambiguity in this section: the paragraph below used
+to name only **XGrammar-2** (2601.04426) as a tracked cluster member, which
+could read as implying no cluster member does CPU/GPU mask/forward-pass
+pipelining. That's wrong — the *original* **XGrammar** (2411.15100, on file
+since iteration 2, 2026-08-10) is exactly that: it overlaps CPU-side mask
+computation with the GPU's forward pass, syncing only before sampling. This
+was never a hidden fact (it's spelled out in iter 2's own digest), just
+under-flagged once Route A's pipelining framing came into existence four
+days after XGrammar was first swept. It is **not a scoop**: XGrammar is a
+separate engine, not integrated into llama.cpp/Ollama (G1's actual measured
+engine), and Ollama's team explicitly declined to adopt it (confirmed
+against `ollama/ollama#7900`, iter 14) — so the open contribution for Route
+A is porting the known technique to llama.cpp and characterizing where its
+near-zero-overhead assumption breaks on edge hardware, not inventing the
+technique itself. Iter 18 also found independent evidence that the
+assumption *does* break somewhere relevant: "Challenging GPU Dominance"
+(arXiv 2505.06461) shows llama.cpp on an iPhone 15 Pro running a 1B model
+*faster on CPU-only than with GPU acceleration* — if the forward pass is
+already on CPU for small on-device models, CPU-mask/GPU-forward-pass
+pipelining doesn't apply cleanly and needs a CPU-decode design answer. This
+sharpens Route A's gap statement; it does not close it.
+
 Iter 16 **closes** iter 15's Ollama-0.19-MLX watch item for the *existing*
 data: 002–006 ran on Ollama 0.20.6 on a 16GB machine, definitively under the
 32GB+ MLX gate, and 0.20.6's own release notes confirm no backend change —
@@ -619,42 +688,41 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 18)
-1. **Check `NEEDS_INPUT.md` first, including its iter-13 "Update" section**
-   (still the latest — iter 17 added no new update to the file itself, since
-   nothing new arrived to fold in). Still open as of iter 17 (gate age ~9
-   days). No `DECISIONS.md` entry or chat decision answering the route
-   question yet, but Maria remains actively engaged via the collab protocol
+## Next action (iteration 19)
+1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
+   section — iter 18 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 18 (gate age ~10 days). No
+   `DECISIONS.md` entry or chat decision answering the route question yet,
+   but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10, and this isn't the "blocked and silent" case
-   that rule exists for. If Maria has answered by iter 18 (via chat,
+   already fired at iter 10. If Maria has answered by iter 19 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 17 was **non-empty** (the 2607.09520 citing-work check, open
-   since iter 16, was resolved); empty-iteration counter stays at 0 of 3.
+   iteration 18 was **non-empty** (one design-relevant paper found, one
+   standing STATUS.md ambiguity fixed); empty-iteration counter stays at 0
+   of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
    has been inconsistent run to run) in case the organizing committee has
    been announced and the Oct 31/Montréal figure gets an official source.
    For the general sweep: pick a fresh angle not yet covered two iterations
-   running — iter 17 covered edge-VLM/medical-structured-generation, so
-   iter 18 should open a genuinely new angle. Suggested: a direct novelty
-   check on Route A's own "hero optimization" mechanism (CPU/GPU mask-walk
-   pipelining across the sync boundary, or mask caching keyed on grammar-
-   stack state) rather than the tax-exists literature already swept
-   repeatedly — nobody has been checked yet for having proposed the specific
-   *pipelining* mitigation itself, as opposed to alternative masking-speedup
-   approaches (the already-tracked PSC/GRID/Pre³/XGrammar-2 cluster, all
-   batch-serving-side). This is the closest thing to a direct novelty check
-   on the paper's actual headline contribution.
+   running — iter 18 covered the CPU-vs-GPU-on-edge / mask-pipelining
+   mechanism angle, so iter 19 should open a genuinely new one. Suggested:
+   follow up directly on iter 18's open design question — does anyone
+   propose a *CPU-only* (not CPU/GPU) mask-pipelining scheme, e.g.
+   overlapping mask computation with forward-pass compute across CPU cores
+   or with the Neural Engine/ANE, for the case where the LM forward pass
+   itself already runs on CPU (per "Challenging GPU Dominance,"
+   2505.06461)? That's the concrete open half of Route A's design question
+   this iteration surfaced, not yet checked.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state (iteration 17 found no
-   drift this time — both at `500a0f9` at start — but keep checking).
+   `origin/main` before trusting any local file state (iteration 18 found no
+   drift this time — both at `fa2db03` at start — but keep checking).
