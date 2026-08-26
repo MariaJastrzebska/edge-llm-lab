@@ -1,7 +1,42 @@
-# Paper machine — STATUS (updated 2026-08-25, iteration 18)
+# Paper machine — STATUS (updated 2026-08-26, iteration 19)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-25 (iter 18): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+1. 2026-08-26 (iter 19): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+   confirmation, opened iter 8) is still open, gate age now ~11 days. Local
+   `main` was 1 commit behind `origin/main` at the start of this iteration (a
+   leftover detached-HEAD checkout carried over from how this session
+   started, not new remote work) — fast-forwarded via `git checkout main &&
+   git pull`, nothing lost, landed at iter 18's own commit `b313e1d`. Checked
+   `DECISIONS.md`, `docs/research/from-science/`, `docs/lekcje/`, and `docs/`
+   broadly — nothing new since iter 18. **No re-ping** — same reasoning as
+   iter 11–18. Did iter 18's queued next action: checked whether anyone
+   publishes **CPU-only** mask/forward-pass pipelining (as opposed to the
+   already-known CPU-mask/GPU-forward-pass trick), for the case where the LM
+   forward pass itself runs on CPU (per iter 18's "Challenging GPU Dominance"
+   find). **Result: no direct hit found — nobody has published this specific
+   mitigation.** A genuine negative result, not a dead end: it means the gap
+   Route A's design question opened (iter 18) is still unclaimed. Two new
+   items entered `seen.json`: NEO (arXiv 2411.01142, MLSys 2025) is a
+   cloud-serving batch-throughput CPU-offload paper on data-center GPUs
+   (T4/A10G/H100) — ignore, same shape as the already-tracked batch-serving
+   cluster. **Ghidorah** (arXiv 2505.23219) is more useful: on-device,
+   unified-memory hardware, tested specifically on **Jetson NX** (Route A's
+   own planned-but-postponed replication hardware), combines speculative
+   decoding with hetero-core (CPU/GPU/NPU) parallelism for 7.6× decode
+   speedup — not a grammar-masking paper, but (a) reviewer-defense ammunition
+   alongside BaseRT that Jetson-class hardware is an active optimization
+   target, and (b) its HCMP/ARCA technique (profile-then-assign pipeline
+   stages to different cores) is a plausible **design template** for the
+   still-open CPU-decode mask-pipelining question — worth revisiting if/when
+   Route A's mechanism gets designed. Also noted a minor, non-actionable
+   inconsistency between two third-party MLSys-2027-deadline aggregators on
+   the *conference* dates (Feb Montréal vs. May) — both still agree on the
+   Oct 31, 2026 *submission*-deadline estimate, no change to the figure on
+   file. **Non-empty iteration** (one negative result that sharpens rather
+   than closes Route A's open design gap, one new hardware-class/technique
+   citation found) — empty-iteration counter stays at 0 of 3. Full detail:
+   `docs/research/digests/2026-08-26.md`.
+2. 2026-08-25 (iter 18): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~10 days. Verified
    local `main` matched `origin/main` at start of iteration (both `fa2db03`,
    no drift). Checked `DECISIONS.md`, `docs/research/from-science/`, and
@@ -385,11 +420,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-25, iter 18)
+## Nearest deadlines (re-checked 2026-08-26, iter 19)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch, `EGRESS_BLOCKED`). WebSearch found no update beyond the same third-party deadline-aggregator estimates already on file. No change to the ~Oct 30–31 estimate carried since iter 5, still not an official CFP page. Re-check every iteration. |
+| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch, `EGRESS_BLOCKED`). WebSearch still found no official CFP; noted a minor, non-actionable inconsistency between two third-party aggregators on the *conference* dates (Feb Montréal vs. May) — both still agree on the Oct 31, 2026 *submission*-deadline estimate carried since iter 5. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -437,7 +472,19 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 19 found no new competitive papers, and — more usefully — a **negative**
+result: no published work does CPU-only mask/forward-pass pipelining (the
+open half of Route A's design question iter 18 surfaced). NEO (arXiv
+2411.01142) is a cloud-serving CPU-offload paper (T4/A10G/H100, no grammar
+angle) — ignore. **Ghidorah** (arXiv 2505.23219) is more useful:
+on-device/unified-memory, tested on Jetson NX (Route A's own planned
+hardware), 7.6× decode speedup via speculative decoding + hetero-core
+(CPU/GPU/NPU) scheduling — not grammar-masking, but citable hardware-class
+ammunition and a plausible design template (profile-then-assign pipeline
+stages to cores) for the still-open CPU-decode mask-pipelining question.
+Full detail: `docs/research/digests/2026-08-26.md`.
+
 Iter 18 found no new competitive papers — the mechanism-level check on
 XGrammar (2411.15100) confirmed it's been on file, correctly characterized,
 since iteration 2; not a scoop, see "Known competitive pressure" above for
@@ -607,7 +654,17 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 18)
+## Known competitive pressure (updated iter 19)
+Iter 19 adds one item to the **general-purpose inference-engine /
+hetero-core-scheduling** watch list (same shelf as BaseRT, iter 11): Ghidorah
+(arXiv 2505.23219) demonstrates 7.6× decode speedup on Jetson NX via
+speculative decoding + CPU/GPU/NPU hetero-core scheduling — not a
+grammar-masking paper, so not competitive with G1/Route A's hardware-cost
+claim, but confirms iter 19's targeted search found **no one has yet applied
+this class of hetero-core scheduling to grammar/mask computation
+specifically** — the CPU-decode mask-pipelining gap iter 18 opened stays
+unclaimed by anyone found so far.
+
 Iter 18 fixed a standing ambiguity in this section: the paragraph below used
 to name only **XGrammar-2** (2601.04426) as a tracked cluster member, which
 could read as implying no cluster member does CPU/GPU mask/forward-pass
@@ -688,36 +745,40 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 19)
+## Next action (iteration 20)
 1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 18 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 18 (gate age ~10 days). No
+   section — iter 19 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 19 (gate age ~11 days). No
    `DECISIONS.md` entry or chat decision answering the route question yet,
    but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 19 (via chat,
+   already fired at iter 10. If Maria has answered by iter 20 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 18 was **non-empty** (one design-relevant paper found, one
-   standing STATUS.md ambiguity fixed); empty-iteration counter stays at 0
-   of 3.
+   iteration 19 was **non-empty** (one negative result sharpening Route A's
+   open design gap, one new hardware-class/technique citation found);
+   empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
    has been inconsistent run to run) in case the organizing committee has
-   been announced and the Oct 31/Montréal figure gets an official source.
-   For the general sweep: pick a fresh angle not yet covered two iterations
-   running — iter 18 covered the CPU-vs-GPU-on-edge / mask-pipelining
-   mechanism angle, so iter 19 should open a genuinely new one. Suggested:
-   follow up directly on iter 18's open design question — does anyone
-   propose a *CPU-only* (not CPU/GPU) mask-pipelining scheme, e.g.
-   overlapping mask computation with forward-pass compute across CPU cores
-   or with the Neural Engine/ANE, for the case where the LM forward pass
-   itself already runs on CPU (per "Challenging GPU Dominance,"
-   2505.06461)? That's the concrete open half of Route A's design question
-   this iteration surfaced, not yet checked.
+   been announced and the Oct 31 estimate (or the conference-date discrepancy
+   noted this iteration — Feb Montréal vs. May) gets resolved by an official
+   source. For the general sweep: pick a fresh angle not yet covered two
+   iterations running — iter 18 and 19 both covered the CPU/GPU-on-edge
+   mask-pipelining mechanism angle, so iter 20 should open a genuinely new
+   one. Suggested: check whether Ghidorah's HCMP/ARCA profile-then-assign
+   technique (iter 19's find, arXiv 2505.23219) or a similar hetero-core
+   scheduling approach has been applied specifically to **grammar/schema
+   mask computation** by anyone else since Ghidorah's own May 2025
+   publication — i.e. has the design-inspiration link this iteration drew
+   (speculative-decoding hetero-core scheduling → mask-computation hetero-
+   core scheduling) already been made by someone else, which would narrow
+   Route A's claimed novelty. Alternatively, if that comes up dry quickly,
+   fall back to the standing edge-VLM/medical-structured-generation sweep
+   (last touched iter 17) per the no-repeat-two-iterations-running rule.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside

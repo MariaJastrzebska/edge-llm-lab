@@ -121,5 +121,7 @@
   "https://arxiv.org/abs/2601.07525": "2026-08-25 (Thinking Before Constraining / In-Writing, Nokia Bell Labs — decouples reasoning from constrained formatting via trigger token; cite, correctness-tax cluster fix-side, not a hardware-cost paper)",
   "https://arxiv.org/abs/2604.20913": "2026-08-25 (FairyFuse — multiplication-free CPU ternary kernels for LLM inference; differentiate-from, low-level CPU optimization but different mechanism than grammar masking)",
   "https://arxiv.org/abs/2504.09246": "2026-08-25 (Type-Constrained Code Generation with Language Models — code-gen domain, no edge/latency angle — ignore)",
-  "https://arxiv.org/abs/2606.21619": "2026-08-25 (The Alignment Problem in Constrained Code Generation — code-gen domain, accuracy/alignment framing, no systems angle — ignore)"
+  "https://arxiv.org/abs/2606.21619": "2026-08-25 (The Alignment Problem in Constrained Code Generation — code-gen domain, accuracy/alignment framing, no systems angle — ignore)",
+  "https://arxiv.org/abs/2411.01142": "2026-08-26 (NEO: Saving GPU Memory Crisis with CPU Offloading for Online LLM Inference, MLSys 2025 poster — cloud-serving batch-throughput CPU offload on T4/A10G/H100, no grammar/mask angle — ignore)",
+  "https://arxiv.org/abs/2505.23219": "2026-08-26 (Ghidorah: Fast LLM Inference on Edge with Speculative Decoding and Hetero-Core Parallelism — on-device unified-memory, tested on Jetson NX (Route A's planned hardware), 7.6x decode speedup via CPU/GPU/NPU hetero-core parallelism; differentiate-from/cite, plausible design template for CPU-decode mask pipelining)"
 }
