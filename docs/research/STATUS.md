@@ -1,7 +1,38 @@
-# Paper machine — STATUS (updated 2026-08-26, iteration 19)
+# Paper machine — STATUS (updated 2026-08-27, iteration 20)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-26 (iter 19): no scope-narrowing decision — `NEEDS_INPUT.md` (route
+1. 2026-08-27 (iter 20): no scope-narrowing decision — `NEEDS_INPUT.md`
+   (route confirmation, opened iter 8) is still open, gate age now ~12 days.
+   Local `main` was 2 commits behind `origin/main` at the start of this
+   iteration (a leftover detached-HEAD checkout, same recurring pattern as
+   iterations 8 and 14 — this session's own checkout starting stale, not new
+   remote work) — fast-forwarded via `git fetch` + `git merge --ff-only` to
+   `f1af906` (iter 19's own commit), nothing lost. Checked `DECISIONS.md`
+   (still ends `55050ff`, 2026-08-14), `docs/lekcje/`,
+   `docs/WSPOLPRACA-BADAWCZA.md`, `docs/MAPA-WIEDZY.md` (still just
+   `6c8109a`, 2026-08-19), and `docs/` broadly — nothing new since iter 19.
+   **No re-ping** — same reasoning as iter 11–19. Did iter 19's queued next
+   action: checked whether Ghidorah's HCMP/ARCA hetero-core-scheduling
+   technique (or an equivalent) has been applied by anyone to
+   **grammar/schema mask computation** specifically, since Ghidorah's own
+   publication. **Result: still no** — a second independent negative result
+   agreeing with iter 19's own CPU-only-mask-pipelining check. Found a
+   well-populated hetero-core **speculative decoding** cluster (Dovetail,
+   AHASD, OpenPangu-NPU — all new to `seen.json`, all differentiate-from,
+   none touching grammar/mask) but zero hits combining hetero-core
+   scheduling with mask/grammar computation. Also closed out an old,
+   under-annotated `seen.json` entry: **APEX** (arXiv 2506.03296, tracked
+   since iter 2 with no notes) is a KV-cache-offload scheduler for
+   data-center GPUs (T4/A10), same shape as NEO (iter 19) — confirmed not
+   competitive, no grammar/edge angle. MLSys 2027: `mlsys.org` still
+   `EGRESS_BLOCKED`, WebSearch confirms no official CFP yet, no change to
+   the ~Oct 30–31, 2026 estimate. **Non-empty iteration** (two negative
+   results that together further strengthen confidence Route A's
+   CPU-decode mask-pipelining gap is genuinely open, four new cluster-member
+   citations found, one old entry's status clarified) — empty-iteration
+   counter stays at 0 of 3. Full detail:
+   `docs/research/digests/2026-08-27.md`.
+2. 2026-08-26 (iter 19): no scope-narrowing decision — `NEEDS_INPUT.md` (route
    confirmation, opened iter 8) is still open, gate age now ~11 days. Local
    `main` was 1 commit behind `origin/main` at the start of this iteration (a
    leftover detached-HEAD checkout carried over from how this session
@@ -420,11 +451,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-26, iter 19)
+## Nearest deadlines (re-checked 2026-08-27, iter 20)
 | Venue | Deadline | Note |
 |---|---|---|
-| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~3 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch, `EGRESS_BLOCKED`). WebSearch still found no official CFP; noted a minor, non-actionable inconsistency between two third-party aggregators on the *conference* dates (Feb Montréal vs. May) — both still agree on the Oct 31, 2026 *submission*-deadline estimate carried since iter 5. Re-check every iteration. |
+| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~2.5 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
+| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch, `EGRESS_BLOCKED`). WebSearch confirms planning is underway but no official CFP yet — no change to the ~Oct 30–31, 2026 estimate carried since iter 5. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -472,7 +503,23 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 20 found no new competitive papers. Ran a targeted search for whether
+Ghidorah-class hetero-core (CPU/GPU/NPU) scheduling has been applied to
+grammar/schema **mask computation** specifically (as opposed to speculative
+decoding generally) since Ghidorah's own publication — **still no hit**, a
+second independent negative result agreeing with iter 19's own CPU-only
+mask-pipelining check. Found three new hetero-core speculative-decoding
+cluster members (Dovetail 2412.18934, AHASD 2604.25326, OpenPangu-NPU
+2603.03383), all differentiate-from — none touch grammar/mask, all confirm
+the cluster is populated with speculative-decoding work but not mask-
+computation work. One low-relevance item (Diffusion-LLM-on-NPU 2606.13740)
+scored ignore — different generation paradigm. Also closed an old
+under-annotated `seen.json` entry: APEX (2506.03296, tracked since iter 2)
+read for the first time this iteration — confirmed a KV-cache-offload
+scheduler for data-center GPUs, same shape as NEO (iter 19), not
+competitive. Full detail: `docs/research/digests/2026-08-27.md`.
+
 Iter 19 found no new competitive papers, and — more usefully — a **negative**
 result: no published work does CPU-only mask/forward-pass pipelining (the
 open half of Route A's design question iter 18 surfaced). NEO (arXiv
@@ -654,10 +701,19 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 19)
-Iter 19 adds one item to the **general-purpose inference-engine /
-hetero-core-scheduling** watch list (same shelf as BaseRT, iter 11): Ghidorah
-(arXiv 2505.23219) demonstrates 7.6× decode speedup on Jetson NX via
+## Known competitive pressure (updated iter 20)
+Iter 20 adds three more members (Dovetail 2412.18934, AHASD 2604.25326,
+OpenPangu-NPU 2603.03383) to the **hetero-core speculative-decoding**
+watch-list opened by Ghidorah (iter 19) and BaseRT (iter 11): the cluster
+is well-populated and active, but a targeted second-pass search this
+iteration found, again, **zero members that apply hetero-core scheduling to
+grammar/mask computation** — every one optimizes speculative decoding's
+draft/verify split across CPU/GPU/NPU, not grammar-state advancement or mask
+generation. Two independent iterations (19, 20) now agree: the CPU-decode
+mask-pipelining gap iter 18 opened stays unclaimed by anyone found so far.
+
+Iter 19 added Ghidorah
+(arXiv 2505.23219): 7.6× decode speedup on Jetson NX via
 speculative decoding + CPU/GPU/NPU hetero-core scheduling — not a
 grammar-masking paper, so not competitive with G1/Route A's hardware-cost
 claim, but confirms iter 19's targeted search found **no one has yet applied
@@ -745,45 +801,44 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 20)
+## Next action (iteration 21)
 1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 19 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 19 (gate age ~11 days). No
+   section — iter 20 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 20 (gate age ~12 days). No
    `DECISIONS.md` entry or chat decision answering the route question yet,
    but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 20 (via chat,
+   already fired at iter 10. If Maria has answered by iter 21 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 19 was **non-empty** (one negative result sharpening Route A's
-   open design gap, one new hardware-class/technique citation found);
-   empty-iteration counter stays at 0 of 3.
+   iteration 20 was **non-empty** (a second independent negative result
+   confirming Route A's mask-pipelining gap, three new cluster citations,
+   one old entry clarified); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
    has been inconsistent run to run) in case the organizing committee has
-   been announced and the Oct 31 estimate (or the conference-date discrepancy
-   noted this iteration — Feb Montréal vs. May) gets resolved by an official
-   source. For the general sweep: pick a fresh angle not yet covered two
-   iterations running — iter 18 and 19 both covered the CPU/GPU-on-edge
-   mask-pipelining mechanism angle, so iter 20 should open a genuinely new
-   one. Suggested: check whether Ghidorah's HCMP/ARCA profile-then-assign
-   technique (iter 19's find, arXiv 2505.23219) or a similar hetero-core
-   scheduling approach has been applied specifically to **grammar/schema
-   mask computation** by anyone else since Ghidorah's own May 2025
-   publication — i.e. has the design-inspiration link this iteration drew
-   (speculative-decoding hetero-core scheduling → mask-computation hetero-
-   core scheduling) already been made by someone else, which would narrow
-   Route A's claimed novelty. Alternatively, if that comes up dry quickly,
-   fall back to the standing edge-VLM/medical-structured-generation sweep
-   (last touched iter 17) per the no-repeat-two-iterations-running rule.
+   been announced. For the general sweep: **switch angles** — iterations 18,
+   19, and 20 all covered the CPU/GPU/hetero-core mask-pipelining mechanism
+   question (now with two independent negative results on file, diminishing
+   returns from a third pass); per the no-repeat-two-iterations-running rule,
+   iteration 21 should fall back to the standing **edge-VLM/medical-
+   structured-generation** sweep (last touched iter 17, now 4 iterations
+   stale) — check for new arXiv/proceedings entries on grammar/schema-
+   constrained decoding applied to vision-language models or medical
+   structured-report generation specifically, since that is Route A's actual
+   application domain and the mask-pipelining mechanism work is (per iter
+   18) a design detail *within* it, not the whole gap.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state (iteration 18 found no
-   drift this time — both at `fa2db03` at start — but keep checking).
+   `origin/main` before trusting any local file state — this is now the
+   **third** iteration in a row (8, 14, 20) where the session's own starting
+   checkout was found stale/detached; consider it a standing pattern of this
+   session-launch mechanism, not a one-off, and always fetch+ff-merge before
+   trusting any file read.
