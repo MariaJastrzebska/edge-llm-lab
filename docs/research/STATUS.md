@@ -1,7 +1,39 @@
-# Paper machine — STATUS (updated 2026-08-27, iteration 20)
+# Paper machine — STATUS (updated 2026-08-28, iteration 21)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-27 (iter 20): no scope-narrowing decision — `NEEDS_INPUT.md`
+1. 2026-08-28 (iter 21): no scope-narrowing decision — `NEEDS_INPUT.md`
+   (route confirmation, opened iter 8) is still open, gate age now ~13 days.
+   Local `main` matched `origin/main` at the start of this iteration (both
+   `25dbc61`, no drift — the stale-checkout pattern from iterations 8, 14, 20
+   did **not** recur). Checked `DECISIONS.md` (still ends `55050ff`,
+   2026-08-14), `docs/research/from-science/`, and `docs/` broadly —
+   nothing new since iter 20. **No re-ping** — same reasoning as iter
+   10–20. Did iter 20's queued next action: switched the general sweep
+   angle back to **edge-VLM/medical-structured-generation** (last touched
+   iter 17, now stale 4 iterations, per the no-repeat-two-iterations-running
+   rule after iters 18–20 covered the hetero-core mask-pipelining question).
+   Four new-to-`seen.json` items: **LEAD** (arXiv 2602.04617) and
+   **Resource-Efficient Medical Report Generation** (arXiv 2410.15642) are
+   both accuracy/model-size-focused medical-report papers with no edge-
+   systems or decode-time-latency angle — ignore, continuing the standing
+   pattern that this literature area has exactly one differentiate-from
+   paper on file (the ACM edge-deployed dual-report paper, iter 10).
+   **Adaptive Constraint Propagation / MetaJuLS** (arXiv 2601.00095, ACL
+   2026) is a genuine constrained-generation speedup method (meta-RL
+   constraint-propagation policy, 1.5–2.0× vs. GPU-optimized baselines) but
+   benchmarked against cloud/GPU baselines with no edge/single-stream/
+   Joules angle — differentiate-from, joins the algorithmic mask-speedup
+   cluster (now six members, all cloud/GPU-baseline-shaped). **Towards
+   Efficient Large Vision-Language Models** (arXiv 2603.27960) is a survey
+   taxonomizing LVLM inference acceleration into four dimensions including
+   decoding strategies — filed as a citable background reference for
+   Route A's eventual related-work section, not a competing result. MLSys
+   2027: `mlsys.org` still `EGRESS_BLOCKED`, WebSearch confirms no official
+   CFP yet, no change to the ~Oct 30–31, 2026 estimate. **Non-empty
+   iteration** (one new cluster-member citation, one new background survey
+   filed) — empty-iteration counter stays at 0 of 3. Full detail:
+   `docs/research/digests/2026-08-28.md`.
+2. 2026-08-27 (iter 20): no scope-narrowing decision — `NEEDS_INPUT.md`
    (route confirmation, opened iter 8) is still open, gate age now ~12 days.
    Local `main` was 2 commits behind `origin/main` at the start of this
    iteration (a leftover detached-HEAD checkout, same recurring pattern as
@@ -451,7 +483,7 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-27, iter 20)
+## Nearest deadlines (re-checked 2026-08-28, iter 21)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | ~2.5 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
@@ -503,7 +535,22 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 21 found no new competitive papers. The edge-VLM/medical-structured-
+generation sweep (last touched iter 17) returned two accuracy/model-size-
+focused medical-report papers (LEAD 2602.04617, Resource-Efficient Medical
+Report Generation 2410.15642), both ignore — continuing the standing
+pattern that this literature area has exactly one differentiate-from paper
+on file. One genuine constrained-generation speedup method, **Adaptive
+Constraint Propagation / MetaJuLS** (arXiv 2601.00095, ACL 2026), joins the
+algorithmic mask-speedup cluster as its sixth member — 1.5–2.0× speedup via
+a meta-RL constraint-propagation policy, but benchmarked against cloud/GPU
+baselines with no edge/single-stream/Joules angle, so differentiate-from,
+not competitive. One survey, "Towards Efficient Large Vision-Language
+Models" (arXiv 2603.27960), filed as a citable background reference for
+Route A's eventual related-work section. Full detail:
+`docs/research/digests/2026-08-28.md`.
+
 Iter 20 found no new competitive papers. Ran a targeted search for whether
 Ghidorah-class hetero-core (CPU/GPU/NPU) scheduling has been applied to
 grammar/schema **mask computation** specifically (as opposed to speculative
@@ -701,7 +748,19 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 20)
+## Known competitive pressure (updated iter 21)
+Iter 21 adds a sixth member, **Adaptive Constraint Propagation / MetaJuLS**
+(arXiv 2601.00095, ACL 2026), to the **algorithmic mask-speedup cluster**
+(PSC, GRID, Attention-Meets-Reachability, Token-Space-Compression, Pre³,
+XGrammar-2) — a meta-RL constraint-propagation policy claiming 1.5–2.0×
+speedup over GPU-optimized baselines on parsing and LLM-constrained
+generation. Same defining trait as every other cluster member: benchmarked
+against cloud/GPU baselines, no edge hardware, no Joules, no single-stream
+framing — six-for-six now. Also filed one background survey, "Towards
+Efficient Large Vision-Language Models" (arXiv 2603.27960), useful for
+Route A's eventual related-work positioning but not itself competitive
+pressure.
+
 Iter 20 adds three more members (Dovetail 2412.18934, AHASD 2604.25326,
 OpenPangu-NPU 2603.03383) to the **hetero-core speculative-decoding**
 watch-list opened by Ghidorah (iter 19) and BaseRT (iter 11): the cluster
@@ -801,44 +860,39 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 21)
+## Next action (iteration 22)
 1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 20 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 20 (gate age ~12 days). No
+   section — iter 21 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 21 (gate age ~13 days). No
    `DECISIONS.md` entry or chat decision answering the route question yet,
    but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 21 (via chat,
+   already fired at iter 10. If Maria has answered by iter 22 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 20 was **non-empty** (a second independent negative result
-   confirming Route A's mask-pipelining gap, three new cluster citations,
-   one old entry clarified); empty-iteration counter stays at 0 of 3.
+   iteration 21 was **non-empty** (one new cluster-member citation, one
+   background survey filed); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
    has been inconsistent run to run) in case the organizing committee has
-   been announced. For the general sweep: **switch angles** — iterations 18,
-   19, and 20 all covered the CPU/GPU/hetero-core mask-pipelining mechanism
-   question (now with two independent negative results on file, diminishing
-   returns from a third pass); per the no-repeat-two-iterations-running rule,
-   iteration 21 should fall back to the standing **edge-VLM/medical-
-   structured-generation** sweep (last touched iter 17, now 4 iterations
-   stale) — check for new arXiv/proceedings entries on grammar/schema-
-   constrained decoding applied to vision-language models or medical
-   structured-report generation specifically, since that is Route A's actual
-   application domain and the mask-pipelining mechanism work is (per iter
-   18) a design detail *within* it, not the whole gap.
+   been announced. For the general sweep: **switch angles** — the
+   edge-VLM/medical sweep (this iteration) found nothing competitive; per
+   the no-repeat-two-iterations-running rule, iteration 22 should move to
+   the **correctness-tax cluster** (2605.26128, 2603.03305, 2604.14862,
+   2604.03616, 2603.27905), which hasn't had a dedicated sweep since iter
+   14 (7 iterations stale) — check for new entrants before Route A's paper
+   skeleton, if/when confirmed, has to reckon with the cluster's current
+   shape and any new "constrained decoding hurts accuracy" evidence.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state — this is now the
-   **third** iteration in a row (8, 14, 20) where the session's own starting
-   checkout was found stale/detached; consider it a standing pattern of this
-   session-launch mechanism, not a one-off, and always fetch+ff-merge before
-   trusting any file read.
+   `origin/main` before trusting any local file state — iteration 21 did
+   **not** hit the stale-checkout pattern that recurred at iterations 8, 14,
+   and 20, but keep fetch+ff-merge as a standing check every iteration
+   regardless, since the pattern has been intermittent, not fixed.
