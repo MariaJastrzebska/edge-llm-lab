@@ -1,7 +1,37 @@
-# Paper machine — STATUS (updated 2026-08-28, iteration 21)
+# Paper machine — STATUS (updated 2026-08-29, iteration 22)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-28 (iter 21): no scope-narrowing decision — `NEEDS_INPUT.md`
+1. 2026-08-29 (iter 22): no scope-narrowing decision — `NEEDS_INPUT.md`
+   (route confirmation, opened iter 8) is still open, gate age now ~14 days.
+   Local `main` matched `origin/main` at the start of this iteration (both
+   `5b5d8fa`, no drift). Checked `DECISIONS.md` (still ends `55050ff`,
+   2026-08-14), `docs/research/from-science/`, and `docs/` broadly —
+   nothing new since iter 21. **No re-ping** — same reasoning as iter
+   10–21. Did iter 21's queued next action: swept the **correctness-tax
+   cluster** (stale since iter 14) for new entrants. Three new-to-
+   `seen.json` items, none competitive with G1/Route A (no edge/Joules/
+   per-token-mask-cost angle in any): **Structured Output Collapses Answer
+   Diversity Across 44 Language Models** (arXiv 2607.18476) — large-scale
+   (44-model) study showing a bare JSON-format instruction collapses answer
+   diversity, a new mechanism (diversity collapse, not just accuracy loss)
+   — cite. **Alignment Tax of Constrained Decoding in LLM Reflection**
+   (arXiv 2604.06066) — Outlines-constrained self-correction on Qwen3-8B
+   triggers a new failure mode ("structure snowballing") instead of fixing
+   the original one — cite. **When Correct Isn't Usable** (arXiv 2605.02363)
+   — reports the cluster's largest latency number yet (3.6×–8.2×
+   overhead), checked closely as a possible scoop risk given the size of
+   that number; **not a scoop** — it's a two-pass reference-then-constrain
+   baseline on cloud-class 7–9B models, not per-token mask cost, no edge
+   angle; joins the cluster's fix-side sub-group with ATLAS-RTC.
+   Also caught a small data-hygiene gap: iter 21's own digest had already
+   referenced 2605.02363 as "already tracked," but it was never actually in
+   `seen.json` — now recorded for the first time with full annotation. The
+   correctness-tax cluster is now 8 members total (4 original problem-side +
+   2 new problem-side + 2 fix-side) — see "Known competitive pressure"
+   below. **Non-empty iteration** (three new cluster-member citations, one
+   data-hygiene fix) — empty-iteration counter stays at 0 of 3. Full detail:
+   `docs/research/digests/2026-08-29.md`.
+2. 2026-08-28 (iter 21): no scope-narrowing decision — `NEEDS_INPUT.md`
    (route confirmation, opened iter 8) is still open, gate age now ~13 days.
    Local `main` matched `origin/main` at the start of this iteration (both
    `25dbc61`, no drift — the stale-checkout pattern from iterations 8, 14, 20
@@ -483,10 +513,10 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-28, iter 21)
+## Nearest deadlines (re-checked 2026-08-29, iter 22)
 | Venue | Deadline | Note |
 |---|---|---|
-| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~2.5 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
+| ~~ICRA 2027~~ | ~Sep 15, 2026 | ~2 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
 | **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch, `EGRESS_BLOCKED`). WebSearch confirms planning is underway but no official CFP yet — no change to the ~Oct 30–31, 2026 estimate carried since iter 5. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
@@ -535,7 +565,28 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 22 found no new competitive papers. Swept the correctness-tax cluster
+(stale since iter 14) and found three new entrants, all reviewed via
+WebSearch (arxiv.org stayed `EGRESS_BLOCKED` all iteration): **Structured
+Output Collapses Answer Diversity Across 44 Language Models** (arXiv
+2607.18476) — a large-scale (44-model) study showing a bare JSON-format
+instruction collapses answer diversity, a new mechanism (diversity
+collapse) joining the cluster. **Alignment Tax of Constrained Decoding in
+LLM Reflection** (arXiv 2604.06066) — constrained decoding triggers a new
+failure mode ("structure snowballing") in LLM self-correction rather than
+fixing the hallucination-snowballing problem it targeted. **When Correct
+Isn't Usable** (arXiv 2605.02363) — reports the cluster's largest latency
+number yet (3.6×–8.2×); checked closely as a possible scoop given the size
+of that number, but it's a two-pass reference-then-constrain baseline on
+cloud-class 7–9B models, not per-token mask cost, no edge angle — not a
+scoop, joins the cluster's fix-side sub-group with ATLAS-RTC. Also fixed a
+small data-hygiene gap: iter 21's digest had referenced 2605.02363 as
+"already tracked" but it was never actually recorded in `seen.json` — now
+entered for the first time with full annotation. The correctness-tax
+cluster is now 8 members total. Full detail:
+`docs/research/digests/2026-08-29.md`.
+
 Iter 21 found no new competitive papers. The edge-VLM/medical-structured-
 generation sweep (last touched iter 17) returned two accuracy/model-size-
 focused medical-report papers (LEAD 2602.04617, Resource-Efficient Medical
@@ -748,7 +799,27 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 21)
+## Known competitive pressure (updated iter 22)
+Iter 22 grows the **correctness-tax cluster** to 8 members. Original 4
+(problem-side): Constraint Tax (2605.26128), DCCD (2603.03305), schema-key-
+wording (2604.14862), Format Tax (2604.03616). Plus ATLAS-RTC (2603.27905,
+fix-side, iter 14). New this iteration — 2 more problem-side: **Structured
+Output Collapses Answer Diversity** (2607.18476, 44-model diversity-collapse
+study) and **Alignment Tax of Constrained Decoding in LLM Reflection**
+(2604.06066, "structure snowballing" failure mode in self-correction); and
+1 more fix-side: **When Correct Isn't Usable** (2605.02363, reports 3.6×–8.2×
+overhead for a two-pass baseline, their own fix reaches 0.63×–1.06×) — its
+overhead number is large enough that it was checked closely as a possible
+scoop of G1/Route A's hardware-cost claim, but the mechanism (two-pass
+generation cost, cloud-class models, no edge/Joules angle) is unrelated to
+G1's per-token mask-computation-cost claim. All 8 members still share the
+cluster's defining trait: no edge hardware, no Joules, no single-stream
+framing, no per-token mask-cost mechanism — none compete with G1/Route A,
+but the cluster is now large and multi-approach enough (accuracy loss,
+diversity collapse, reflection failure, two independent latency-focused
+fixes) that any final paper needs to position against all 8, not just the
+original 3.
+
 Iter 21 adds a sixth member, **Adaptive Constraint Propagation / MetaJuLS**
 (arXiv 2601.00095, ACL 2026), to the **algorithmic mask-speedup cluster**
 (PSC, GRID, Attention-Meets-Reachability, Token-Space-Compression, Pre³,
@@ -860,39 +931,41 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 22)
+## Next action (iteration 23)
 1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 21 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 21 (gate age ~13 days). No
+   section — iter 22 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 22 (gate age ~14 days). No
    `DECISIONS.md` entry or chat decision answering the route question yet,
    but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 22 (via chat,
+   already fired at iter 10. If Maria has answered by iter 23 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 21 was **non-empty** (one new cluster-member citation, one
-   background survey filed); empty-iteration counter stays at 0 of 3.
+   iteration 22 was **non-empty** (three new correctness-tax-cluster
+   citations, one data-hygiene fix); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
    has been inconsistent run to run) in case the organizing committee has
    been announced. For the general sweep: **switch angles** — the
-   edge-VLM/medical sweep (this iteration) found nothing competitive; per
-   the no-repeat-two-iterations-running rule, iteration 22 should move to
-   the **correctness-tax cluster** (2605.26128, 2603.03305, 2604.14862,
-   2604.03616, 2603.27905), which hasn't had a dedicated sweep since iter
-   14 (7 iterations stale) — check for new entrants before Route A's paper
-   skeleton, if/when confirmed, has to reckon with the cluster's current
-   shape and any new "constrained decoding hurts accuracy" evidence.
+   correctness-tax cluster (this iteration) found three new members but
+   none competitive; per the no-repeat-two-iterations-running rule,
+   iteration 23 should move to the **general-purpose inference-engine
+   speedup cluster** (BaseRT/MetalRT, Ollama's own MLX backend), which
+   hasn't had a dedicated re-check since iter 16 (6 iterations stale) — it's
+   flagged as a baseline-drift risk to G1's own measured numbers, worth
+   confirming no new engine release changes the picture. Alternative: return
+   to the CPU/GPU hetero-core mask-pipelining question (iters 18–20) only if
+   something concrete changes.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state — iteration 21 did
+   `origin/main` before trusting any local file state — iteration 22 did
    **not** hit the stale-checkout pattern that recurred at iterations 8, 14,
    and 20, but keep fetch+ff-merge as a standing check every iteration
    regardless, since the pattern has been intermittent, not fixed.
