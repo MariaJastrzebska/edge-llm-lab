@@ -124,6 +124,7 @@
   "https://github.com/ggml-org/llama.cpp/blob/master/tools/mtmd/README.md": "2026-08-15",
   "https://github.com/ollama/ollama/pull/7900": "2026-08-21 (verified: XGrammar explicitly not adopted, grammar+sampling kept coupled — resolves iter-13 baseline-drift flag)",
   "https://github.com/ollama/ollama/releases/tag/v0.20.6": "2026-08-23 (verified: 002-006 all ran on this version; changelog has no MLX/backend content; M1 has 16GB RAM, under the 32GB+ MLX gate — resolves iter-15 baseline-drift flag with hard evidence, not just gated-unconfirmed)",
+  "https://github.com/ollama/ollama/releases/tag/v0.30.0": "2026-08-30 (engine-release event, not a paper: Ollama v0.30.0 (May 2026) promotes MLX from preview to default fast path on capable Macs, llama.cpp Metal layered in for wider-hardware GGUF support; MLX architecture coverage widened to six families (Gemma 3, GLM-4 MoE Lite, full Llama series, Qwen 3, Qwen 3.5, Qwen 3.5 MoE) — three of G1s four families now architecture-eligible, but the 32GB+ unified-memory gate is confirmed UNCHANGED across independent 2026 sources, and Marias measurement Mac is 16GB — watch-not-act, no baseline drift for existing or near-term G1 numbers)",
   "https://icml.cc/virtual/2026/poster/62339": "2026-08-17",
   "https://manpages.debian.org/unstable/llama.cpp-tools-extra/llama-mtmd-cli.1.en.html": "2026-08-15",
   "https://mlciv.com/ai-deadlines/conference/?id=mlsys27": "mlciv.com MLSys 2027 specific page (checked iter 11, blocked)",

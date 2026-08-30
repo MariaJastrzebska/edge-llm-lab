@@ -1,7 +1,35 @@
-# Paper machine — STATUS (updated 2026-08-29, iteration 22)
+# Paper machine — STATUS (updated 2026-08-30, iteration 23)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-29 (iter 22): no scope-narrowing decision — `NEEDS_INPUT.md`
+1. 2026-08-30 (iter 23): no scope-narrowing decision — `NEEDS_INPUT.md`
+   (route confirmation, opened iter 8) is still open, gate age now ~15 days.
+   Local `main` matched `origin/main` at the start of this iteration (both
+   `2c7be4c` after `git fetch`, no drift). Checked `DECISIONS.md` (still ends
+   `55050ff`, 2026-08-14), `docs/research/from-science/` (same seven files,
+   unchanged since iter 22), and `docs/` broadly — nothing new since iter 22.
+   **No re-ping** — same reasoning as iter 10–22. Did iter 22's queued next
+   action: re-checked the **general-purpose inference-engine speedup
+   cluster** (BaseRT/MetalRT, Ollama's own MLX backend), stale since iter 16.
+   Found a real update, but a reassuring one: **Ollama v0.30.0 (May 2026)**
+   promoted its Apple-Silicon MLX backend from preview to the **default fast
+   path on capable Macs** (llama.cpp's Metal backend now layered in
+   alongside it for wider-hardware GGUF support), and widened MLX
+   architecture coverage from one model family at preview to **six** (Gemma
+   3, GLM-4 MoE Lite, full Llama series, Qwen 3, Qwen 3.5, Qwen 3.5 MoE) —
+   three of G1's four measured families are now architecture-eligible.
+   **But the 32GB+ unified-memory gate is confirmed unchanged** across three
+   independent 2026 sources, and G1's actual measurement machine
+   (`Marias-MacBook-Air.local`, 16GB RAM) sits well under it regardless of
+   Ollama version — so despite the architecture-coverage widening, **no
+   baseline-drift risk exists for G1's existing numbers or for a near-term
+   re-run on the same hardware.** Corrected the stale "only one architecture"
+   wording in "Known competitive pressure" below to reflect the current
+   picture. BaseRT/MetalRT: no update since iter 11's original citation.
+   MLSys 2027: `mlsys.org` still `EGRESS_BLOCKED`, no change to the ~Oct
+   30–31, 2026 estimate. **Non-empty iteration** (one baseline-drift watch
+   item re-verified and corrected) — empty-iteration counter stays at 0 of 3.
+   Full detail: `docs/research/digests/2026-08-30.md`.
+2. 2026-08-29 (iter 22): no scope-narrowing decision — `NEEDS_INPUT.md`
    (route confirmation, opened iter 8) is still open, gate age now ~14 days.
    Local `main` matched `origin/main` at the start of this iteration (both
    `5b5d8fa`, no drift). Checked `DECISIONS.md` (still ends `55050ff`,
@@ -513,7 +541,7 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-29, iter 22)
+## Nearest deadlines (re-checked 2026-08-30, iter 23)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | ~2 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
@@ -565,7 +593,17 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 23 found no new competitive papers. Re-checked the general-purpose
+inference-engine speedup cluster (BaseRT/MetalRT, Ollama's own MLX backend),
+stale since iter 16. **Ollama v0.30.0** (May 2026) promoted MLX from preview
+to the default fast path on capable Macs and widened architecture coverage
+to six families (three of G1's four) — but the 32GB+ unified-memory gate is
+confirmed unchanged, and G1's measurement Mac (16GB RAM) sits well under it
+regardless of Ollama version, so **no baseline-drift risk** for existing or
+near-term G1 numbers. BaseRT/MetalRT: no update since iter 11. Full detail:
+`docs/research/digests/2026-08-30.md`.
+
 Iter 22 found no new competitive papers. Swept the correctness-tax cluster
 (stale since iter 14) and found three new entrants, all reviewed via
 WebSearch (arxiv.org stayed `EGRESS_BLOCKED` all iteration): **Structured
@@ -799,7 +837,20 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 22)
+## Known competitive pressure (updated iter 23)
+Iter 23 corrects a stale detail in the **general-purpose inference-engine
+speedup cluster** watch item (BaseRT/MetalRT, Ollama's own MLX backend, last
+touched iter 15/16): Ollama's MLX backend is no longer preview-only or
+single-architecture. **Ollama v0.30.0** (May 2026) made it the default fast
+path on capable (32GB+) Macs, with llama.cpp's Metal backend layered in for
+wider GGUF support, and MLX now covers six model architectures (Gemma 3,
+GLM-4 MoE Lite, full Llama series, Qwen 3, Qwen 3.5, Qwen 3.5 MoE) — three of
+G1's four families. The fact that actually matters is unchanged, though: the
+32GB+ RAM gate itself hasn't moved, and G1's measurement Mac (16GB) stays
+under it on any Ollama version — so this remains **watch-not-act**, not a
+live baseline-drift risk, just a more accurate description of what's being
+watched for a future 32GB+ re-run.
+
 Iter 22 grows the **correctness-tax cluster** to 8 members. Original 4
 (problem-side): Constraint Tax (2605.26128), DCCD (2603.03305), schema-key-
 wording (2604.14862), Format Tax (2604.03616). Plus ATLAS-RTC (2603.27905,
@@ -931,41 +982,42 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 23)
+## Next action (iteration 24)
 1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 22 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 22 (gate age ~14 days). No
+   section — iter 23 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 23 (gate age ~15 days). No
    `DECISIONS.md` entry or chat decision answering the route question yet,
    but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 23 (via chat,
+   already fired at iter 10. If Maria has answered by iter 24 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 22 was **non-empty** (three new correctness-tax-cluster
-   citations, one data-hygiene fix); empty-iteration counter stays at 0 of 3.
+   iteration 23 was **non-empty** (one baseline-drift watch item re-verified
+   and corrected); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
    at `mlsys.org` (blocked again this iteration; try again — the domain block
    has been inconsistent run to run) in case the organizing committee has
    been announced. For the general sweep: **switch angles** — the
-   correctness-tax cluster (this iteration) found three new members but
-   none competitive; per the no-repeat-two-iterations-running rule,
-   iteration 23 should move to the **general-purpose inference-engine
-   speedup cluster** (BaseRT/MetalRT, Ollama's own MLX backend), which
-   hasn't had a dedicated re-check since iter 16 (6 iterations stale) — it's
-   flagged as a baseline-drift risk to G1's own measured numbers, worth
-   confirming no new engine release changes the picture. Alternative: return
-   to the CPU/GPU hetero-core mask-pipelining question (iters 18–20) only if
-   something concrete changes.
+   general-purpose inference-engine speedup cluster (this iteration) turned
+   up a real update but no action item; per the no-repeat-two-iterations-
+   running rule, iteration 24 should move to a fresh angle. Two candidates,
+   pick whichever hasn't been touched longest: (a) the **correctness-tax
+   cluster** (8 members as of iter 22, last swept iter 22, 2 iterations
+   stale) — check for new entrants; (b) the **hetero-core mask-pipelining
+   question** (iters 18–20, stale 3 iterations) — only worth a fresh check if
+   something concrete has changed (e.g. a new Ghidorah-class paper), since
+   two independent negative results already stand. Default to (a) if nothing
+   else prompts otherwise.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state — iteration 22 did
+   `origin/main` before trusting any local file state — iteration 23 did
    **not** hit the stale-checkout pattern that recurred at iterations 8, 14,
    and 20, but keep fetch+ff-merge as a standing check every iteration
    regardless, since the pattern has been intermittent, not fixed.
