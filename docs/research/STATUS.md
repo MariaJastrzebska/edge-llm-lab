@@ -1,7 +1,37 @@
-# Paper machine — STATUS (updated 2026-08-30, iteration 23)
+# Paper machine — STATUS (updated 2026-08-31, iteration 24)
 
 **Scope decisions so far (newest first):**
-1. 2026-08-30 (iter 23): no scope-narrowing decision — `NEEDS_INPUT.md`
+1. 2026-08-31 (iter 24): no scope-narrowing decision — `NEEDS_INPUT.md`
+   (route confirmation, opened iter 8) is still open, gate age now ~16 days.
+   Local `main` matched `origin/main` at the start of this iteration (both
+   `fc9537b` after `git fetch`, no drift). Checked `DECISIONS.md` (still ends
+   `55050ff`, 2026-08-14), `docs/research/from-science/` (same seven files,
+   unchanged since iter 22), and `docs/` broadly (`find docs -newer` the
+   iter-23 digest returned nothing) — nothing new since iter 23. **No
+   re-ping** — same reasoning as iter 10–23. Did iter 23's queued next
+   action, option (a): swept the **correctness-tax cluster** (8 members as
+   of iter 22, stale since then) for new entrants. Two new-to-`seen.json`
+   items: **The Structured Output Benchmark (SOB)** (arXiv 2604.25359) — a
+   7-metric multi-source (text/image/audio) benchmark showing Value Accuracy
+   drops 84.5%→67.2%→23.7% across those input modalities; cloud-scale models
+   (GPT-5, Phi-4), no edge/latency angle — cite, joins the correctness-tax
+   cluster's problem side as a new benchmark contribution, adds an
+   input-modality-degradation axis the cluster hadn't captured yet, and is a
+   citation to watch since its image-modality angle sits adjacent to Route
+   A's own vision choice. **Stay Within Your Bounds: Distance-Guided
+   Decoding for Guaranteed Context-Free Grammar Compliance** (arXiv
+   2608.28229, posted ~3 days before this sweep — the newest item swept to
+   date) — a pushdown-automata-reachability-distance decoder guaranteeing
+   CFG compliance with improved completion quality on JSON/SQL/LTL; no
+   edge/Joules/mask-cost angle — differentiate-from, joins the **algorithmic
+   mask-speedup cluster** as its 7th member. MLSys 2027: `mlsys.org` and
+   `mlsys-deadlines.github.io` both still `EGRESS_BLOCKED`; WebSearch
+   surfaced a more specific target for next time —
+   `mlsys.org/Conferences/2027/Dates` — not yet readable this iteration, no
+   change to the ~Oct 30–31, 2026 estimate. **Non-empty iteration** (two new
+   cluster-member citations) — empty-iteration counter stays at 0 of 3. Full
+   detail: `docs/research/digests/2026-08-31.md`.
+2. 2026-08-30 (iter 23): no scope-narrowing decision — `NEEDS_INPUT.md`
    (route confirmation, opened iter 8) is still open, gate age now ~15 days.
    Local `main` matched `origin/main` at the start of this iteration (both
    `2c7be4c` after `git fetch`, no drift). Checked `DECISIONS.md` (still ends
@@ -541,11 +571,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-08-30, iter 23)
+## Nearest deadlines (re-checked 2026-08-31, iter 24)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | ~2 weeks out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` blocked by network egress again this iteration (WebFetch, `EGRESS_BLOCKED`). WebSearch confirms planning is underway but no official CFP yet — no change to the ~Oct 30–31, 2026 estimate carried since iter 5. Re-check every iteration. |
+| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org` (root and `/Conferences/2027/Dates`) and `mlsys-deadlines.github.io` all blocked by network egress again this iteration (WebFetch, `EGRESS_BLOCKED`). WebSearch confirms planning is underway but no official CFP yet — no change to the ~Oct 30–31, 2026 estimate carried since iter 5. Re-check every iteration; try the specific `/Conferences/2027/Dates` URL again in case egress unblocks. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -593,7 +623,16 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 24 found no new competitive papers. Swept the correctness-tax cluster
+(2 iterations stale) and found two new-to-`seen.json` items: **The
+Structured Output Benchmark / SOB** (arXiv 2604.25359) — 9th correctness-tax
+cluster member, a multi-source (text/image/audio) accuracy benchmark, no
+edge angle. **Stay Within Your Bounds** (arXiv 2608.28229) — 7th
+algorithmic-mask-speedup-cluster member, a CFG-compliance-guaranteeing
+decoder, no edge/Joules angle. Full detail:
+`docs/research/digests/2026-08-31.md`.
+
 Iter 23 found no new competitive papers. Re-checked the general-purpose
 inference-engine speedup cluster (BaseRT/MetalRT, Ollama's own MLX backend),
 stale since iter 16. **Ollama v0.30.0** (May 2026) promoted MLX from preview
@@ -837,7 +876,24 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 23)
+## Known competitive pressure (updated iter 24)
+Iter 24 adds a 7th member, **Stay Within Your Bounds / Distance-Guided
+Decoding** (arXiv 2608.28229), to the **algorithmic mask-speedup cluster**
+(PSC, GRID, Attention-Meets-Reachability, Token-Space-Compression, Pre³,
+XGrammar-2, MetaJuLS): a pushdown-automata-reachability-distance decoder
+guaranteeing CFG compliance with better completion quality on JSON/SQL/LTL.
+Same defining trait as the other six — a genuine grammar-decoding-mechanism
+contribution with no edge hardware, no Joules, no single-stream framing.
+Iter 24 also grows the **correctness-tax cluster** to 9 members with **The
+Structured Output Benchmark / SOB** (arXiv 2604.25359): a 7-metric
+multi-source (text/image/audio) benchmark showing Value Accuracy drops
+84.5%→67.2%→23.7% across those input modalities on cloud-scale models — adds
+an input-modality-degradation axis the cluster hadn't captured, and is worth
+watching specifically because its image-modality framing sits adjacent to
+Route A's own vision choice (a reason to keep Route A's eventual contribution
+clearly on the systems/hardware-cost side, not the accuracy-benchmark side,
+to stay differentiated from SOB).
+
 Iter 23 corrects a stale detail in the **general-purpose inference-engine
 speedup cluster** watch item (BaseRT/MetalRT, Ollama's own MLX backend, last
 touched iter 15/16): Ollama's MLX backend is no longer preview-only or
@@ -982,42 +1038,43 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 24)
+## Next action (iteration 25)
 1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 23 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 23 (gate age ~15 days). No
+   section — iter 24 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 24 (gate age ~16 days). No
    `DECISIONS.md` entry or chat decision answering the route question yet,
    but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 24 (via chat,
+   already fired at iter 10. If Maria has answered by iter 25 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 23 was **non-empty** (one baseline-drift watch item re-verified
-   and corrected); empty-iteration counter stays at 0 of 3.
-2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status directly
-   at `mlsys.org` (blocked again this iteration; try again — the domain block
-   has been inconsistent run to run) in case the organizing committee has
-   been announced. For the general sweep: **switch angles** — the
-   general-purpose inference-engine speedup cluster (this iteration) turned
-   up a real update but no action item; per the no-repeat-two-iterations-
-   running rule, iteration 24 should move to a fresh angle. Two candidates,
-   pick whichever hasn't been touched longest: (a) the **correctness-tax
-   cluster** (8 members as of iter 22, last swept iter 22, 2 iterations
-   stale) — check for new entrants; (b) the **hetero-core mask-pipelining
-   question** (iters 18–20, stale 3 iterations) — only worth a fresh check if
-   something concrete has changed (e.g. a new Ghidorah-class paper), since
-   two independent negative results already stand. Default to (a) if nothing
-   else prompts otherwise.
+   iteration 24 was **non-empty** (two new cluster-member citations); empty-
+   iteration counter stays at 0 of 3.
+2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status —
+   `mlsys.org/Conferences/2027/Dates` specifically this time (a more precise
+   URL surfaced by iter 24's WebSearch, not yet tried directly; blocked
+   domains are inconsistent run to run so worth another attempt) — in case
+   the organizing committee/CFP has been announced. For the general sweep:
+   **switch angles** — the correctness-tax cluster (this iteration) is now
+   fresh again; per the no-repeat-two-iterations-running rule, iteration 25
+   should move to a different angle. Two candidates, pick whichever hasn't
+   been touched longest: (a) the **algorithmic mask-speedup cluster** (7
+   members as of iter 24, last swept iter 21, 4 iterations stale) — check for
+   new entrants beyond today's Stay-Within-Your-Bounds find; (b) the
+   **hetero-core mask-pipelining question** (iters 18–20, now stale 5
+   iterations) — only worth a fresh check if something concrete has changed
+   (e.g. a new Ghidorah-class paper), since two independent negative results
+   already stand. Default to (a) if nothing else prompts otherwise.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
    `docs/research/` too, even though this loop only ever writes inside
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
-   `origin/main` before trusting any local file state — iteration 23 did
+   `origin/main` before trusting any local file state — iteration 24 did
    **not** hit the stale-checkout pattern that recurred at iterations 8, 14,
    and 20, but keep fetch+ff-merge as a standing check every iteration
    regardless, since the pattern has been intermittent, not fixed.
