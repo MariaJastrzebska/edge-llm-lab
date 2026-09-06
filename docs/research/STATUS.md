@@ -1,7 +1,45 @@
-# Paper machine — STATUS (updated 2026-09-05, iteration 27)
+# Paper machine — STATUS (updated 2026-09-06, iteration 28)
 
 **Scope decisions so far (newest first):**
-1. 2026-09-05 (iter 27): no scope-narrowing decision — `NEEDS_INPUT.md`
+1. 2026-09-06 (iter 28): no scope-narrowing decision — `NEEDS_INPUT.md`
+   (route confirmation, opened iter 8) is still open, gate age now ~22 days.
+   Local `main` was 2 commits behind `origin/main` at the start of this
+   iteration (the same intermittent leftover-detached-HEAD-checkout pattern
+   as iterations 8/14/20/25/26/27 — this session's own checkout starting
+   stale, not new remote work); fast-forwarded via `git checkout main &&
+   git pull` to `80e5684` (iter 27's own commit), nothing lost. Checked
+   `DECISIONS.md` (still ends the 2026-08-14 "na razie M1" entry, unchanged),
+   `docs/research/from-science/` (same seven files, unchanged), and
+   `experiments/results/` (no new run directories or NIGHT-REPORTs) —
+   nothing new since iter 27. **No re-ping** — same reasoning as iter 10–27.
+   Did iter 27's queued next action, option (a): swept the **edge-VLM/
+   medical-structured-generation** angle (last touched iter 26, 2 iterations
+   stale). Three new-to-`seen.json` items, all **ignore** — none touch edge
+   deployment, latency, energy, or constrained/structured-decoding
+   mechanics: **C-SRRG** (arXiv 2510.00428) — chest-X-ray structured-report
+   dataset curation (multi-view images + clinical indication + imaging
+   technique + prior studies) fixing temporal hallucinations, benchmarked
+   vs. SOTA multimodal LLMs, accuracy/data-curation focus. **Simple
+   Token-Efficient VLM for Pathology Synoptic Reports** (arXiv 2605.30716) —
+   minimal 3-component architecture for gigapixel whole-slide-image case
+   reports; its "constrained GPU memory" is *training*-time memory for long
+   visual-token sequences, not edge deployment. **Vision-language Models for
+   Structured Report Generation in Radiology** (Springer, BVM 2026) —
+   introduces SRRG-benchmark for evaluating LLMs converting free-text CXR
+   reports to structured form, a benchmark/evaluation contribution. All
+   three continue the standing pattern (iters 10/17/21/24/26): this
+   literature area has exactly one differentiate-from paper on file (the ACM
+   edge-deployed dual-report paper, iter 10) and zero systems-cost
+   competitors — Route A's gap stays open. MLSys 2027: `mlsys.org/
+   Conferences/2027/CallForResearchPapers` still `EGRESS_BLOCKED`; WebSearch
+   aggregators now converge on a slightly more specific figure (submission
+   deadline Oct 31, 2026, 11:59 AM UTC/AoE, notifications Nov 30 2026,
+   conference Feb 16–23 2027 Montréal) — a one-day refinement of the ~Oct
+   30–31 estimate on file since iter 5, still third-party consensus not a
+   verified primary source. **Non-empty iteration** (three new citations,
+   all reinforcing the standing gap) — empty-iteration counter stays at 0 of
+   3. Full detail: `docs/research/digests/2026-09-06.md`.
+2. 2026-09-05 (iter 27): no scope-narrowing decision — `NEEDS_INPUT.md`
    (route confirmation, opened iter 8) is still open, gate age now ~21 days.
    Local `main` was 1 commit behind `origin/main` at the start of this
    iteration (the same intermittent leftover-detached-HEAD-checkout pattern
@@ -667,11 +705,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-05, iter 27)
+## Nearest deadlines (re-checked 2026-09-06, iter 28)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now ~10 days out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **~Oct 30–31, 2026 — still UNCONFIRMED** | `mlsys.org/Conferences/2027/CallForResearchPapers` still blocked by network egress (WebFetch, `EGRESS_BLOCKED`) at iter 27. WebSearch confirms the page exists and planning is underway but no official CFP text yet — no change to the ~Oct 30–31, 2026 estimate carried since iter 5. Re-check every iteration. |
+| **MLSys 2027** | **Oct 31, 2026, 11:59 AM UTC/AoE — still UNCONFIRMED against a primary source** | `mlsys.org/Conferences/2027/CallForResearchPapers` still blocked by network egress (WebFetch, `EGRESS_BLOCKED`) at iter 28. WebSearch aggregators (mlciv.com, mlsys-deadlines.github.io, trybibby.com) now converge on a specific figure — submission deadline Oct 31 2026 11:59 AM UTC/AoE, supplementary material/code Jul 31 2026 (passed), notifications Nov 30 2026, conference Feb 16–23 2027 Montréal — a one-day refinement of the ~Oct 30–31 estimate carried since iter 5, still third-party consensus not verified primary-source text. Re-check every iteration. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -719,7 +757,7 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 27: zero new competitive papers, four cluster-relevant citations (two code-gen-domain constrained-decoding papers scored ignore, two edge-hardware-measurement papers — lm-Meter, Sustainable LLM Inference for Edge AI — scored differentiate-from/cite as methodology precedent); iter 26: zero new competitive papers, one cluster-member citation (EdgeFM joins general-purpose inference-engine speedup cluster as its first VLM-specific member), two ignores reinforcing the standing no-systems-cost-competitor pattern in edge-VLM/medical literature; iter 25: zero new competitive papers, one cluster-member citation (Trie Automata joins mask-speedup cluster as 9th member), one new-generation-paradigm item filed as ignore (LAVE/diffusion-LLM decoding); iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 28: zero new competitive papers, three edge-VLM/medical-structured-generation items, all ignore (no edge/latency/constrained-decoding angle in any), continuing the standing zero-systems-cost-competitor pattern; iter 27: zero new competitive papers, four cluster-relevant citations (two code-gen-domain constrained-decoding papers scored ignore, two edge-hardware-measurement papers — lm-Meter, Sustainable LLM Inference for Edge AI — scored differentiate-from/cite as methodology precedent); iter 26: zero new competitive papers, one cluster-member citation (EdgeFM joins general-purpose inference-engine speedup cluster as its first VLM-specific member), two ignores reinforcing the standing no-systems-cost-competitor pattern in edge-VLM/medical literature; iter 25: zero new competitive papers, one cluster-member citation (Trie Automata joins mask-speedup cluster as 9th member), one new-generation-paradigm item filed as ignore (LAVE/diffusion-LLM decoding); iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
 Iter 27 found no new competitive papers. Swept the correctness-tax cluster
 (9 members as of iter 24, 3 iterations stale) and found four new-to-
 `seen.json` items, none competitive: **Correctness-Guaranteed Code
@@ -736,6 +774,20 @@ a Raspberry Pi 4, energy/accuracy/latency via real hardware power meters —
 differentiate-from/cite, quantization mechanism (not constrained decoding),
 same shape as the already-filed CO2-Meter methodology citation (iter 9).
 Full detail: `docs/research/digests/2026-09-05.md`.
+
+Iter 28 found no new competitive papers. Swept the edge-VLM/medical-
+structured-generation angle (2 iterations stale) and found three new-to-
+`seen.json` items, all ignore: **C-SRRG** (arXiv 2510.00428) — chest-X-ray
+structured-report dataset curation fixing temporal hallucinations, accuracy/
+data-curation focus. **Simple Token-Efficient VLM for Pathology Synoptic
+Reports** (arXiv 2605.30716) — minimal architecture for gigapixel WSI case
+reports; its "constrained GPU memory" is training-time memory, not edge
+deployment. **Vision-language Models for Structured Report Generation in
+Radiology** (Springer, BVM 2026) — introduces a benchmark for structured-CXR
+conversion, evaluation contribution. All three continue the standing pattern
+(iters 10/17/21/24/26): exactly one differentiate-from paper on file in this
+area, zero systems-cost competitors. Full detail:
+`docs/research/digests/2026-09-06.md`.
 
 Iter 26 found no new competitive papers. Swept the edge-VLM/medical-
 structured-generation angle (5 iterations stale) and found three
@@ -1013,7 +1065,18 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 27)
+## Known competitive pressure (updated iter 28)
+Iter 28 adds no cluster members — all three new-to-`seen.json` items from
+the edge-VLM/medical-structured-generation sweep (C-SRRG 2510.00428, Simple
+Token-Efficient VLM for Pathology 2605.30716, the BVM-2026 SRRG-benchmark
+chapter) scored ignore, none touching edge deployment, latency, or
+constrained/structured-decoding mechanics. This is now the sixth consecutive
+sweep of this literature area (iters 10/17/21/24/26/28) to turn up exactly
+zero systems-cost competitors — the area is well-populated with accuracy/
+data-curation/benchmark work but nobody has yet paired it with edge-hardware
+cost or grammar-constrained decoding, which is precisely Route A's proposed
+gap.
+
 Iter 27 adds two methodology-precedent citations rather than cluster
 members: **lm-Meter** (arXiv 2510.06126) is an on-device kernel-level LLM
 latency profiler — no grammar/mask angle, so not competitive, but it's the
@@ -1224,36 +1287,39 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 28)
+## Next action (iteration 29)
 1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 27 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 27 (gate age ~21 days). No
+   section — iter 28 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 28 (gate age ~22 days). No
    `DECISIONS.md` entry or chat decision answering the route question yet,
    but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 28 (via chat,
+   already fired at iter 10. If Maria has answered by iter 29 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 27 was **non-empty** (four new citations, two methodology-
-   adjacent to this harness); empty-iteration counter stays at 0 of 3.
+   iteration 28 was **non-empty** (three new citations, all reinforcing the
+   standing gap); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status — try
    `mlsys.org/Conferences/2027/CallForResearchPapers` again (still
-   `EGRESS_BLOCKED` at iter 27, but blocked domains are inconsistent run to
-   run) in case the organizing committee/CFP has been announced. For the
-   general sweep: **switch angles** — the correctness-tax cluster (this
-   iteration) is now fresh again; per the no-repeat-two-iterations-running
-   rule, iteration 28 should move to a different angle. Two candidates:
-   (a) the **edge-VLM/medical-structured-generation** angle (last swept
-   iter 26, will be 2 iterations stale by iter 28) — check for new entrants;
-   (b) the **hetero-core mask-pipelining question** (iters 18–20, now stale
-   9 iterations) — only worth a fresh check if something concrete has
-   changed (e.g. a new Ghidorah-class paper), since two independent negative
-   results already stand. Default to (a) if nothing else prompts otherwise,
-   since (b) has no new trigger and (a) is the more stale of the two active
-   general-sweep angles.
+   `EGRESS_BLOCKED` at iter 28, but blocked domains are inconsistent run to
+   run) in case the organizing committee/CFP has been announced, and confirm
+   whether the Oct 31 2026 11:59 AM UTC/AoE figure (WebSearch consensus,
+   iter 28) ever gets corroborated by a primary source. For the general
+   sweep: **switch angles** — the edge-VLM/medical-structured-generation
+   angle (this iteration) is now fresh again; per the no-repeat-two-
+   iterations-running rule, iteration 29 should move to a different angle.
+   Candidates: (a) the **algorithmic mask-speedup cluster** (last swept
+   iter 25, will be 4 iterations stale by iter 29, currently 9 members) —
+   check for new entrants, the most stale of the active general-sweep
+   angles; (b) the **correctness-tax cluster** (last swept iter 27, 2
+   iterations stale by iter 29, currently 9 members); (c) the **hetero-core
+   mask-pipelining question** (iters 18–20, stale 10 iterations) — only
+   worth a fresh check if something concrete has changed, since two
+   independent negative results already stand. Default to (a) since it's
+   the most stale with no new trigger needed.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
@@ -1261,6 +1327,6 @@ acknowledge.
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
    `origin/main` before trusting any local file state — the leftover
-   detached-HEAD-checkout pattern (iterations 8, 14, 20, 25, 27) has been
-   intermittent, not fixed, so keep fetch+ff-merge as a standing check every
-   iteration regardless, even on iterations where it doesn't recur.
+   detached-HEAD-checkout pattern (iterations 8, 14, 20, 25, 27, 28) has
+   been intermittent, not fixed, so keep fetch+ff-merge as a standing check
+   every iteration regardless, even on iterations where it doesn't recur.
