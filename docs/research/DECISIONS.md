@@ -114,3 +114,18 @@ Maria: testy zostają na M1; zakup Jetsona (Nano ~1.5k / NX 16GB ~4k PLN,
 NX = sprzęt z 2607.26128^W2607.09520 — head-to-head) ODŁOŻONY, wrócimy do
 tematu po pierwszych wynikach. Rama unified-memory-SoC + planowana noga
 replikacyjna bez zmian — po prostu jeszcze nie kupujemy.
+
+## 2026-09-07 (via chat with Claude — KIERUNEK: bigos = Harness OS for Small Models)
+Maria: „Chcę zrobić bigos i to będzie harness OS for small models. Chcę to zaimplementować
+i zrobić też papier." To odpowiada na bramkę NEEDS_INPUT (route confirmation, otwarta od
+iter 8): wybrana rama to NIE pojedyncza trasa A/B/C/D, lecz **rama nadrzędna** — harness
+zaprojektowany pod ograniczenia SLM na edge, w której G1 (podatek maski + shadow-mask
+pipelining) jest JEDNYM modułem/metodą, a use case medyczny (tekst → VLM) jest osią
+zastosowania. Kształt papieru bez zmian od 14.08: charakteryzacja + mechanizm + metoda,
+z bramką poprawności; kontrolowana macierz modeli; rama unified-memory SoC, M1 teraz.
+Pełny opis: edge-bigos/docs/BIGOS-HARNESS-OS.md. Otwarte do decyzji Marii: zakres papieru
+(cały harness vs G1-first), venue/termin (MLSys 2027 vs preprint+warsztat), use case startowy
+(tekst vs VLM), współautor, Jetson.
+Pętla nocna: KONIEC trybu literature-only w wąskim sensie — od teraz literatura pod tezę
+harnessu (harnessy SLM, koszt mechanizmów, eskalacja, EffGen, HARBOR, „Last Harness"),
+nadal bez eksperymentów na Macu do potwierdzenia zakresu przez Marię.

@@ -1,3 +1,24 @@
+# NEEDS INPUT — stan 2026-09-07
+
+**Bramka „route confirmation" (iter 8) — ODPOWIEDZIANA 7.09.2026:** Maria wybrała ramę
+nadrzędną: **bigos = Harness OS for Small Models** (edge-bigos/docs/BIGOS-HARNESS-OS.md,
+DECISIONS.md wpis 2026-09-07). G1 = moduł/metoda w tej ramie. Trasy A–D nie są odrzucone —
+A (VLM medyczny) to planowane rozszerzenie, D (G1 tekst) to pierwszy krok.
+
+## Co zostaje do decyzji Marii (pętla NIE zgaduje):
+1. Zakres pierwszego papieru: cały harness vs G1-first w ramie harnessu.
+2. Venue/termin: MLSys 2027 (~31.10) vs preprint + warsztat 2027 + pełny paper później.
+3. Use case startowy: tekst (praca mgr, asystent medyczny) vs VLM (Trasa A).
+4. Współautor. 5. Jetson (nadal odłożony).
+
+## Instrukcja dla pętli do czasu odpowiedzi:
+- Literatura pod tezę harnessu SLM (patrz DECISIONS 2026-09-07), nie tylko klaster masek.
+- Bez eksperymentów na Macu i bez draftu — jak dotąd.
+- Nie pingować ponownie o trasę A–D; pytania 1–5 wyżej zadaje Claude w rozmowie, nie pętla.
+
+---
+(archiwum poprzedniej treści bramki poniżej)
+
 # NEEDS INPUT — route confirmation (opened iteration 8, 2026-08-15)
 
 ## What happened since the loop last updated STATUS.md
