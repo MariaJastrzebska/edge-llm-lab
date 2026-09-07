@@ -1,7 +1,41 @@
-# Paper machine — STATUS (updated 2026-09-06, iteration 28)
+# Paper machine — STATUS (updated 2026-09-07, iteration 29)
 
 **Scope decisions so far (newest first):**
-1. 2026-09-06 (iter 28): no scope-narrowing decision — `NEEDS_INPUT.md`
+1. 2026-09-07 (iter 29): no scope-narrowing decision — `NEEDS_INPUT.md`
+   (route confirmation, opened iter 8) is still open, gate age now ~23 days.
+   Local `main` branch pointer was 3 commits stale (`2ad34d0`, iter 25's own
+   commit) while `origin/main` and this session's own starting detached HEAD
+   were already at `2922da6` (iter 28's own commit) — the same recurring
+   leftover detached-HEAD/stale-branch-pointer pattern as iterations
+   8/14/20/25/27/28. Fast-forwarded via `git checkout main && git pull`,
+   nothing lost, nothing new folded in (the 3 "new" commits were iters
+   26–28's own already-known content). Checked `DECISIONS.md` (still ends
+   the 2026-08-14 "na razie M1" entry, unchanged), `docs/research/
+   from-science/` (same seven files, unchanged since 2026-08-19), and
+   `experiments/results/` (no new run directories or NIGHT-REPORTs) —
+   nothing new since iter 28. **No re-ping** — same reasoning as iter
+   10–28. Did iter 28's queued next action, option (a): swept the
+   **algorithmic mask-speedup cluster** (last touched iter 25, 4 iterations
+   stale, was 9 members) for new entrants. One new-to-`seen.json` cluster
+   member: **WGRAMMAR** (arXiv 2507.16768) — decomposes grammar constraints
+   into precompiled-offline static + runtime-instantiated dynamic
+   components, up to 250× speedup (the cluster's largest raw number yet) —
+   differentiate-from, 10th member, no edge/Joules/single-stream angle,
+   same defining trait as the other nine. Also fixed a data-hygiene gap
+   (same class as iter 22's fix): the cluster's founding member, **PSC**
+   (arXiv 2608.03065, "Efficient Grammar-Constrained Decoding via Parser
+   Stack Classification"), had been referenced by that acronym since
+   iteration 2/12 but its actual arXiv ID was never entered into
+   `seen.json` — now recorded with full annotation; no cluster-size change
+   from this fix, PSC was already counted among the 9 (now 10) members.
+   MLSys 2027: `mlsys.org/Conferences/2027/CallForResearchPapers` still
+   `EGRESS_BLOCKED`; WebSearch aggregators still converge on the same Oct
+   31, 2026, 11:59 AM UTC/AoE estimate on file since iter 5/28, still
+   third-party consensus not a verified primary source. **Non-empty
+   iteration** (one new cluster-member citation, one data-hygiene fix) —
+   empty-iteration counter stays at 0 of 3. Full detail:
+   `docs/research/digests/2026-09-07.md`.
+2. 2026-09-06 (iter 28): no scope-narrowing decision — `NEEDS_INPUT.md`
    (route confirmation, opened iter 8) is still open, gate age now ~22 days.
    Local `main` was 2 commits behind `origin/main` at the start of this
    iteration (the same intermittent leftover-detached-HEAD-checkout pattern
@@ -705,11 +739,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-06, iter 28)
+## Nearest deadlines (re-checked 2026-09-07, iter 29)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now ~10 days out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 31, 2026, 11:59 AM UTC/AoE — still UNCONFIRMED against a primary source** | `mlsys.org/Conferences/2027/CallForResearchPapers` still blocked by network egress (WebFetch, `EGRESS_BLOCKED`) at iter 28. WebSearch aggregators (mlciv.com, mlsys-deadlines.github.io, trybibby.com) now converge on a specific figure — submission deadline Oct 31 2026 11:59 AM UTC/AoE, supplementary material/code Jul 31 2026 (passed), notifications Nov 30 2026, conference Feb 16–23 2027 Montréal — a one-day refinement of the ~Oct 30–31 estimate carried since iter 5, still third-party consensus not verified primary-source text. Re-check every iteration. |
+| **MLSys 2027** | **Oct 31, 2026, 11:59 AM UTC/AoE — still UNCONFIRMED against a primary source** | `mlsys.org/Conferences/2027/CallForResearchPapers` still blocked by network egress (WebFetch, `EGRESS_BLOCKED`) at iter 28. WebSearch aggregators (mlciv.com, mlsys-deadlines.github.io, trybibby.com) now converge on a specific figure — submission deadline Oct 31 2026 11:59 AM UTC/AoE, supplementary material/code Jul 31 2026 (passed), notifications Nov 30 2026, conference Feb 16–23 2027 Montréal — a one-day refinement of the ~Oct 30–31 estimate carried since iter 5, still third-party consensus not verified primary-source text. Re-check every iteration. (iter 29: unchanged, still `EGRESS_BLOCKED`.) |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -757,7 +791,7 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 28: zero new competitive papers, three edge-VLM/medical-structured-generation items, all ignore (no edge/latency/constrained-decoding angle in any), continuing the standing zero-systems-cost-competitor pattern; iter 27: zero new competitive papers, four cluster-relevant citations (two code-gen-domain constrained-decoding papers scored ignore, two edge-hardware-measurement papers — lm-Meter, Sustainable LLM Inference for Edge AI — scored differentiate-from/cite as methodology precedent); iter 26: zero new competitive papers, one cluster-member citation (EdgeFM joins general-purpose inference-engine speedup cluster as its first VLM-specific member), two ignores reinforcing the standing no-systems-cost-competitor pattern in edge-VLM/medical literature; iter 25: zero new competitive papers, one cluster-member citation (Trie Automata joins mask-speedup cluster as 9th member), one new-generation-paradigm item filed as ignore (LAVE/diffusion-LLM decoding); iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 29: zero new competitive papers, one new algorithmic-mask-speedup-cluster member (WGRAMMAR, 10th) and one data-hygiene fix (PSC's arXiv ID recorded, no cluster-size change); iter 28: zero new competitive papers, three edge-VLM/medical-structured-generation items, all ignore (no edge/latency/constrained-decoding angle in any), continuing the standing zero-systems-cost-competitor pattern; iter 27: zero new competitive papers, four cluster-relevant citations (two code-gen-domain constrained-decoding papers scored ignore, two edge-hardware-measurement papers — lm-Meter, Sustainable LLM Inference for Edge AI — scored differentiate-from/cite as methodology precedent); iter 26: zero new competitive papers, one cluster-member citation (EdgeFM joins general-purpose inference-engine speedup cluster as its first VLM-specific member), two ignores reinforcing the standing no-systems-cost-competitor pattern in edge-VLM/medical literature; iter 25: zero new competitive papers, one cluster-member citation (Trie Automata joins mask-speedup cluster as 9th member), one new-generation-paradigm item filed as ignore (LAVE/diffusion-LLM decoding); iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
 Iter 27 found no new competitive papers. Swept the correctness-tax cluster
 (9 members as of iter 24, 3 iterations stale) and found four new-to-
 `seen.json` items, none competitive: **Correctness-Guaranteed Code
@@ -774,6 +808,17 @@ a Raspberry Pi 4, energy/accuracy/latency via real hardware power meters —
 differentiate-from/cite, quantization mechanism (not constrained decoding),
 same shape as the already-filed CO2-Meter methodology citation (iter 9).
 Full detail: `docs/research/digests/2026-09-05.md`.
+
+Iter 29 found no new competitive papers. Swept the algorithmic mask-speedup
+cluster (4 iterations stale, was 9 members) and found one new-to-`seen.json`
+member, **WGRAMMAR** (arXiv 2507.16768) — static/dynamic constraint
+decomposition + mask caching, up to 250× speedup, the cluster's largest raw
+number yet, benchmarked on cloud/GPU serving with no edge/Joules angle —
+differentiate-from, 10th member. Also fixed a data-hygiene gap: the
+cluster's founding member **PSC** (arXiv 2608.03065), named by that acronym
+since iteration 2/12, had never had its actual arXiv ID entered into
+`seen.json` — now recorded, no cluster-size change. Full detail:
+`docs/research/digests/2026-09-07.md`.
 
 Iter 28 found no new competitive papers. Swept the edge-VLM/medical-
 structured-generation angle (2 iterations stale) and found three new-to-
@@ -1065,7 +1110,26 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 28)
+## Known competitive pressure (updated iter 29)
+Iter 29 adds a 10th member, **WGRAMMAR** (arXiv 2507.16768, "Leverage Prior
+Knowledge to Accelerate Structured Decoding"), to the **algorithmic
+mask-speedup cluster** (PSC, GRID, Attention-Meets-Reachability,
+Token-Space-Compression, Pre³, XGrammar-2, MetaJuLS, Stay Within Your
+Bounds, Trie Automata): decomposes grammar constraints into precompiled-
+offline static + runtime-instantiated dynamic components, compositional
+regular-format operators instead of pushdown automata, plus mask caching —
+up to 250× speedup over existing systems, the cluster's largest raw number
+to date. Same defining trait as every other member: cloud/GPU-serving
+benchmarks, no edge hardware, no Joules, no single-stream framing. Iter 29
+also fixed a standing data-hygiene gap (same class as iter 22's fix): the
+cluster's *founding* member, **PSC** (arXiv 2608.03065), has been named by
+that acronym in this file and in `docs/research/from-science/
+2026-08-14-landscape-systems.md` since iteration 2/12, but its actual
+arXiv ID was never entered into `seen.json` — now recorded with full
+annotation. This is a bookkeeping correction, not a new discovery: PSC was
+already counted among the cluster's members all along (9 before this
+iteration, 10 now that WGRAMMAR joins).
+
 Iter 28 adds no cluster members — all three new-to-`seen.json` items from
 the edge-VLM/medical-structured-generation sweep (C-SRRG 2510.00428, Simple
 Token-Efficient VLM for Pathology 2605.30716, the BVM-2026 SRRG-benchmark
@@ -1287,39 +1351,40 @@ acknowledge.
   route Maria confirms — Route A explicitly inherits the pipelining method as
   its "hero optimization."
 
-## Next action (iteration 29)
+## Next action (iteration 30)
 1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 28 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 28 (gate age ~22 days). No
+   section — iter 29 added no new update to the file itself, since nothing
+   rose to tier-1). Still open as of iter 29 (gate age ~23 days). No
    `DECISIONS.md` entry or chat decision answering the route question yet,
    but Maria remains actively engaged via the collab protocol
    (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
    silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 29 (via chat,
+   already fired at iter 10. If Maria has answered by iter 30 (via chat,
    `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
    per her choice, update "Current stage," and — only if she also said the
    literature-only restriction is lifted — resume normal pacing. If not yet
    answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 28 was **non-empty** (three new citations, all reinforcing the
-   standing gap); empty-iteration counter stays at 0 of 3.
+   iteration 29 was **non-empty** (one new cluster-member citation, one
+   data-hygiene fix); empty-iteration counter stays at 0 of 3.
 2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status — try
    `mlsys.org/Conferences/2027/CallForResearchPapers` again (still
-   `EGRESS_BLOCKED` at iter 28, but blocked domains are inconsistent run to
+   `EGRESS_BLOCKED` at iter 29, but blocked domains are inconsistent run to
    run) in case the organizing committee/CFP has been announced, and confirm
-   whether the Oct 31 2026 11:59 AM UTC/AoE figure (WebSearch consensus,
-   iter 28) ever gets corroborated by a primary source. For the general
-   sweep: **switch angles** — the edge-VLM/medical-structured-generation
-   angle (this iteration) is now fresh again; per the no-repeat-two-
-   iterations-running rule, iteration 29 should move to a different angle.
-   Candidates: (a) the **algorithmic mask-speedup cluster** (last swept
-   iter 25, will be 4 iterations stale by iter 29, currently 9 members) —
-   check for new entrants, the most stale of the active general-sweep
-   angles; (b) the **correctness-tax cluster** (last swept iter 27, 2
-   iterations stale by iter 29, currently 9 members); (c) the **hetero-core
-   mask-pipelining question** (iters 18–20, stale 10 iterations) — only
-   worth a fresh check if something concrete has changed, since two
-   independent negative results already stand. Default to (a) since it's
-   the most stale with no new trigger needed.
+   whether the Oct 31 2026 11:59 AM UTC/AoE figure (WebSearch consensus
+   since iter 5, unchanged through iter 29) ever gets corroborated by a
+   primary source. For the general sweep: **switch angles** — the
+   algorithmic mask-speedup cluster (this iteration) is now fresh again;
+   per the no-repeat-two-iterations-running rule, iteration 30 should move
+   to a different angle. Candidates: (a) the **correctness-tax cluster**
+   (last swept iter 27, will be 3 iterations stale by iter 30, currently 9
+   members) — the most stale of the active general-sweep angles; (b) the
+   **edge-VLM/medical-structured-generation** angle (last swept iter 28, 2
+   iterations stale by iter 30, six consecutive sweeps with zero
+   systems-cost competitors); (c) the **hetero-core mask-pipelining
+   question** (iters 18–20, stale 11 iterations) — only worth a fresh check
+   if something concrete has changed, since two independent negative
+   results already stand. Default to (a) since it's the most stale with no
+   new trigger needed.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
@@ -1327,6 +1392,7 @@ acknowledge.
    `docs/research/`) for anything new every iteration, not just
    `experiments/results/`. Also re-verify local `main` is not behind
    `origin/main` before trusting any local file state — the leftover
-   detached-HEAD-checkout pattern (iterations 8, 14, 20, 25, 27, 28) has
-   been intermittent, not fixed, so keep fetch+ff-merge as a standing check
-   every iteration regardless, even on iterations where it doesn't recur.
+   detached-HEAD/stale-branch-pointer pattern (iterations 8, 14, 20, 25, 27,
+   28, 29) has been intermittent, not fixed, so keep fetch+ff-merge (or
+   `git checkout main && git pull`) as a standing check every iteration
+   regardless, even on iterations where it doesn't recur.
