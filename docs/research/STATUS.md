@@ -1,7 +1,62 @@
-# Paper machine — STATUS (updated 2026-09-07, iteration 29)
+# Paper machine — STATUS (updated 2026-09-08, iteration 30)
 
 **Scope decisions so far (newest first):**
-1. 2026-09-07 (iter 29): no scope-narrowing decision — `NEEDS_INPUT.md`
+1. 2026-09-08 (iter 30): **GATE CLOSED — reconciliation iteration**, same
+   shape as iter 8/13. Route-confirmation gate (opened iter 8) was answered
+   by Maria via direct chat on 2026-09-07 at 23:23 UTC, in commit `fd8833d`
+   (~17h after iter 29's own commit `97b76a9`, which had correctly reported
+   the gate still open as of its own run) — not through this loop's own
+   tracking, so STATUS.md never caught up until now. Her decision
+   (`docs/research/DECISIONS.md`, "KIERUNEK: bigos = Harness OS for Small
+   Models"; full spec in a separate repo, `edge-bigos/docs/
+   BIGOS-HARNESS-OS.md`, not accessible from this session): the confirmed
+   frame is not a single Route A/B/C/D pick but an **umbrella** — bigos
+   becomes a "Harness OS for Small Models," G1 (mask-cost tax + shadow-mask
+   pipelining) is one module inside it, the medical use case is the
+   application axis (text now, VLM later, matching the paper shape agreed
+   2026-08-14: characterization + mechanism + optimization method, with a
+   correctness-grading gate). Five sub-questions are explicitly reserved for
+   Maria in conversation, **not this loop** — paper scope (whole harness vs.
+   G1-first), venue/timing (MLSys 2027 vs. preprint+workshop), starting use
+   case (text vs. VLM), co-author, Jetson (still postponed). Per her own
+   instruction (`NEEDS_INPUT.md`, "Instrukcja dla pętli"): the narrow
+   literature-only restriction is **lifted in favor of a broader one** — no
+   more re-ping on the closed A/B/C/D question, and the general sweep angle
+   should now track the harness-OS thesis itself (SLM harnesses, mechanism
+   cost, escalation/cascade routing, and three named candidates — EffGen,
+   HARBOR, "Last Harness") rather than staying anchored to the mask-speedup
+   cluster alone. **Mac-hardware experiments and drafting stay on hold**
+   until Maria answers the five sub-questions — that restriction is
+   unchanged, only the literature scope widened. Did this iteration's first
+   harness-thesis sweep per the new instruction: eight new-to-`seen.json`
+   items, headlined by **"It's Not the Size: Harness Design Determines
+   Operational Stability in Small Language Models"** (arXiv 2605.12129) —
+   the closest-yet paper to bigos's own founding claim, cited as high
+   priority (validates the premise, doesn't touch the low-level-systems
+   mechanism bar). Also found HARBOR (2604.20938), EffGen (2602.00887,
+   one of Maria's three named candidates), "Better Harnesses, Smaller
+   Models" (2607.08938), two escalation/cascade-routing papers (2606.27457,
+   2605.06350), and two open-source PyPI packages (`small-model-harness`,
+   `tinyedge-runtime`) — none compete on mechanism (no edge-hardware energy/
+   latency telemetry, no grammar/mask angle, no runtime/OS contribution
+   found anywhere), but together they establish that "harness beats model
+   size for SLMs," stated bare, is **not novel** — sharpening rather than
+   threatening the paper's required contribution (the specific low-level
+   mechanisms that make a harness measurably cheaper/faster on real edge
+   hardware). "Last Harness" not found as a paper on arXiv — unresolved, not
+   worth a repeat query this iteration. **Not a tier-1 event** — no new
+   `NEEDS_INPUT.md` gate opened; the five reserved sub-questions stay with
+   Maria via conversation per her own instruction, not via a loop-authored
+   gate. MLSys 2027: `mlsys.org/Conferences/2027/CallForResearchPapers`
+   still `EGRESS_BLOCKED`; WebSearch surfaced a secondary, inconsistent
+   estimate ("submission opens Oct 10, 2026") alongside the long-standing
+   Oct 31, 2026 11:59 AM UTC/AoE consensus — flagged, not adopted, no change
+   to the figure on file. Repo state: local `main` matched `origin/main`
+   exactly at `fd8833d`, no drift; `experiments/results/` unchanged.
+   **Non-empty iteration** (gate reconciled, eight new citations, one
+   high-priority "must cite" finding) — empty-iteration counter resets to 0
+   of 3. Full detail: `docs/research/digests/2026-09-08.md`.
+2. 2026-09-07 (iter 29): no scope-narrowing decision — `NEEDS_INPUT.md`
    (route confirmation, opened iter 8) is still open, gate age now ~23 days.
    Local `main` branch pointer was 3 commits stale (`2ad34d0`, iter 25's own
    commit) while `origin/main` and this session's own starting detached HEAD
@@ -707,25 +762,60 @@ that into STATUS.md; the discipline of checking the working tree/repo state
 before trusting a stale STATUS.md (established in iterations 3, 5, 6) applied
 here at a larger scale than before.
 
-## Current stage: **3/4 boundary — blocked on route confirmation.**
-**NEW GATE OPEN — see `NEEDS_INPUT.md` at repo root.**
+## Current stage: **Route-confirmation gate CLOSED (2026-09-07) — now inside Stage 3, five sub-questions reserved for Maria via conversation, not a loop gate.**
+
+Route confirmation resolved, but not as an A/B/C/D pick: Maria's 2026-09-07
+decision reframes the whole question one level up. **bigos = "Harness OS for
+Small Models"** is the umbrella research/product frame; **G1 (mask-cost tax
++ shadow-mask pipelining) is one module inside it**, not a competing route.
+The medical use case is the application axis, text-first with a VLM
+extension later (Route A's VLM work is not dropped, just resequenced as
+"later" rather than "instead of"). The paper shape agreed 2026-08-14 stands
+unchanged: characterization + mechanism + an optimization method, gated by
+task-correctness (not just schema-validity) grading.
 
 Experiment 005 already satisfied Stage 4's exit criterion ("a 1-week pilot
-supports or kills the hypothesis") for **G1 in its original text-only
-framing**: all four tested sub-1B models show a positive, CI-clean latency
-tax below ~25ms/token (qwen2.5:0.5b +1.84%, qwen3:0.6b +2.42%, llama3.2:1b
-+6.15%, gemma3:1b +30.36%). That result stands and isn't in question.
+supports or kills the hypothesis") for **G1 as a module**: all four tested
+sub-1B models show a positive, CI-clean latency tax below ~25ms/token
+(qwen2.5:0.5b +1.84%, qwen3:0.6b +2.42%, llama3.2:1b +6.15%, gemma3:1b
++30.36%). That result stands and isn't in question, and now has a clear home
+(a mechanism module inside the harness-OS paper) instead of an unresolved
+"which paper" question.
 
-What's NOT resolved is which *paper* that result feeds into. The from-science
-strategic review scored G1's original text framing as the **weakest** of four
-routes (relegated to "Trasa D — fallback… a generalization cell within A")
-and recommended **Route A**, the VLM/medical generalization, instead. Per
-Stage 3's own exit criterion in `BRIEF.md` — "top candidate passes novelty
-check + feasibility + **MARIA CONFIRMS it** ([NEEDS-INPUT] gate — genuinely
-hers)" — that confirmation hasn't happened in so many words yet, even though
-her subsequent hardware decisions read as compatible with it. See
-`NEEDS_INPUT.md` for the exact question and the four options (A/B/C/D) with
-their tradeoffs.
+**Five sub-questions are explicitly Maria's to answer via conversation, not
+this loop's to guess or gate on** (`NEEDS_INPUT.md`, "Instrukcja dla pętli"):
+1. Paper scope — the whole harness vs. G1-first within the harness frame.
+2. Venue/timing — MLSys 2027 (~Oct 31, 2026) vs. preprint + 2027 workshop +
+   a fuller paper later.
+3. Starting use case — text (thesis-era medical assistant) vs. VLM
+   (Route A's original proposal).
+4. Co-author.
+5. Jetson purchase — still postponed, unchanged since 2026-08-14.
+
+**What changed for this loop's own behavior:** the narrow literature-only
+restriction (mask-speedup cluster + edge-VLM/medical sweeps only) is
+replaced by a broader one — sweep for the harness-OS thesis itself (SLM
+harnesses, mechanism cost, escalation/cascade routing, named candidates
+EffGen/HARBOR/"Last Harness") instead of staying anchored to G1's original
+narrow clusters. **Mac-hardware experiments and drafting remain on hold**
+until Maria answers the five sub-questions above — only the literature
+scope widened, not the experiment/drafting freeze. Do **not** re-open or
+re-ping on the closed A/B/C/D question.
+
+<details><summary>Archived: the closed A/B/C/D gate (superseded 2026-09-07, kept for history)</summary>
+
+The from-science strategic review (2026-08-14) scored G1's original
+text-only framing as the **weakest** of four routes (relegated to "Trasa D —
+fallback… a generalization cell within A") and recommended Route A, the
+VLM/medical generalization, as a standalone paper direction. Maria's actual
+answer superseded the frame of the question itself rather than picking one
+of the four options as originally posed: instead of A *or* D, both become
+modules/phases inside one umbrella (bigos), which is why iterations 8–29's
+tracking of "is it A, B, C, or D" never resolved — it was asking the wrong
+shape of question. See `NEEDS_INPUT.md`'s archived section for the original
+four-option framing in full.
+
+</details>
 
 <details><summary>Stage-2 exit justification (honest accounting, unchanged since iter 2)</summary>
 
@@ -739,7 +829,7 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-07, iter 29)
+## Nearest deadlines (re-checked 2026-09-08, iter 30)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now ~10 days out — too tight for a primary target regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
@@ -791,7 +881,35 @@ Still needs a harness change (task-correctness grading) outside this loop's
 `docs/research/`-only scope — flagged, not fixed, applies to whichever route
 is confirmed.
 
-## Scoop-check status (iter 29: zero new competitive papers, one new algorithmic-mask-speedup-cluster member (WGRAMMAR, 10th) and one data-hygiene fix (PSC's arXiv ID recorded, no cluster-size change); iter 28: zero new competitive papers, three edge-VLM/medical-structured-generation items, all ignore (no edge/latency/constrained-decoding angle in any), continuing the standing zero-systems-cost-competitor pattern; iter 27: zero new competitive papers, four cluster-relevant citations (two code-gen-domain constrained-decoding papers scored ignore, two edge-hardware-measurement papers — lm-Meter, Sustainable LLM Inference for Edge AI — scored differentiate-from/cite as methodology precedent); iter 26: zero new competitive papers, one cluster-member citation (EdgeFM joins general-purpose inference-engine speedup cluster as its first VLM-specific member), two ignores reinforcing the standing no-systems-cost-competitor pattern in edge-VLM/medical literature; iter 25: zero new competitive papers, one cluster-member citation (Trie Automata joins mask-speedup cluster as 9th member), one new-generation-paradigm item filed as ignore (LAVE/diffusion-LLM decoding); iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 30: zero direct scoops of G1's mechanism or a low-level-systems edge-telemetry contribution, but the bigos harness-OS *umbrella claim* ("harness beats model size for SLMs") is not novel as a bare statement — at least three 2026 papers (2605.12129, 2602.00887, 2607.08938) and two OSS packages already say versions of it; none combine it with edge-hardware energy/latency measurement or a pluggable mechanism module, so not a kill-criterion scoop, but sharpens the contribution requirement; eight new-to-seen.json items from the first harness-OS-thesis sweep, gate reconciliation also folded in Maria's 2026-09-07 decision; iter 29: zero new competitive papers, one new algorithmic-mask-speedup-cluster member (WGRAMMAR, 10th) and one data-hygiene fix (PSC's arXiv ID recorded, no cluster-size change); iter 28: zero new competitive papers, three edge-VLM/medical-structured-generation items, all ignore (no edge/latency/constrained-decoding angle in any), continuing the standing zero-systems-cost-competitor pattern; iter 27: zero new competitive papers, four cluster-relevant citations (two code-gen-domain constrained-decoding papers scored ignore, two edge-hardware-measurement papers — lm-Meter, Sustainable LLM Inference for Edge AI — scored differentiate-from/cite as methodology precedent); iter 26: zero new competitive papers, one cluster-member citation (EdgeFM joins general-purpose inference-engine speedup cluster as its first VLM-specific member), two ignores reinforcing the standing no-systems-cost-competitor pattern in edge-VLM/medical literature; iter 25: zero new competitive papers, one cluster-member citation (Trie Automata joins mask-speedup cluster as 9th member), one new-generation-paradigm item filed as ignore (LAVE/diffusion-LLM decoding); iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+Iter 30 is the first sweep under the new harness-OS thesis (route-
+confirmation gate closed 2026-09-07, see "Current stage"). Eight new-to-
+`seen.json` items, headlined by **"It's Not the Size: Harness Design
+Determines Operational Stability in Small Language Models"** (arXiv
+2605.12129) — cite, high priority: the closest-yet paper to bigos's own
+founding claim (harness > model size for SLMs), but an evaluation/prompting-
+level study (3 harness shapes x 3 SLMs x 24 tasks, task-success-rate only),
+no edge hardware, no telemetry, no mechanism-level contribution — validates
+the premise without touching the low-level-systems bar Maria requires.
+**HARBOR** (arXiv 2604.20938) — differentiate-from, agent-harness
+Bayesian-optimization config search, not SLM/edge-specific. **EffGen**
+(arXiv 2602.00887, one of Maria's three named candidates) — differentiate-
+from, open-source SLM agentic framework, application layer not systems
+layer. **Better Harnesses, Smaller Models** (arXiv 2607.08938) —
+differentiate-from, third independent "harness beats size" paper. Two
+escalation/cascade-routing papers, **Cluster, Route, Escalate** (arXiv
+2606.27457) and **Is Escalation Worth It?** (arXiv 2605.06350) —
+differentiate-from/cite, cloud multi-model cascade routing, relevant only
+if bigos's harness design adds an escalate-to-larger-model feature. Two
+open-source PyPI packages, `small-model-harness` and `tinyedge-runtime` —
+differentiate-from, confirm "harness for small models" is an active
+practitioner/OSS space too, not just academic; `tinyedge-runtime`
+("execution kernel and strategy SDK ... edge devices and robots") is the
+closest name-and-scope match found, but explicitly disclaims the
+telemetry/benchmarking work that is bigos's actual value-add. "Last
+Harness" — not found as an arXiv paper, unresolved. Full detail:
+`docs/research/digests/2026-09-08.md`.
+
 Iter 27 found no new competitive papers. Swept the correctness-tax cluster
 (9 members as of iter 24, 3 iterations stale) and found four new-to-
 `seen.json` items, none competitive: **Correctness-Guaranteed Code
@@ -1345,46 +1463,56 @@ acknowledge.
 - Correctness-tax grading gap — needs a harness change outside
   `docs/research/`; not this loop's to fix.
 - Vocab-size as sole driver of the 28× spread — still open, folded into
-  Route A's planned controlled matrix if that route is confirmed (see above).
+  the harness-OS paper's planned controlled matrix once Maria answers
+  sub-question 3 (starting use case: text vs. VLM).
 - The three draft hypothesis shapes from iteration 3 (pipeline the mask;
-  energy-per-valid-output; tail-latency framing) are subsumed by whichever
-  route Maria confirms — Route A explicitly inherits the pipelining method as
-  its "hero optimization."
+  energy-per-valid-output; tail-latency framing) are subsumed by G1's role
+  as a module inside the bigos harness-OS frame — the pipelining method is
+  still G1's "hero optimization," now inside the umbrella paper rather than
+  a standalone route.
+- New this iteration (30): the harness-OS umbrella claim itself ("harness
+  design beats model size for SLMs") is not novel as a bare statement — see
+  `docs/research/digests/2026-09-08.md`. The paper's actual contribution
+  needs to be stated explicitly as the low-level mechanism/measurement layer
+  (G1's mask-cost/pipelining mechanism + rigorous edge-hardware Joules/ms
+  telemetry) that the existing "harness > size" literature doesn't provide —
+  worth confirming this framing lands correctly whenever a draft motivation
+  section gets written.
 
-## Next action (iteration 30)
-1. **Check `NEEDS_INPUT.md` first** (unchanged since iter 13's "Update"
-   section — iter 29 added no new update to the file itself, since nothing
-   rose to tier-1). Still open as of iter 29 (gate age ~23 days). No
-   `DECISIONS.md` entry or chat decision answering the route question yet,
-   but Maria remains actively engaged via the collab protocol
-   (`docs/WSPOLPRACA-BADAWCZA.md` et al.) — **do not treat continued gate
-   silence as grounds to re-ping**; the one constitution-mandated ping
-   already fired at iter 10. If Maria has answered by iter 30 (via chat,
-   `DECISIONS.md`, or a Monday-block artifact under `docs/`): close the gate
-   per her choice, update "Current stage," and — only if she also said the
-   literature-only restriction is lifted — resume normal pacing. If not yet
-   answered: stay in reduced-pace literature-only mode. Pace-governor note:
-   iteration 29 was **non-empty** (one new cluster-member citation, one
-   data-hygiene fix); empty-iteration counter stays at 0 of 3.
-2. **Literature tracking (~10 min):** re-check MLSys 2027 CFP status — try
+## Next action (iteration 31)
+1. **Check for Maria's answers to the five reserved sub-questions first**
+   (paper scope, venue/timing, starting use case, co-author, Jetson — see
+   "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
+   section). Check `docs/research/DECISIONS.md`, chat/session context, and
+   any Monday-block artifact under `docs/` for a fresh entry dated after
+   2026-09-07. **This loop does not gate on these or re-ping about them**
+   (per Maria's own instruction — they're hers to raise in conversation),
+   but should fold in whatever has landed and update "Current stage"
+   accordingly if something has. If nothing new: no action needed, this
+   is not a stale-gate situation the way A/B/C/D was.
+2. **Literature tracking, harness-OS thesis (~15-20 min):** continue the
+   broadened sweep iteration 30 opened. Candidates, not yet covered: (a)
+   **"Last Harness"** — still not resolved as an actual paper; try a
+   differently-worded search (it may be a mishearing/alternate title for
+   something already found, or genuinely not yet indexed). (b) Whether any
+   of the "harness > model size" cluster (2605.12129, 2602.00887,
+   2607.08938) or the escalation/cascade cluster (2606.27457, 2605.06350)
+   has picked up citing work or a closer edge-hardware-measurement
+   follow-up since 2026-09-08. (c) A fresh, more targeted search
+   specifically for prior work combining "SLM harness" framing WITH
+   edge-hardware energy/latency telemetry or a kernel/runtime-level
+   mechanism (as opposed to application/agent-orchestration framing) — this
+   is the exact gap the paper needs to own, worth checking directly rather
+   than assuming it's still open. (d) The **original mask-speedup /
+   correctness-tax / edge-VLM clusters** (G1's narrower literature, last
+   touched iters 27-29) still matter for the mechanism-level related-work
+   section — don't let the broadened scope fully displace them; alternate
+   between the new harness-OS angle and the older clusters rather than
+   abandoning either. Also re-check MLSys 2027 CFP status —
    `mlsys.org/Conferences/2027/CallForResearchPapers` again (still
-   `EGRESS_BLOCKED` at iter 29, but blocked domains are inconsistent run to
-   run) in case the organizing committee/CFP has been announced, and confirm
-   whether the Oct 31 2026 11:59 AM UTC/AoE figure (WebSearch consensus
-   since iter 5, unchanged through iter 29) ever gets corroborated by a
-   primary source. For the general sweep: **switch angles** — the
-   algorithmic mask-speedup cluster (this iteration) is now fresh again;
-   per the no-repeat-two-iterations-running rule, iteration 30 should move
-   to a different angle. Candidates: (a) the **correctness-tax cluster**
-   (last swept iter 27, will be 3 iterations stale by iter 30, currently 9
-   members) — the most stale of the active general-sweep angles; (b) the
-   **edge-VLM/medical-structured-generation** angle (last swept iter 28, 2
-   iterations stale by iter 30, six consecutive sweeps with zero
-   systems-cost competitors); (c) the **hetero-core mask-pipelining
-   question** (iters 18–20, stale 11 iterations) — only worth a fresh check
-   if something concrete has changed, since two independent negative
-   results already stand. Default to (a) since it's the most stale with no
-   new trigger needed.
+   `EGRESS_BLOCKED` at iter 30) — and note whether the "submission opens Oct
+   10, 2026" secondary claim (iter 30) gets corroborated or contradicted
+   before adopting it over the standing Oct 31 estimate.
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `docs/research/from-science/`, and
    `docs/` more broadly (real decisions can land as direct commits outside
@@ -1393,6 +1521,9 @@ acknowledge.
    `experiments/results/`. Also re-verify local `main` is not behind
    `origin/main` before trusting any local file state — the leftover
    detached-HEAD/stale-branch-pointer pattern (iterations 8, 14, 20, 25, 27,
-   28, 29) has been intermittent, not fixed, so keep fetch+ff-merge (or
-   `git checkout main && git pull`) as a standing check every iteration
-   regardless, even on iterations where it doesn't recur.
+   28, 29) has been intermittent, not fixed (iter 30 itself had no drift),
+   so keep fetch+ff-merge (or `git checkout main && git pull`) as a standing
+   check every iteration regardless.
+4. Pace-governor note: iteration 30 was **non-empty** (gate reconciled,
+   eight new citations, one high-priority "must cite" finding); empty-
+   iteration counter resets to 0 of 3.
