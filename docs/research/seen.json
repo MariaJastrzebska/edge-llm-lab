@@ -4,7 +4,7 @@
   "https://arxiv.org/abs/2410.23881": "2026-08-16",
   "https://arxiv.org/abs/2411.00136": "LLM-Inference-Bench: Inference Benchmarking of Large Language Models on AI Accelerators",
   "https://arxiv.org/abs/2411.01142": "2026-08-26 (NEO: Saving GPU Memory Crisis with CPU Offloading for Online LLM Inference, MLSys 2025 poster — cloud-serving batch-throughput CPU offload on T4/A10G/H100, no grammar/mask angle — ignore)",
-  "https://arxiv.org/abs/2502.05111": "2026-08-11",
+  "https://arxiv.org/abs/2502.05111": "2026-08-11 (iter 1, data-hygiene fix 2026-09-11/iter 33): 'Flexible and Efficient Grammar-Constrained Decoding' — the algorithmic mask-speedup cluster's foundational precursor paper (XGrammar-lineage token-mask-cache technique), 17.71x faster offline preprocessing than prior approaches while preserving state-of-the-art online mask-computation efficiency. Differentiate-from / cluster-lineage citation, not counted as a numbered cluster member (it's the root the cluster builds on, not a new entrant); was bare-date-only in this file since iter 1, now annotated.",
   "https://arxiv.org/abs/2504.09246": "2026-08-25 (Type-Constrained Code Generation with Language Models — code-gen domain, no edge/latency angle — ignore)",
   "https://arxiv.org/abs/2504.20348": "2026-08-16",
   "https://arxiv.org/abs/2507.16768": "2026-09-07 (WGRAMMAR: Leverage Prior Knowledge to Accelerate Structured Decoding — decomposes grammar constraints into precompiled-offline static + runtime-instantiated dynamic components, compositional regular-format operators instead of pushdown automata, plus mask caching; up to 250x speedup over existing systems (largest raw number in the cluster). Cloud/GPU-serving benchmarks, no edge/Joules/single-stream angle — differentiate-from, joins algorithmic mask-speedup cluster as its 10th member)",
@@ -106,7 +106,7 @@
   "https://arxiv.org/pdf/2605.10124": "2026-08-10",
   "https://arxiv.org/pdf/2605.24022": "2026-08-10",
   "https://arxiv.org/pdf/2605.24786": "2026-08-10",
-  "https://arxiv.org/pdf/2605.29986": "2026-08-15",
+  "https://arxiv.org/pdf/2605.29986": "2026-08-15 (iter 5, data-hygiene fix 2026-09-11/iter 33): 'Accelerating Constrained Decoding with Token Space Compression' (CFGzip) — up to two orders of magnitude latency reduction when layered on a SOTA grammar engine, 7.5x speedup in total constrained-generation time. This is the cluster's already-named 'Token-Space-Compression' member (referenced by that name since iter 8/19 in STATUS.md/digests) — no cluster-count change, it was already counted; was bare-date-only in this file since iter 5, now annotated.",
   "https://arxiv.org/pdf/2606.00552": "2026-08-11",
   "https://arxiv.org/pdf/2606.01926": "2026-08-11",
   "https://arxiv.org/pdf/2606.08094": "2026-08-10",
@@ -175,5 +175,6 @@
   "https://arxiv.org/abs/2410.20011": "2026-09-10 (iter 32): 'A Survey of Small Language Models' — general background survey. Cite — useful for defining the SLM landscape in a related-work section.",
   "https://arxiv.org/abs/2410.11845": "2026-09-10 (iter 32): 'A Review on Edge Large Language Models: Design, Execution, and Applications' — background survey. Cite — useful for the edge-LLM-deployment related-work section.",
   "https://arxiv.org/abs/2603.23668": "2026-09-10 (iter 32): 'Energy-Efficient Software–Hardware Co-Design for Machine Learning: From TinyML to Large Language Models' — background survey on energy-efficient co-design across the TinyML-to-LLM spectrum. Cite — relevant framing for the harness-OS paper's energy angle.",
-  "https://arxiv.org/abs/2606.27755": "2026-09-10 (iter 32): 'Drop-Then-Recovery: How Redundant Are Vision-Language-Action Models?' — VLA-model block-redundancy analysis (GateProbe sensitivity metric) for robotic control. Ignore — tangential to the medical/text SLM-harness thesis, filed to avoid rediscovery if the robotics/VLA angle is ever revived."
+  "https://arxiv.org/abs/2606.27755": "2026-09-10 (iter 32): 'Drop-Then-Recovery: How Redundant Are Vision-Language-Action Models?' — VLA-model block-redundancy analysis (GateProbe sensitivity metric) for robotic control. Ignore — tangential to the medical/text SLM-harness thesis, filed to avoid rediscovery if the robotics/VLA angle is ever revived.",
+  "https://arxiv.org/abs/2506.01151": "2026-09-11 (iter 33): 'Earley-Driven Dynamic Pruning for Efficient Structured Decoding' (ICML 2025 poster, tool: Formatron) — dynamic pruning of Earley parser sets/states for context-free-grammar mask computation, discards items no longer referenced by later decoding steps while preserving completeness, up to 2x faster constrained decoding, no accuracy loss. Differentiate-from, joins the algorithmic mask-speedup cluster (PSC, GRID, Attention-Meets-Reachability, Token-Space-Compression, Pre3, XGrammar-2, MetaJuLS, Stay Within Your Bounds, Trie Automata, WGRAMMAR) as 11th member, same defining trait (cloud/GPU-serving-baseline speedup, no edge/Joules/single-stream angle)."
 }
