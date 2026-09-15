@@ -1,6 +1,43 @@
-# Paper machine — STATUS (updated 2026-09-14, iteration 36)
+# Paper machine — STATUS (updated 2026-09-15, iteration 37)
 
 **Scope decisions so far (newest first):**
+1. 2026-09-15 (iter 37): no scope-narrowing decision — the five sub-questions
+   reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
+   and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-09.
+   Local `main` matched `origin/main` exactly at the start of this iteration
+   (`cc01d10`, iter 36's own commit) — no drift, no stale checkout. Did
+   iteration 36's queued next action: swept the **correctness-tax cluster**
+   (last touched iter 34, the more stale of the two options queued, vs.
+   harness-OS-thesis at iter 35). Two new-to-`seen.json` items, both
+   pre-2026 foundational precursors rather than new competitors: **Grammar-
+   Aligned Decoding** (arXiv 2405.21047, NeurIPS 2024) — scored
+   **differentiate-from**, joins the cluster's fix-side (with CRANE,
+   ATLAS-RTC, DCCD) as a *second* independent mechanistic explanation for
+   the correctness-tax gap — grammar-constrained decoding distorts the
+   LLM's own output distribution (a sampling-bias account), distinct from
+   CRANE's reasoning-token-starvation account — third "foundational-
+   precursor-found-late" case after PSC (mask-speedup cluster) and CRANE
+   (correctness-tax cluster) itself. **SynCode** (arXiv 2403.01632, UIUC)
+   — scored **differentiate-from**, a lineage/precursor citation for the
+   **algorithmic mask-speedup cluster** (same non-numbered-member role as
+   2502.05111): DFA-based offline mask-store for CFG-constrained decoding,
+   eliminates JSON syntax errors entirely, no edge/Joules angle. Neither
+   item is a scoop or a new active-development competitor — both are
+   background/lineage citations the 2026 clusters keep citing. **MLSys
+   2027:** `mlsys.org/Conferences/2027/CallForResearchPapers` and the
+   OpenReview 2027 group page both still `EGRESS_BLOCKED`; WebSearch
+   aggregators produced a slightly more precise time-of-day figure ("Oct 30,
+   2026, 20:00 UTC" vs. the "11:59 AM UTC/AoE" figure on file since iter
+   5/28) — a minor secondary-source discrepancy, not adopted, filed as
+   noise. **No change to the Oct 30–31, 2026 estimate on file.** Now **~6.4
+   weeks out, fourth iteration running inside the brief's "<8 weeks away"
+   threshold**; the T-4-week WRITING-mode governor (~Oct 3, 2026) is now
+   **~18 days away**. **Not a tier-1 event** — no scoop, no confirmed
+   deadline change, no decision only Maria can make; no `NEEDS_INPUT.md`
+   change. **Non-empty iteration** (two new citations, one a genuine
+   second-mechanism strengthening of the correctness-tax gap's causal
+   story) — empty-iteration counter stays at 0 of 3. Full detail:
+   `docs/research/digests/2026-09-15.md`.
 1. 2026-09-14 (iter 36): no scope-narrowing decision — the five sub-questions
    reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
    and `docs/research/from-science/` unchanged since 2026-09-07. Local `main`
@@ -1134,11 +1171,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-14, iter 36)
+## Nearest deadlines (re-checked 2026-09-15, iter 37)
 | Venue | Deadline | Note |
 |---|---|---|
-| ~~ICRA 2027~~ | ~Sep 15, 2026 | now past (or one day out) — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 31, 2026, 11:59 AM UTC/AoE — still UNCONFIRMED against a primary source, now ~6.7 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers`, the OpenReview 2027 group page, and four secondary aggregators all still `EGRESS_BLOCKED` at iter 36. WebSearch this iteration produced mixed signal: one internally-inconsistent noise artifact (a claimed "MLSys 2026 deadline Oct 30, 2026" — not adopted) and one new unconfirmed claim ("supplementary material due July 31, 2026," already past — filed as noise), but also **reaffirmed** notification date Nov 30, 2026 and conference dates Feb 16–23, 2027 Montréal, matching iter 28's original figures rather than iter 34's contradictory "Feb 28, 2027" claim — the secondary-source spread iter 34/35 flagged as growing has **narrowed** rather than widened further. No change to the figure on file. **Third iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~19 days away — re-check every iteration, and note the practical squeeze on sub-question #2 (venue/timing) if it stays unanswered much longer. |
+| ~~ICRA 2027~~ | ~Sep 15, 2026 | now past — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
+| **MLSys 2027** | **Oct 30–31, 2026 — still UNCONFIRMED against a primary source, now ~6.4 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` and the OpenReview 2027 group page both still `EGRESS_BLOCKED` at iter 37. WebSearch this iteration surfaced a slightly more precise time-of-day figure ("Oct 30, 2026, 20:00 UTC" vs. the "11:59 AM UTC/AoE" figure on file since iter 5/28) — a minor secondary-source discrepancy, not adopted, filed as noise. No change to the figure on file. **Fourth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~18 days away — re-check every iteration, and note the practical squeeze on sub-question #2 (venue/timing) if it stays unanswered much longer. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -1538,7 +1575,23 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 34)
+## Known competitive pressure (updated iter 37)
+Iter 37 adds a *second* independent mechanistic explanation to the
+**correctness-tax cluster**'s fix-side: **Grammar-Aligned Decoding** (arXiv
+2405.21047, NeurIPS 2024) — proves grammar-constrained decoding distorts the
+LLM's own output distribution (grammatical outputs end up with likelihoods
+that don't match what the LLM itself would assign), a sampling-bias account
+distinct from CRANE's (iter 34) reasoning-token-starvation account; proposes
+ASAp, an adaptive algorithm trading efficiency for distributional fidelity.
+No edge/hardware angle. Predates the 2026 cluster by ~19 months, third
+foundational-precursor-found-late case after PSC and CRANE. Iter 37 also
+adds **SynCode** (arXiv 2403.01632, UIUC) to the **algorithmic mask-speedup
+cluster** as a lineage/precursor citation (same non-numbered-member role as
+2502.05111): DFA-based offline mask-store for CFG-constrained decoding,
+eliminates JSON syntax errors entirely, no edge/Joules angle. Neither item
+is a scoop or an active competitor — both are background citations the 2026
+clusters keep citing in their own related work.
+
 Iter 34 adds one new member to the **correctness-tax cluster**'s fix-side:
 **CRANE** (arXiv 2502.09061, ICML 2025 poster) — a formal proof, via a
 Turing-machine-simulation argument, that restrictive output grammars deny an
@@ -1872,7 +1925,7 @@ acknowledge.
   thermal-state field in the run manifest is needed before iPhone numbers
   could be trusted, not just an M1 note carried over unchanged.
 
-## Next action (iteration 37)
+## Next action (iteration 38)
 1. **Check for Maria's answers to the five reserved sub-questions first**
    (paper scope, venue/timing, starting use case, co-author, Jetson — see
    "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
@@ -1883,25 +1936,22 @@ acknowledge.
    but should fold in whatever has landed and update "Current stage"
    accordingly if something has. If nothing new: no action needed, this
    is not a stale-gate situation the way A/B/C/D was.
-2. **Literature tracking (~15-20 min):** iteration 36 touched the
-   **edge-VLM/medical-structured-generation angle** (now freshest; gained
-   Phase Matters as a methodology citation, three edge-cloud split-computing
-   papers filed as ignore, and the iPhone-16-Pro thermal-throttling
-   data-hygiene find). Per the no-repeat-two-iterations-running rule,
-   iteration 37 should switch to either the **correctness-tax cluster**
-   (last touched iter 34, gained CRANE, now the more stale option) or the
-   **harness-OS-thesis angle** (last touched iter 35, gained the HARBOR
-   name-collision and cascade-routing growth). Drop the "Last Harness"
+2. **Literature tracking (~15-20 min):** iteration 37 touched the
+   **correctness-tax cluster** (gained Grammar-Aligned Decoding and SynCode,
+   both pre-2026 lineage citations). Per the no-repeat-two-iterations-
+   running rule, iteration 38 should switch to the **algorithmic
+   mask-speedup cluster** (last touched iter 33, now the most stale of the
+   four rotating angles — mask-speedup iter 33, correctness-tax iter 37,
+   harness-OS-thesis iter 35, edge-VLM iter 36). Drop the "Last Harness"
    thread permanently (closed since iter 30-31, not revisited since).
-   Citing-work re-check on 2605.12129 still not urgent (~5 months old);
-   AgentStop citing-work re-check not urgent either (~5 months old, checked
-   iter 33); CRANE citing-work check resolved (clean negative, iter 35) —
-   none worth repeating soon. Also re-check MLSys 2027 CFP status — try
-   `mlsys.org/Conferences/2027/CallForResearchPapers` and the OpenReview 2027
-   group page again (both still `EGRESS_BLOCKED` at iter 36) — **this
-   deadline is now ~6.7 weeks out, inside the brief's <8-week
-   verify-every-iteration threshold for the third iteration running, and
-   the T-4-week WRITING-mode governor (~Oct 3, 2026) is ~19 days away** — do
+   Citing-work re-checks not urgent for any of: 2605.12129 (~5 months old),
+   AgentStop (~5 months old, checked iter 33), CRANE (clean negative, iter
+   35) — none worth repeating soon. Also re-check MLSys 2027 CFP status —
+   try `mlsys.org/Conferences/2027/CallForResearchPapers` and the OpenReview
+   2027 group page again (both still `EGRESS_BLOCKED` at iter 37) — **this
+   deadline is now ~6.4 weeks out, inside the brief's <8-week
+   verify-every-iteration threshold for the fourth iteration running, and
+   the T-4-week WRITING-mode governor (~Oct 3, 2026) is ~18 days away** — do
    not let this check lapse even on a literature-only iteration, and if the
    T-4-week mark is crossed before Maria answers sub-question #2
    (venue/timing), flag that explicitly as a sharpening timing note (still
@@ -1917,11 +1967,9 @@ acknowledge.
    — the leftover detached-HEAD/stale-branch-pointer pattern (iterations 8,
    14, 20, 25, 27, 28, 29, 33, 34, 36) has been intermittent (iter 30-31 had
    no drift, iter 32 had a 1-commit lag, iter 33 had a 2-commit lag, iter 34
-   had a 3-commit lag, iter 35 had no drift, iter 36 had a 5-commit lag), so
-   keep fetch+ff-merge (or `git checkout main && git pull`) as a standing
-   check every iteration regardless.
-4. Pace-governor note: iteration 36 was **non-empty** (four new citations,
-   four data-hygiene fixes including one directly useful hardware-thermal
-   finding on Maria's own iPhone 16 Pro, one MLSys secondary-source
-   contradiction resolved rather than deepened); empty-iteration counter
-   stays at 0 of 3.
+   had a 3-commit lag, iter 35 had no drift, iter 36 had a 5-commit lag,
+   iter 37 had no drift), so keep fetch+ff-merge (or `git checkout main &&
+   git pull`) as a standing check every iteration regardless.
+4. Pace-governor note: iteration 37 was **non-empty** (two new citations,
+   one a genuine second-mechanism strengthening of the correctness-tax
+   gap's causal story); empty-iteration counter stays at 0 of 3.
