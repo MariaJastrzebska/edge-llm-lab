@@ -1,6 +1,53 @@
-# Paper machine — STATUS (updated 2026-09-15, iteration 37)
+# Paper machine — STATUS (updated 2026-09-16, iteration 38)
 
 **Scope decisions so far (newest first):**
+1. 2026-09-16 (iter 38): no scope-narrowing decision — the five sub-questions
+   reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
+   and `docs/research/from-science/` unchanged since 2026-09-07. Local `main`
+   was 7 commits behind `origin/main` at the start of this iteration (a
+   detached-HEAD checkout landing exactly on iter 37's own commit `2172df0`
+   — this session's own stale starting state, not new remote work);
+   fast-forwarded via `git checkout main && git pull`, nothing lost, nothing
+   new folded in. Did iteration 37's queued next action: swept the
+   **algorithmic mask-speedup cluster** (last touched iter 33, was the most
+   stale of the four rotating angles). **No new cluster member** — the
+   cluster stays at 11 numbered members. Four new-to-`seen.json` items, none
+   competitive: **SLED** (arXiv 2506.09397, "A Speculative LLM Decoding
+   Framework for Efficient Edge Serving") — local draft + edge-server
+   verify speculative decoding, tested on **Jetson Orin Nano and Raspberry
+   Pi 4B/5** (2.2x throughput, 2.8x capacity vs. baselines); no grammar/mask
+   angle, verification leaves the device — same weakens-not-serves
+   on-device-privacy shape as DynaSplit/CoVSpec/INAR-VL/LAST — scored
+   **ignore** for Route A framing, but a genuinely useful **third
+   independent Jetson Orin Nano** data point (after 2511.11624 iter 31,
+   EdgeCIM iter 32) and first Raspberry Pi 4B source for the still-postponed
+   Jetson-purchase sub-question. **The Extrapolation Cliff...** (arXiv
+   2605.08737, NTU Singapore) — a training-time (on-policy-distillation)
+   format-collapse threshold for structured/JSON outputs, a third layer
+   distinct from both standing clusters (decode-time mask cost;
+   inference-time accuracy loss) — scored **ignore**, filed only to avoid
+   re-discovery. **ARCS** (arXiv 2603.29068) — analog-circuit-synthesis
+   generator using grammar-constrained decoding as one component; wrong
+   domain entirely (EDA, not edge/robotics/medical) — scored **ignore**.
+   **Data-hygiene fix** (same class as iters 22/29/31/32/33/36): **"Future
+   Validity is the Missing Statistic..." / Φ-estimation** (arXiv 2605.07698)
+   had sat in `seen.json` since iteration 3 as a bare date despite already
+   being described in that iteration's own digest — now annotated
+   (speculative-decoding + grammar sampling-correctness paper, different
+   mechanism from G1, never a numbered cluster member) — **differentiate-
+   from**, no cluster-count change. **MLSys 2027:**
+   `mlsys.org/Conferences/2027/CallForResearchPapers` and the OpenReview
+   2027 group page both still `EGRESS_BLOCKED`; WebSearch reconfirmed the
+   "Oct 30, 2026, 20:00 UTC" figure iter 37 first surfaced (no new
+   contradiction) — **no change to the Oct 30–31, 2026 estimate on file.**
+   Now **~6.3 weeks out, fifth iteration running inside the brief's "<8
+   weeks away" threshold**; the T-4-week WRITING-mode governor (~Oct 3,
+   2026) is now **~17 days away**. **Not a tier-1 event** — no scoop, no
+   confirmed deadline change, no decision only Maria can make; no
+   `NEEDS_INPUT.md` change. **Non-empty iteration** (one data-hygiene fix,
+   three new citations filed to avoid re-discovery, one genuinely useful
+   third-Jetson-Orin-Nano hardware data point) — empty-iteration counter
+   stays at 0 of 3. Full detail: `docs/research/digests/2026-09-16.md`.
 1. 2026-09-15 (iter 37): no scope-narrowing decision — the five sub-questions
    reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
    and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-09.
@@ -1171,11 +1218,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-15, iter 37)
+## Nearest deadlines (re-checked 2026-09-16, iter 38)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now past — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 30–31, 2026 — still UNCONFIRMED against a primary source, now ~6.4 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` and the OpenReview 2027 group page both still `EGRESS_BLOCKED` at iter 37. WebSearch this iteration surfaced a slightly more precise time-of-day figure ("Oct 30, 2026, 20:00 UTC" vs. the "11:59 AM UTC/AoE" figure on file since iter 5/28) — a minor secondary-source discrepancy, not adopted, filed as noise. No change to the figure on file. **Fourth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~18 days away — re-check every iteration, and note the practical squeeze on sub-question #2 (venue/timing) if it stays unanswered much longer. |
+| **MLSys 2027** | **Oct 30–31, 2026 — still UNCONFIRMED against a primary source, now ~6.3 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` and the OpenReview 2027 group page both still `EGRESS_BLOCKED` at iter 38. WebSearch reconfirmed the "Oct 30, 2026, 20:00 UTC" figure iter 37 first surfaced — no new contradiction, no change to the figure on file. **Fifth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~17 days away — re-check every iteration, and note the practical squeeze on sub-question #2 (venue/timing) if it stays unanswered much longer. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -1575,7 +1622,21 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 37)
+## Known competitive pressure (updated iter 38)
+Iter 38 finds **no new member** for the **algorithmic mask-speedup
+cluster** (stays at 11) — the sweep's most useful result is a hardware data
+point, not a competitor: **SLED** (arXiv 2506.09397) speculative-decodes
+edge-device-drafted tokens verified on an edge server, tested on **Jetson
+Orin Nano and Raspberry Pi 4B/5**, giving the Jetson-purchase question
+(sub-question 5) a third independent Orin Nano reference point and a first
+Pi 4B one; no grammar/mask angle and verification leaves the device, so it
+does not compete with G1/Route A. Two more items (**The Extrapolation
+Cliff**, arXiv 2605.08737, a training-time format-collapse threshold for
+structured outputs; **ARCS**, arXiv 2603.29068, grammar-constrained
+decoding applied to analog-circuit synthesis) are filed as ignore/
+out-of-scope, not threats. See the iter-38 scope-decision entry above for
+full detail.
+
 Iter 37 adds a *second* independent mechanistic explanation to the
 **correctness-tax cluster**'s fix-side: **Grammar-Aligned Decoding** (arXiv
 2405.21047, NeurIPS 2024) — proves grammar-constrained decoding distorts the
@@ -1916,6 +1977,11 @@ acknowledge.
   Orin Nano w/ GPU has the best energy-to-performance ratio of Pi 5/Jetson
   Nano/Jetson Orin Nano for this model class. Not an action now, just a
   citation to reach for when that conversation happens.
+- New this iteration (38): same Jetson sub-question — SLED (arXiv
+  2506.09397) adds a third independent Jetson Orin Nano reference point and
+  the first Raspberry Pi 4B one (alongside 2511.11624 iter 31, EdgeCIM iter
+  32). Not an action now, just another citation to reach for when that
+  conversation happens.
 - New this iteration (36): whenever an on-device measurement session runs on
   Maria's iPhone 16 Pro (rather than the M1) — including any future Route A
   `mtmd` smoke test — arXiv 2603.23640 shows this exact device loses ~40% of
@@ -1925,7 +1991,7 @@ acknowledge.
   thermal-state field in the run manifest is needed before iPhone numbers
   could be trusted, not just an M1 note carried over unchanged.
 
-## Next action (iteration 38)
+## Next action (iteration 39)
 1. **Check for Maria's answers to the five reserved sub-questions first**
    (paper scope, venue/timing, starting use case, co-author, Jetson — see
    "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
@@ -1936,22 +2002,22 @@ acknowledge.
    but should fold in whatever has landed and update "Current stage"
    accordingly if something has. If nothing new: no action needed, this
    is not a stale-gate situation the way A/B/C/D was.
-2. **Literature tracking (~15-20 min):** iteration 37 touched the
-   **correctness-tax cluster** (gained Grammar-Aligned Decoding and SynCode,
-   both pre-2026 lineage citations). Per the no-repeat-two-iterations-
-   running rule, iteration 38 should switch to the **algorithmic
-   mask-speedup cluster** (last touched iter 33, now the most stale of the
-   four rotating angles — mask-speedup iter 33, correctness-tax iter 37,
+2. **Literature tracking (~15-20 min):** iteration 38 touched the
+   **algorithmic mask-speedup cluster** (no new member; SLED, Extrapolation
+   Cliff, ARCS filed as ignore; one data-hygiene fix). Per the
+   no-repeat-two-iterations-running rule, iteration 39 should switch to the
+   **harness-OS-thesis angle** (last touched iter 35, now the most stale of
+   the four rotating angles — mask-speedup iter 38, correctness-tax iter 37,
    harness-OS-thesis iter 35, edge-VLM iter 36). Drop the "Last Harness"
    thread permanently (closed since iter 30-31, not revisited since).
-   Citing-work re-checks not urgent for any of: 2605.12129 (~5 months old),
-   AgentStop (~5 months old, checked iter 33), CRANE (clean negative, iter
-   35) — none worth repeating soon. Also re-check MLSys 2027 CFP status —
-   try `mlsys.org/Conferences/2027/CallForResearchPapers` and the OpenReview
-   2027 group page again (both still `EGRESS_BLOCKED` at iter 37) — **this
-   deadline is now ~6.4 weeks out, inside the brief's <8-week
-   verify-every-iteration threshold for the fourth iteration running, and
-   the T-4-week WRITING-mode governor (~Oct 3, 2026) is ~18 days away** — do
+   Citing-work re-checks not urgent for any of: 2605.12129 (~5.5 months
+   old), AgentStop (~5.5 months old, checked iter 33), CRANE (clean
+   negative, iter 35) — none worth repeating soon. Also re-check MLSys 2027
+   CFP status — try `mlsys.org/Conferences/2027/CallForResearchPapers` and
+   the OpenReview 2027 group page again (both still `EGRESS_BLOCKED` at iter
+   38) — **this deadline is now ~6.3 weeks out, inside the brief's <8-week
+   verify-every-iteration threshold for the fifth iteration running, and the
+   T-4-week WRITING-mode governor (~Oct 3, 2026) is ~17 days away** — do
    not let this check lapse even on a literature-only iteration, and if the
    T-4-week mark is crossed before Maria answers sub-question #2
    (venue/timing), flag that explicitly as a sharpening timing note (still
@@ -1965,11 +2031,13 @@ acknowledge.
    every iteration, not just `experiments/results/`. Also re-verify local
    `main` is not behind `origin/main` before trusting any local file state
    — the leftover detached-HEAD/stale-branch-pointer pattern (iterations 8,
-   14, 20, 25, 27, 28, 29, 33, 34, 36) has been intermittent (iter 30-31 had
-   no drift, iter 32 had a 1-commit lag, iter 33 had a 2-commit lag, iter 34
-   had a 3-commit lag, iter 35 had no drift, iter 36 had a 5-commit lag,
-   iter 37 had no drift), so keep fetch+ff-merge (or `git checkout main &&
-   git pull`) as a standing check every iteration regardless.
-4. Pace-governor note: iteration 37 was **non-empty** (two new citations,
-   one a genuine second-mechanism strengthening of the correctness-tax
-   gap's causal story); empty-iteration counter stays at 0 of 3.
+   14, 20, 25, 27, 28, 29, 33, 34, 36, 38) has been intermittent (iter 30-31
+   had no drift, iter 32 had a 1-commit lag, iter 33 had a 2-commit lag,
+   iter 34 had a 3-commit lag, iter 35 had no drift, iter 36 had a 5-commit
+   lag, iter 37 had no drift, iter 38 had a 7-commit lag), so keep
+   fetch+ff-merge (or `git checkout main && git pull`) as a standing check
+   every iteration regardless.
+4. Pace-governor note: iteration 38 was **non-empty** (one data-hygiene fix,
+   three new citations filed to avoid re-discovery, one genuinely useful
+   third-Jetson-Orin-Nano hardware data point); empty-iteration counter
+   stays at 0 of 3.
