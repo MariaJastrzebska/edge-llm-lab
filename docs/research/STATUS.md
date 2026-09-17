@@ -1,6 +1,56 @@
-# Paper machine — STATUS (updated 2026-09-16, iteration 38)
+# Paper machine — STATUS (updated 2026-09-17, iteration 39)
 
 **Scope decisions so far (newest first):**
+1. 2026-09-17 (iter 39): no scope-narrowing decision — the five sub-questions
+   reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
+   and `docs/research/from-science/` unchanged since 2026-09-07. Local `main`
+   matched `origin/main` exactly at the start of this iteration (`0312b13`,
+   iter 38's own commit) — no drift, no stale checkout. Did iteration 38's
+   queued next action: swept the **harness-OS-thesis angle** (last touched
+   iter 35, was the most stale of the four rotating angles). Eleven new-to-
+   `seen.json` items. **Headline find: DVFSLM** (arXiv 2609.13153, "DVFS for
+   Small Language Model Inference on Mobile Edge Devices," City University of
+   Hong Kong, companion MobiSys'26 workshop paper) — a runtime DVFS governor
+   purpose-built for SLM decode workloads, dynamically adjusting CPU/GPU/EMC
+   frequencies to minimize energy-per-token while meeting a token-generation
+   deadline. **Differentiate-from/cite** — the strongest harness-OS-thesis
+   find in ~10 iterations of sweeping this angle: the first paper found that
+   sits at the actual systems/runtime layer (frequency-scaling governance)
+   rather than the agent-orchestration/application layer every prior
+   harness-taxonomy find (iters 30-35) sat at. **Not a scoop** of G1 (power/
+   frequency governance is a different mechanism from constrained-decoding
+   mask-cost tax + shadow-mask pipelining) or of the bigos umbrella (one
+   candidate module, not the whole frame) — but it sharpens the paper's need
+   to state its systems-layer position precisely, same class of finding as
+   AgentStop (iter 32) and lm-Meter (iter 27). Two adjacent DVFS-thread
+   citations (arXiv 2507.02135, a characterization study motivating DVFSLM's
+   gap; arXiv 2604.15357, a frequency-aware latency-*estimation* paper,
+   distinct role from DVFSLM's governance). Eight more items, all
+   **ignore**, continuing the standing pattern that "agent harness"
+   literature stays at the application/orchestration level: another
+   harness-taxonomy survey (TMLR 2026 submission, ETCLOVG taxonomy, likely
+   the same underlying project as the already-tracked 2605.29682) plus seven
+   more application-level harness papers (agent-system survey, failure-
+   localization taxonomy, category-theory framing, code-as-harness pattern,
+   determinism-enforcing framework, a harness-construction foundry, a
+   harness-vs-model ablation study) — none touch edge hardware or systems
+   cost. **MLSys 2027:** `mlsys.org/Conferences/2027/CallForResearchPapers`,
+   `mlsys.org/Conferences/2027/Dates`, and `mlsys-deadlines.github.io` all
+   still `EGRESS_BLOCKED`; WebSearch reconfirmed the Oct 30, 2026, 20:00 UTC
+   submission-deadline figure (no change) and repeated the unresolved "Oct 10
+   opens / Feb 28 2027 notification" secondary-source pairing first seen iter
+   34/35 (still doesn't match the Nov 30, 2026 notification figure iter
+   28/36 reaffirmed) — same spread as before, not a new contradiction, **no
+   change to the Oct 30–31, 2026 estimate on file.** Now **~6.1 weeks out,
+   sixth iteration running inside the brief's "<8 weeks away" threshold**;
+   the T-4-week WRITING-mode governor (~Oct 3, 2026) is now **~16 days
+   away**. **Not a tier-1 event** — no scoop, no confirmed deadline change,
+   no decision only Maria can make; no `NEEDS_INPUT.md` change. **Non-empty
+   iteration** (one genuine systems-layer citation directly relevant to the
+   harness-OS thesis, two adjacent DVFS-thread citations, eight
+   application-layer surveys filed to avoid re-discovery) — empty-iteration
+   counter stays at 0 of 3. Full detail: `docs/research/digests/
+   2026-09-17.md`.
 1. 2026-09-16 (iter 38): no scope-narrowing decision — the five sub-questions
    reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
    and `docs/research/from-science/` unchanged since 2026-09-07. Local `main`
@@ -1218,11 +1268,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-16, iter 38)
+## Nearest deadlines (re-checked 2026-09-17, iter 39)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now past — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 30–31, 2026 — still UNCONFIRMED against a primary source, now ~6.3 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` and the OpenReview 2027 group page both still `EGRESS_BLOCKED` at iter 38. WebSearch reconfirmed the "Oct 30, 2026, 20:00 UTC" figure iter 37 first surfaced — no new contradiction, no change to the figure on file. **Fifth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~17 days away — re-check every iteration, and note the practical squeeze on sub-question #2 (venue/timing) if it stays unanswered much longer. |
+| **MLSys 2027** | **Oct 30–31, 2026 — still UNCONFIRMED against a primary source, now ~6.1 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers`, `mlsys.org/Conferences/2027/Dates`, and `mlsys-deadlines.github.io` all still `EGRESS_BLOCKED` at iter 39. WebSearch reconfirmed the "Oct 30, 2026, 20:00 UTC" figure — no new contradiction, no change to the figure on file. **Sixth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~16 days away — re-check every iteration, and note the practical squeeze on sub-question #2 (venue/timing) if it stays unanswered much longer. |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -1622,7 +1672,22 @@ accuracy-focused clinical NLP, no systems angle). Full detail:
 `docs/research/digests/2026-08-15.md` Part 2 and
 `docs/research/digests/2026-08-16.md`.
 
-## Known competitive pressure (updated iter 38)
+## Known competitive pressure (updated iter 39)
+Iter 39 finds the harness-OS-thesis angle's first genuine **systems-layer**
+paper after ten iterations of application-layer surveys: **DVFSLM** (arXiv
+2609.13153) — a runtime DVFS governor for SLM decode workloads on mobile
+edge devices, minimizing energy-per-token under a token-generation-deadline
+constraint. Not a scoop of G1 or the bigos umbrella (different mechanism:
+frequency-scaling governance, not constrained-decoding mask cost), but the
+closest-yet precedent for "a runtime/kernel-level governance module for SLM
+edge inference is a publishable systems contribution" — worth a related-work
+citation, and worth remembering as a candidate second module if the harness-
+OS paper's scope ever widens beyond G1. Eight more items (another harness-
+taxonomy survey plus seven application-level harness papers) filed as
+ignore, continuing the pattern that this literature stays at the agent-
+orchestration level. See the iter-39 scope-decision entry above for full
+detail.
+
 Iter 38 finds **no new member** for the **algorithmic mask-speedup
 cluster** (stays at 11) — the sweep's most useful result is a hardware data
 point, not a competitor: **SLED** (arXiv 2506.09397) speculative-decodes
@@ -1990,8 +2055,15 @@ acknowledge.
   thermal precondition per run: a warm-up/cooldown protocol or an explicit
   thermal-state field in the run manifest is needed before iPhone numbers
   could be trusted, not just an M1 note carried over unchanged.
+- New this iteration (39): if the harness-OS paper's scope ever widens to
+  include a power/frequency-management module alongside G1's grammar-mask
+  module, DVFSLM (arXiv 2609.13153) is the directly relevant related-work
+  citation and precedent (runtime DVFS governor for SLM decode workloads,
+  energy-per-token under a deadline constraint). Not an action now — this is
+  a citation to reach for if/when sub-question 1 (paper scope: whole harness
+  vs. G1-first) resolves toward "whole harness."
 
-## Next action (iteration 39)
+## Next action (iteration 40)
 1. **Check for Maria's answers to the five reserved sub-questions first**
    (paper scope, venue/timing, starting use case, co-author, Jetson — see
    "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
@@ -2002,27 +2074,29 @@ acknowledge.
    but should fold in whatever has landed and update "Current stage"
    accordingly if something has. If nothing new: no action needed, this
    is not a stale-gate situation the way A/B/C/D was.
-2. **Literature tracking (~15-20 min):** iteration 38 touched the
-   **algorithmic mask-speedup cluster** (no new member; SLED, Extrapolation
-   Cliff, ARCS filed as ignore; one data-hygiene fix). Per the
-   no-repeat-two-iterations-running rule, iteration 39 should switch to the
-   **harness-OS-thesis angle** (last touched iter 35, now the most stale of
-   the four rotating angles — mask-speedup iter 38, correctness-tax iter 37,
-   harness-OS-thesis iter 35, edge-VLM iter 36). Drop the "Last Harness"
-   thread permanently (closed since iter 30-31, not revisited since).
-   Citing-work re-checks not urgent for any of: 2605.12129 (~5.5 months
-   old), AgentStop (~5.5 months old, checked iter 33), CRANE (clean
-   negative, iter 35) — none worth repeating soon. Also re-check MLSys 2027
-   CFP status — try `mlsys.org/Conferences/2027/CallForResearchPapers` and
-   the OpenReview 2027 group page again (both still `EGRESS_BLOCKED` at iter
-   38) — **this deadline is now ~6.3 weeks out, inside the brief's <8-week
-   verify-every-iteration threshold for the fifth iteration running, and the
-   T-4-week WRITING-mode governor (~Oct 3, 2026) is ~17 days away** — do
-   not let this check lapse even on a literature-only iteration, and if the
-   T-4-week mark is crossed before Maria answers sub-question #2
-   (venue/timing), flag that explicitly as a sharpening timing note (still
-   not a loop-authored gate, per her standing instruction not to re-ping on
-   the five sub-questions).
+2. **Literature tracking (~15-20 min):** iteration 39 touched the
+   **harness-OS-thesis angle** (one genuine systems-layer find, DVFSLM;
+   eight application-layer surveys filed as ignore). Per the
+   no-repeat-two-iterations-running rule, iteration 40 should switch to the
+   **edge-VLM/medical-structured-generation angle** (last touched iter 36,
+   now the most stale of the four rotating angles — mask-speedup iter 38,
+   correctness-tax iter 37, harness-OS-thesis iter 39, edge-VLM iter 36).
+   Citing-work re-checks not urgent for any of: 2605.12129 (~6 months old),
+   AgentStop (~6 months old, checked iter 33), CRANE (clean negative, iter
+   35), DVFSLM (brand new, too early) — none worth repeating soon. Also
+   re-check MLSys 2027 CFP status — try
+   `mlsys.org/Conferences/2027/CallForResearchPapers`,
+   `mlsys.org/Conferences/2027/Dates`, and one new target not yet tried this
+   cluster of iterations (e.g. the conference's Twitter/X or LinkedIn
+   announcement, or a call for reviewers page, which sometimes surface before
+   full CFP pages unblock) — **this deadline is now ~6.1 weeks out, inside
+   the brief's <8-week verify-every-iteration threshold for the sixth
+   iteration running, and the T-4-week WRITING-mode governor (~Oct 3, 2026)
+   is ~16 days away** — do not let this check lapse even on a
+   literature-only iteration, and if the T-4-week mark is crossed before
+   Maria answers sub-question #2 (venue/timing), flag that explicitly as a
+   sharpening timing note (still not a loop-authored gate, per her standing
+   instruction not to re-ping on the five sub-questions).
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `NEEDS_INPUT.md`,
    `docs/research/from-science/`, and `docs/` more broadly (real decisions
@@ -2034,10 +2108,10 @@ acknowledge.
    14, 20, 25, 27, 28, 29, 33, 34, 36, 38) has been intermittent (iter 30-31
    had no drift, iter 32 had a 1-commit lag, iter 33 had a 2-commit lag,
    iter 34 had a 3-commit lag, iter 35 had no drift, iter 36 had a 5-commit
-   lag, iter 37 had no drift, iter 38 had a 7-commit lag), so keep
-   fetch+ff-merge (or `git checkout main && git pull`) as a standing check
-   every iteration regardless.
-4. Pace-governor note: iteration 38 was **non-empty** (one data-hygiene fix,
-   three new citations filed to avoid re-discovery, one genuinely useful
-   third-Jetson-Orin-Nano hardware data point); empty-iteration counter
-   stays at 0 of 3.
+   lag, iter 37 had no drift, iter 38 had a 7-commit lag, iter 39 had no
+   drift), so keep fetch+ff-merge (or `git checkout main && git pull`) as a
+   standing check every iteration regardless.
+4. Pace-governor note: iteration 39 was **non-empty** (one genuine
+   systems-layer citation directly relevant to the harness-OS thesis, two
+   adjacent DVFS-thread citations, eight application-layer surveys filed to
+   avoid re-discovery); empty-iteration counter stays at 0 of 3.
