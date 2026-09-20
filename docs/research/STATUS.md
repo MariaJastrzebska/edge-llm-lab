@@ -1,6 +1,73 @@
-# Paper machine — STATUS (updated 2026-09-19, iteration 41)
+# Paper machine — STATUS (updated 2026-09-20, iteration 42)
 
 **Scope decisions so far (newest first):**
+1. 2026-09-20 (iter 42): no scope-narrowing decision — the five sub-questions
+   reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
+   and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17.
+   Local `main` matched `origin/main` exactly at the start of this iteration
+   (`6be8c30`, iter 41's own commit) — no drift, no stale checkout. Did
+   iteration 41's queued next action: swept the **algorithmic mask-speedup
+   cluster** (last touched iter 38, was the most stale of the four rotating
+   angles). **No new numbered cluster member** — third consecutive sweep
+   (iters 33, 38, 42) with no new entrant, cluster stays at 11 members;
+   flagged as a possible saturation signal, not a conclusion. One false lead
+   caught before it became a duplicate: search results repeatedly surfaced
+   "GreatGramma" (17.71x offline-preprocessing speedup) — checked against
+   `seen.json` and confirmed this is the *tool name* inside the
+   already-tracked founding-lineage paper 2502.05111, not a new paper; no
+   entry added. **GLRMask** (github.com/IsaacBreen/glrmask) — an actively
+   maintained Rust/Python GCD library, AWS-CPU-server-benchmarked, no
+   accompanying paper — ignore, cloud-serving-shaped tooling, logged for
+   data hygiene only. A zolotukhin.ai blog post on llama.cpp/GBNF mask
+   overhead on a **local, non-datacenter GPU** looked potentially useful
+   (closer to the lab's own regime than the cluster's cloud-serving papers)
+   but `zolotukhin.ai` is `EGRESS_BLOCKED` from this session — filed
+   unscored. A related WebSearch snippet independently reports llama.cpp's
+   naive grammar sampler doing a full CPU vocabulary walk per token, with a
+   concrete number (~25ms/token decode on a consumer GPU) putting mask
+   overhead in the same order of magnitude as decode itself on non-
+   datacenter hardware — resonant with G1's own founding observation, not a
+   scoop (G1's contribution is the shadow-mask pipelining fix + edge Joules
+   telemetry, not the bare overhead fact). **Vectorizing the Trie / STATIC**
+   (arXiv 2602.22647) — trie-to-sparse-matrix vectorization for TPU/GPU
+   constrained decoding, up to 948x speedup — differentiate-from, same
+   trie-masking family as the cluster's own Trie Automata member but wrong
+   task domain (closed-corpus generative retrieval, not general JSON/tool-
+   call schema) and wrong hardware regime (TPU/GPU accelerator); not a 12th
+   member. **Two adjacent finds outside the cluster, both citable:** "Lost
+   in Space" / "Finding the Right Tokens for Structured Output" (arXiv
+   2502.14969, Cornell) — differentiate-from/cite for the
+   **correctness-tax cluster**, a fourth "phrasing changes correctness"
+   mechanism (joins schema-key-wording 2604.14862, "Your Prompt Is Not the
+   Only Prompt" 2608.08254), and the only one of the four to explicitly
+   flag the effect as **largest for smaller/local-laptop-scale models** —
+   directly on point for Maria's own sub-1B regime. "Keyword Matters:
+   Unveiling the Energy Sensitivity of On-Device LLM Prompting" (arXiv
+   2607.22568) — differentiate-from/cite, real smartphone power
+   measurements showing prompt wording changes decoding length and energy —
+   a new mechanism family (prompt phrasing as an energy channel), same
+   on-device-real-power telemetry-methodology shape as lm-Meter/Sustainable-
+   LLM-Inference-for-Edge-AI. Two more filed as **ignore**: a wireless-
+   transmission-energy speculative-decoding paper (2508.12590, wrong energy
+   framing) and an edge-cloud split-computing paper (2511.04002, same
+   DynaSplit-shaped privacy-weakening pattern as CoVSpec/INAR-VL/LAST).
+   **MLSys 2027:** `mlsys.org/Conferences/2027/CallForResearchPapers` (both
+   direct WebFetch and WebSearch) still `EGRESS_BLOCKED`; this iteration's
+   new target (a "call for reviewers"/social-announcement search) surfaced
+   nothing dated. WebSearch reconfirmed the **Oct 30, 2026, 20:00 UTC**
+   submission-deadline figure — no change — and re-surfaced the "Oct 10
+   opens / Feb 28 2027 notification" pairing (matching iter 34/35's figures,
+   not a new fifth data point). **No change to the Oct 30, 2026 estimate on
+   file.** Now **~5.7 weeks out, ninth iteration running inside the brief's
+   "<8 weeks away" threshold**; the T-4-week WRITING-mode governor (~Oct 3,
+   2026) is now **~13 days away** — flagged again, still not a loop-authored
+   gate. **Not a tier-1 event** — no scoop, no confirmed deadline change, no
+   decision only Maria can make; no `NEEDS_INPUT.md` change. **Non-empty
+   iteration** (one citation directly on point for the sub-1B/correctness-
+   tax framing, one adjacent telemetry-methodology citation, one false lead
+   caught before duplication, two filed to avoid re-discovery) —
+   empty-iteration counter stays at 0 of 3. Full detail:
+   `docs/research/digests/2026-09-20.md`.
 1. 2026-09-19 (iter 41): no scope-narrowing decision — the five sub-questions
    reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
    and `docs/research/from-science/` unchanged since 2026-09-07. Local `main`
@@ -1378,11 +1445,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-19, iter 41)
+## Nearest deadlines (re-checked 2026-09-20, iter 42)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now past — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~5.9 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers`, `mlsys-deadlines.github.io`, and `mldeadlines.com/conference/mlsys-2027/` all still `EGRESS_BLOCKED`. A "call for reviewers" search (new target, iter 41) surfaced nothing dated. WebSearch reconfirmed the Oct 30, 2026 submission-deadline figure — no change — notification-date family unchanged from iter 40 (still three unreconciled figures: Nov 30 2026 / Feb 28 2027 / Jan 18 2027). **Eighth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~14 days away — re-check every iteration; at the current pace this governor will likely be crossed before Maria answers sub-question #2 (venue/timing). |
+| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~5.7 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` still `EGRESS_BLOCKED` (tried both direct WebFetch and WebSearch-mediated this iteration). A "call for reviewers"/social-announcement search (new target, iter 42) surfaced nothing dated. WebSearch reconfirmed the Oct 30, 2026 submission-deadline figure — no change — notification-date family re-surfaced "Feb 28 2027" (matching iter 34/35, not a new fifth figure; still unreconciled against Nov 30 2026 / Jan 18 2027). **Ninth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~13 days away — re-check every iteration; at the current pace this governor will likely be crossed before Maria answers sub-question #2 (venue/timing). |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -2188,8 +2255,20 @@ acknowledge.
   flat correctness/incorrectness score. Not an action now (harness code is
   outside this loop's `docs/research/`-only scope), but the strongest
   methodology candidate found so far for that gate's actual implementation.
+- New this iteration (42): whenever the correctness-tax related-work section
+  gets drafted, **"Lost in Space" / "Finding the Right Tokens for Structured
+  Output"** (arXiv 2502.14969) is worth leading with among the four
+  "phrasing changes correctness" citations — it's the only one that
+  explicitly measures the effect as **largest for smaller/local-laptop-scale
+  models**, i.e. Maria's own model class. Not an action now, just a citation
+  to reach for.
+- New this iteration (42): if a future draft ever discusses prompt-
+  engineering as an energy lever alongside G1's decode-time mechanism,
+  **"Keyword Matters"** (arXiv 2607.22568) is the directly relevant
+  precedent (real smartphone power measurements, prompt wording → energy).
+  Not an action now.
 
-## Next action (iteration 42)
+## Next action (iteration 43)
 1. **Check for Maria's answers to the five reserved sub-questions first**
    (paper scope, venue/timing, starting use case, co-author, Jetson — see
    "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
@@ -2200,25 +2279,29 @@ acknowledge.
    but should fold in whatever has landed and update "Current stage"
    accordingly if something has. If nothing new: no action needed, this
    is not a stale-gate situation the way A/B/C/D was.
-2. **Literature tracking (~15-20 min):** iteration 41 touched the
-   **correctness-tax cluster** (six new citations, none competitive; one
-   methodology find flagged as directly reusable for the correctness-
-   grading gate; two data-hygiene fixes). Per the no-repeat-two-iterations-
-   running rule, iteration 42 should switch to the **algorithmic
-   mask-speedup cluster** (last touched iter 38 — no new member found that
-   iteration — now the most stale of the four rotating angles:
-   harness-OS-thesis iter 39, edge-VLM iter 40, correctness-tax iter 41,
-   mask-speedup iter 38). Citing-work re-checks not urgent for any of:
-   2605.12129 (~7 months old), AgentStop (~6 months old, checked iter 33),
-   CRANE (clean negative, iter 35), DVFSLM (~1 month old, checked iter 39)
-   — none worth repeating soon. Also re-check MLSys 2027 CFP status — try
-   `mlsys.org/Conferences/2027/CallForResearchPapers` and one new target not
-   yet tried (e.g. a direct search for the conference's own social-media
-   announcement, or an OpenReview 2027 submission portal opening notice) —
-   **this deadline is now ~5.9 weeks out, inside the brief's <8-week
-   verify-every-iteration threshold for the eighth iteration running, and
-   the T-4-week WRITING-mode governor (~Oct 3, 2026) is ~14 days away** — do
-   not let this check lapse even on a literature-only iteration, and if the
+2. **Literature tracking (~15-20 min):** iteration 42 touched the
+   **algorithmic mask-speedup cluster** (no new numbered member — third
+   consecutive sweep with none, iters 33/38/42 — plus two adjacent citable
+   finds outside the cluster and one false lead caught). Per the
+   no-repeat-two-iterations-running rule, iteration 43 should switch to the
+   **harness-OS-thesis angle** (last touched iter 39 — DVFSLM found — now
+   the most stale of the four rotating angles: harness-OS-thesis iter 39,
+   edge-VLM iter 40, correctness-tax iter 41, mask-speedup iter 42). Given
+   the mask-speedup cluster's three-sweeps-with-nothing-new pattern, consider
+   whether its rotation slot should shrink (e.g. check it every other cycle
+   instead of every cycle) — not a decision to make unilaterally, just worth
+   raising if the pattern continues into iter 46's touch. Citing-work
+   re-checks not urgent for any of: 2605.12129 (~7 months old), AgentStop
+   (checked iter 33), CRANE (clean negative, iter 35), DVFSLM (checked iter
+   39) — none worth repeating soon. Also re-check MLSys 2027 CFP status —
+   try `mlsys.org/Conferences/2027/CallForResearchPapers` and one more new
+   target not yet tried (e.g. a direct search of the MLSys 2026 proceedings
+   page for a "see you at 2027" postscript, or the OpenReview 2027 venue
+   page's own submission-instructions text rather than its group listing) —
+   **this deadline is now ~5.7 weeks out, inside the brief's <8-week
+   verify-every-iteration threshold for the ninth iteration running, and the
+   T-4-week WRITING-mode governor (~Oct 3, 2026) is ~13 days away** — do not
+   let this check lapse even on a literature-only iteration, and if the
    T-4-week mark is crossed before Maria answers sub-question #2
    (venue/timing), flag that explicitly as a sharpening timing note (still
    not a loop-authored gate, per her standing instruction not to re-ping on
@@ -2231,11 +2314,10 @@ acknowledge.
    every iteration, not just `experiments/results/`. Also re-verify local
    `main` is not behind `origin/main` before trusting any local file state
    — the leftover detached-HEAD/stale-branch-pointer pattern (iterations 8,
-   14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40 as a 2-commit lag caught at
-   the start of iter 41) has been intermittent — keep fetch+ff-merge (or
-   `git checkout main && git pull`) as a standing check every iteration
-   regardless.
-4. Pace-governor note: iteration 41 was **non-empty** (six new citations,
-   one a genuine fourth fix-side mechanism precedent, one flagged as
-   directly reusable for the correctness-grading-gate design, two
-   data-hygiene fixes); empty-iteration counter stays at 0 of 3.
+   14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40) has been intermittent —
+   keep fetch+ff-merge (or `git checkout main && git pull`) as a standing
+   check every iteration regardless.
+4. Pace-governor note: iteration 42 was **non-empty** (one citation directly
+   on point for the sub-1B/correctness-tax framing, one adjacent telemetry-
+   methodology citation, one false lead caught before duplication, two
+   filed to avoid re-discovery); empty-iteration counter stays at 0 of 3.
