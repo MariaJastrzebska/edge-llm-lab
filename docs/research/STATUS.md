@@ -1,6 +1,64 @@
-# Paper machine — STATUS (updated 2026-09-20, iteration 42)
+# Paper machine — STATUS (updated 2026-09-21, iteration 43)
 
 **Scope decisions so far (newest first):**
+1. 2026-09-21 (iter 43): no scope-narrowing decision — the five sub-questions
+   reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
+   and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17.
+   Local `main` matched `origin/main` exactly at the start of this iteration
+   (`19ac52e`, iter 42's own commit) — no drift, no stale checkout. Did
+   iteration 42's queued next action: swept the **harness-OS-thesis angle**
+   (last touched iter 39, was the most stale of the four rotating angles).
+   No direct competitor to G1's mechanism or bigos's Harness-OS frame
+   surfaced. Two genuinely useful telemetry-methodology finds: **LEAF**
+   (doi:10.3390/make8020048, MDPI MAKE journal, Feb 2026) — differentiate-
+   from/cite, real Raspberry Pi 4/5 + Jetson Nano + desktop-GPU hardware,
+   Ollama-served 4-bit models, sustainability metrics (Circular Economy
+   Score, Energy-per-Token) — a fourth independent Jetson-family + new
+   Raspberry-Pi data point, not on arXiv so missed by prior arXiv-only
+   sweeps. **Code-SLM serving-configuration energy study** (arXiv 2412.15441)
+   — differentiate-from/cite, 12 code-gen SLMs × runtime-engine/execution-
+   provider combinations, serving config alone cuts energy up to 89% —
+   directly on point for the harness-OS thesis's core "runtime choices
+   change SLM inference cost" claim (ONNX Runtime, not llama.cpp; no
+   grammar/mask angle). Three more citable as related-work anchors: Network
+   Edge Inference survey (2604.22906), Collaborating Small/Large LMs survey
+   (2510.13890, single anchor for the whole DynaSplit/CoVSpec/INAR-VL/LAST/
+   SLED/Token-Level-Routing edge-cloud cluster), Large Models for Small
+   Devices survey (2608.15693). Three edge-cloud-dependent papers filed
+   **ignore** (Token Level Routing 2504.07878, Distributed Speculative
+   Decoding 2512.16273, Speculation at a Distance 2606.25091) — same
+   DynaSplit-shaped weakens-not-serves-on-device-privacy pattern as the
+   standing cluster. One pre-2026 survey (2409.00088) filed with no
+   discussion, same class as iter 32's Mobile-Foundation-Model-as-Firmware
+   filing. One non-paper terminology finding logged for data hygiene only:
+   a thebytedive.com blog post reporting "harness engineering" was formally
+   coined by Mitchell Hashimoto (HashiCorp co-founder) in Feb 2026 —
+   industry-wide usage distinct from bigos's own "Harness OS" framing, not
+   a competitor. **EffGen follow-up check** (named candidate, iter 8):
+   confirmed ICML 2026 acceptance, PyPI tooling additions only — clean
+   negative result, no new mechanism or edge-hardware measurement, earlier
+   read still holds. **Data-hygiene fix** (same class as iters 22/29/31/32/
+   33/36/38/41): **ELIB/MBU** (arXiv 2508.11269) had sat bare-date-only since
+   iter 1 — now annotated (benchmarking tool + memory-bandwidth-utilization
+   metric, 3 edge platforms × 5 quantized models, differentiate-from/cite,
+   no cluster-count change). **MLSys 2027:**
+   `mlsys.org/Conferences/2027/CallForResearchPapers` still `EGRESS_BLOCKED`
+   (direct WebFetch tried again); WebSearch aggregators reconfirmed the
+   **Oct 30, 2026, 20:00 UTC** deadline, submissions open Oct 10, notification
+   Feb 28, 2027 (matches iter 34/35, still a three-way spread against the
+   standing Nov 30/Jan 18 figures, not newly contradicted) — one new detail,
+   program/conference dates "not set yet," consistent with the estimate on
+   file. **No change to the Oct 30, 2026 estimate.** Now **~5.6 weeks out,
+   tenth iteration running inside the brief's "<8 weeks away" threshold**;
+   the T-4-week WRITING-mode governor (~Oct 3, 2026) is now **~12 days
+   away** — flagged again, still not a loop-authored gate. **Not a tier-1
+   event** — no scoop, no confirmed deadline change, no decision only Maria
+   can make; no `NEEDS_INPUT.md` change. **Non-empty iteration** (two
+   citations directly on point for the harness-OS thesis's core claim, three
+   related-work survey citations, three items filed to avoid re-discovery,
+   one data-hygiene fix, one clean-negative-result follow-up check, one
+   terminology finding logged) — empty-iteration counter stays at 0 of 3.
+   Full detail: `docs/research/digests/2026-09-21.md`.
 1. 2026-09-20 (iter 42): no scope-narrowing decision — the five sub-questions
    reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
    and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17.
@@ -1445,11 +1503,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-20, iter 42)
+## Nearest deadlines (re-checked 2026-09-21, iter 43)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now past — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~5.7 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` still `EGRESS_BLOCKED` (tried both direct WebFetch and WebSearch-mediated this iteration). A "call for reviewers"/social-announcement search (new target, iter 42) surfaced nothing dated. WebSearch reconfirmed the Oct 30, 2026 submission-deadline figure — no change — notification-date family re-surfaced "Feb 28 2027" (matching iter 34/35, not a new fifth figure; still unreconciled against Nov 30 2026 / Jan 18 2027). **Ninth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~13 days away — re-check every iteration; at the current pace this governor will likely be crossed before Maria answers sub-question #2 (venue/timing). |
+| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~5.6 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` still `EGRESS_BLOCKED` (direct WebFetch tried again this iteration). WebSearch aggregators reconfirmed the Oct 30, 2026, 20:00 UTC submission-deadline figure — no change — plus submissions-open Oct 10 and notification Feb 28 2027 (matches iter 34/35, still unreconciled against Nov 30 2026 / Jan 18 2027). New detail: program/conference dates reported as "not set yet," consistent with (not contradicting) the estimate on file. **Tenth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~12 days away — re-check every iteration; at the current pace this governor will likely be crossed before Maria answers sub-question #2 (venue/timing). |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -2268,7 +2326,7 @@ acknowledge.
   precedent (real smartphone power measurements, prompt wording → energy).
   Not an action now.
 
-## Next action (iteration 43)
+## Next action (iteration 44)
 1. **Check for Maria's answers to the five reserved sub-questions first**
    (paper scope, venue/timing, starting use case, co-author, Jetson — see
    "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
@@ -2279,28 +2337,29 @@ acknowledge.
    but should fold in whatever has landed and update "Current stage"
    accordingly if something has. If nothing new: no action needed, this
    is not a stale-gate situation the way A/B/C/D was.
-2. **Literature tracking (~15-20 min):** iteration 42 touched the
-   **algorithmic mask-speedup cluster** (no new numbered member — third
-   consecutive sweep with none, iters 33/38/42 — plus two adjacent citable
-   finds outside the cluster and one false lead caught). Per the
-   no-repeat-two-iterations-running rule, iteration 43 should switch to the
-   **harness-OS-thesis angle** (last touched iter 39 — DVFSLM found — now
-   the most stale of the four rotating angles: harness-OS-thesis iter 39,
-   edge-VLM iter 40, correctness-tax iter 41, mask-speedup iter 42). Given
-   the mask-speedup cluster's three-sweeps-with-nothing-new pattern, consider
-   whether its rotation slot should shrink (e.g. check it every other cycle
-   instead of every cycle) — not a decision to make unilaterally, just worth
-   raising if the pattern continues into iter 46's touch. Citing-work
-   re-checks not urgent for any of: 2605.12129 (~7 months old), AgentStop
-   (checked iter 33), CRANE (clean negative, iter 35), DVFSLM (checked iter
-   39) — none worth repeating soon. Also re-check MLSys 2027 CFP status —
-   try `mlsys.org/Conferences/2027/CallForResearchPapers` and one more new
-   target not yet tried (e.g. a direct search of the MLSys 2026 proceedings
-   page for a "see you at 2027" postscript, or the OpenReview 2027 venue
-   page's own submission-instructions text rather than its group listing) —
-   **this deadline is now ~5.7 weeks out, inside the brief's <8-week
-   verify-every-iteration threshold for the ninth iteration running, and the
-   T-4-week WRITING-mode governor (~Oct 3, 2026) is ~13 days away** — do not
+2. **Literature tracking (~15-20 min):** iteration 43 touched the
+   **harness-OS-thesis angle** (no direct competitor to G1 or bigos's
+   Harness-OS frame — two genuinely useful telemetry-methodology finds, LEAF
+   and the code-SLM serving-config energy study, plus three related-work
+   survey citations and one data-hygiene fix). Per the
+   no-repeat-two-iterations-running rule, iteration 44 should switch to the
+   **edge-VLM/medical-structured-generation angle** (last touched iter 40 —
+   Lite VLA found — now the most stale of the four rotating angles: edge-VLM
+   iter 40, correctness-tax iter 41, mask-speedup iter 42, harness-OS-thesis
+   iter 43). The mask-speedup cluster's three-sweeps-with-nothing-new pattern
+   (iters 33/38/42) is still worth raising if it continues into its next
+   touch (would be iter 46 or later on the current rotation) — not a
+   decision to make unilaterally. Citing-work re-checks not urgent for any
+   of: 2605.12129 (~8 months old), AgentStop (checked iter 33), CRANE (clean
+   negative, iter 35), DVFSLM (checked iter 39), EffGen (checked iter 43) —
+   none worth repeating soon. Also re-check MLSys 2027 CFP status — try
+   `mlsys.org/Conferences/2027/CallForResearchPapers` and one more new target
+   not yet tried (e.g. a direct search of the MLSys 2026 proceedings page for
+   a "see you at 2027" postscript, or the OpenReview 2027 venue page's own
+   submission-instructions text rather than its group listing) — **this
+   deadline is now ~5.6 weeks out, inside the brief's <8-week
+   verify-every-iteration threshold for the tenth iteration running, and the
+   T-4-week WRITING-mode governor (~Oct 3, 2026) is ~12 days away** — do not
    let this check lapse even on a literature-only iteration, and if the
    T-4-week mark is crossed before Maria answers sub-question #2
    (venue/timing), flag that explicitly as a sharpening timing note (still
@@ -2317,7 +2376,8 @@ acknowledge.
    14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40) has been intermittent —
    keep fetch+ff-merge (or `git checkout main && git pull`) as a standing
    check every iteration regardless.
-4. Pace-governor note: iteration 42 was **non-empty** (one citation directly
-   on point for the sub-1B/correctness-tax framing, one adjacent telemetry-
-   methodology citation, one false lead caught before duplication, two
-   filed to avoid re-discovery); empty-iteration counter stays at 0 of 3.
+4. Pace-governor note: iteration 43 was **non-empty** (two citations
+   directly on point for the harness-OS thesis's core claim, three
+   related-work survey citations, three items filed to avoid re-discovery,
+   one data-hygiene fix, one clean-negative-result follow-up check, one
+   terminology finding logged); empty-iteration counter stays at 0 of 3.
