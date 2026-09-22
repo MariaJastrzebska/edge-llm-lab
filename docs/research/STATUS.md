@@ -1,6 +1,62 @@
-# Paper machine — STATUS (updated 2026-09-21, iteration 43)
+# Paper machine — STATUS (updated 2026-09-22, iteration 44)
 
 **Scope decisions so far (newest first):**
+1. 2026-09-22 (iter 44): no scope-narrowing decision — the five sub-questions
+   reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
+   and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17.
+   Local `main` was detached HEAD pinned exactly on `origin/main`'s tip
+   (`d05b877`, iter 43's own commit) at the start of this iteration — same
+   harmless detached-HEAD pattern noted in prior iterations, not drift;
+   checked out `main` and fast-forwarded, nothing lost, nothing new folded
+   in. Did iteration 43's queued next action: swept the
+   **edge-VLM/medical-structured-generation angle** (last touched iter 40,
+   was the most stale of the four rotating angles). Six new-to-`seen.json`
+   items. **Headline find: SCOPE** (arXiv 2606.02951, ACM/IEEE HRI 2026) —
+   differentiate-from/cite, a modular edge-deployed natural-language camera
+   agent (PTZ control + scene understanding) pairing Qwen3 SLMs with
+   Moondream/Qwen VLMs, real physical edge hardware, robotics venue — the
+   strongest edge-robotics-VLM precedent found since Lite VLA (iter 40),
+   this time for perception/camera-control rather than action; not a
+   mechanism competitor (no grammar/mask angle, no Joules telemetry). Five
+   more items, all **ignore** and filed to avoid re-discovery, continuing
+   the standing pattern (iters 10/17/21/24/26/28/32/36/40) that
+   accuracy/robustness-focused medical- and surgical-VLM literature has
+   exactly one differentiate-from paper on file and zero systems-cost
+   competitors: Glaucoma OCT structured-report MM-LLM (arXiv 2510.02403),
+   EndoVLA (arXiv 2505.15206, action model not structured-text generation),
+   a MICCAI 2026 temporal-VLM robustness study (arXiv 2608.14262), a
+   surgical-feedback NLG pipeline (arXiv 2511.15159), and SurgXBench (arXiv
+   2505.10764). **Two data-hygiene fixes** (same class as iters 22/29/31/
+   32/33/36/38/41/42/43): **arXiv 2505.21594** ("Fast and Cost-effective
+   Speculative Edge-Cloud Decoding with Early Exits," TMLR, bare since
+   iter 1) — now annotated, an edge-draft/cloud-verify speculative-decoding
+   system demoed on a Unitree Go2 quadruped's on-device VLM control loop —
+   differentiate-from/ignore-for-Route-A, same weakens-not-serves-
+   on-device-privacy shape as DynaSplit/CoVSpec/INAR-VL/LAST/SLED, no
+   cluster-count change. **DOI 10.1145/3796263.3796284** ("Edge-Deployed
+   Lightweight LLMs for Medical Imaging," 2026 conf., bare since ~iter 4) —
+   now annotated, a real Jetson-Orin-Nano-Super/Raspberry-Pi-4/5 dual
+   medical-report pipeline with power modeling claiming 35–50% energy
+   reduction under INT4 — differentiate-from/cite, the most concrete
+   "edge-deployed + medical structured report + energy modeling" precedent
+   on file for this angle (full text `EGRESS_BLOCKED` from dl.acm.org, so
+   its "no grammar/mask angle" read is provisional, based on secondary
+   summaries only). **MLSys 2027:**
+   `mlsys.org/Conferences/2027/CallForResearchPapers` and
+   `openreview.net/group?id=MLSys.org/2027/Conference` both tried directly
+   this iteration — both still `EGRESS_BLOCKED`. WebSearch reconfirmed the
+   **Oct 30, 2026** submission-deadline figure, this time as "12:00 PM PDT"
+   (≈19:00 UTC) — the same ~1-hour secondary-source quibble against the
+   standing "20:00 UTC" figure first flagged iter 40, not adopted, not a new
+   contradiction. **No change to the Oct 30, 2026 estimate.** Now **~5.4
+   weeks out, eleventh iteration running inside the brief's "<8 weeks away"
+   threshold**; the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is now
+   **~10 days away** — flagged again, still not a loop-authored gate. **Not
+   a tier-1 event** — no scoop, no confirmed deadline change, no decision
+   only Maria can make; no `NEEDS_INPUT.md` change. **Non-empty iteration**
+   (one genuinely useful edge-robotics-VLM citation, five items filed to
+   avoid re-discovery, two data-hygiene fixes) — empty-iteration counter
+   stays at 0 of 3. Full detail: `docs/research/digests/2026-09-22.md`.
 1. 2026-09-21 (iter 43): no scope-narrowing decision — the five sub-questions
    reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
    and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17.
@@ -1503,11 +1559,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-21, iter 43)
+## Nearest deadlines (re-checked 2026-09-22, iter 44)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now past — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~5.6 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` still `EGRESS_BLOCKED` (direct WebFetch tried again this iteration). WebSearch aggregators reconfirmed the Oct 30, 2026, 20:00 UTC submission-deadline figure — no change — plus submissions-open Oct 10 and notification Feb 28 2027 (matches iter 34/35, still unreconciled against Nov 30 2026 / Jan 18 2027). New detail: program/conference dates reported as "not set yet," consistent with (not contradicting) the estimate on file. **Tenth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 3, 2026) is now ~12 days away — re-check every iteration; at the current pace this governor will likely be crossed before Maria answers sub-question #2 (venue/timing). |
+| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~5.4 weeks out** | `mlsys.org/Conferences/2027/CallForResearchPapers` and `openreview.net/group?id=MLSys.org/2027/Conference` both tried directly again this iteration — both still `EGRESS_BLOCKED`. WebSearch aggregators reconfirmed the Oct 30, 2026 submission-deadline figure (this time "12:00 PM PDT" ≈ 19:00 UTC vs. the standing 20:00 UTC figure — same ~1hr secondary-source quibble as iter 40, not adopted) — no change. **Eleventh iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is now ~10 days away — re-check every iteration; at the current pace this governor will likely be crossed before Maria answers sub-question #2 (venue/timing). |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -2325,8 +2381,24 @@ acknowledge.
   **"Keyword Matters"** (arXiv 2607.22568) is the directly relevant
   precedent (real smartphone power measurements, prompt wording → energy).
   Not an action now.
+- New this iteration (44): whenever the paper's introduction/motivation
+  section gets drafted with an edge×robotics framing, **SCOPE** (arXiv
+  2606.02951, HRI 2026) is a second strong "robot that sees, on-device"
+  precedent alongside Lite VLA (iter 40) — this one for perception/camera-
+  control (SLM planner + VLM perception pairing) rather than an action
+  model, and from an actual robotics venue. Worth a sentence distinguishing
+  its camera-agent shape from bigos's structured text/JSON generation under
+  grammar constraints. Not an action now, just a citation to reach for.
+- New this iteration (44): if the medical-VLM related-work section ever
+  needs a concrete "edge-deployed + energy-modeled" citation rather than
+  only accuracy-focused ones, DOI 10.1145/3796263.3796284 ("Edge-Deployed
+  Lightweight LLMs for Medical Imaging") is the most on-point find so far —
+  real Jetson/Raspberry-Pi target hardware, INT4 quantization, power
+  modeling. Caveat: full text was `EGRESS_BLOCKED` (dl.acm.org) this
+  iteration, so verify its grammar/mask-angle absence directly before
+  citing it as a clean non-competitor.
 
-## Next action (iteration 44)
+## Next action (iteration 45)
 1. **Check for Maria's answers to the five reserved sub-questions first**
    (paper scope, venue/timing, starting use case, co-author, Jetson — see
    "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
@@ -2337,31 +2409,32 @@ acknowledge.
    but should fold in whatever has landed and update "Current stage"
    accordingly if something has. If nothing new: no action needed, this
    is not a stale-gate situation the way A/B/C/D was.
-2. **Literature tracking (~15-20 min):** iteration 43 touched the
-   **harness-OS-thesis angle** (no direct competitor to G1 or bigos's
-   Harness-OS frame — two genuinely useful telemetry-methodology finds, LEAF
-   and the code-SLM serving-config energy study, plus three related-work
-   survey citations and one data-hygiene fix). Per the
-   no-repeat-two-iterations-running rule, iteration 44 should switch to the
-   **edge-VLM/medical-structured-generation angle** (last touched iter 40 —
-   Lite VLA found — now the most stale of the four rotating angles: edge-VLM
-   iter 40, correctness-tax iter 41, mask-speedup iter 42, harness-OS-thesis
-   iter 43). The mask-speedup cluster's three-sweeps-with-nothing-new pattern
-   (iters 33/38/42) is still worth raising if it continues into its next
-   touch (would be iter 46 or later on the current rotation) — not a
-   decision to make unilaterally. Citing-work re-checks not urgent for any
-   of: 2605.12129 (~8 months old), AgentStop (checked iter 33), CRANE (clean
-   negative, iter 35), DVFSLM (checked iter 39), EffGen (checked iter 43) —
-   none worth repeating soon. Also re-check MLSys 2027 CFP status — try
+2. **Literature tracking (~15-20 min):** iteration 44 touched the
+   **edge-VLM/medical-structured-generation angle** (one genuinely useful
+   edge-robotics-VLM citation, SCOPE, plus five items filed to avoid
+   re-discovery and two data-hygiene fixes). Per the
+   no-repeat-two-iterations-running rule, iteration 45 should switch to the
+   **correctness-tax cluster** (last touched iter 41 — AprAD found — now the
+   most stale of the four rotating angles: correctness-tax iter 41,
+   mask-speedup iter 42, harness-OS-thesis iter 43, edge-VLM iter 44). The
+   mask-speedup cluster's three-sweeps-with-nothing-new pattern (iters
+   33/38/42) is still worth raising if it continues into its next touch
+   (would be iter 46 or later on the current rotation) — not a decision to
+   make unilaterally. Citing-work re-checks not urgent for any of: 2605.12129
+   (~8 months old), AgentStop (checked iter 33), CRANE (clean negative, iter
+   35), DVFSLM (checked iter 39), EffGen (checked iter 43) — none worth
+   repeating soon. Also re-check MLSys 2027 CFP status — try
    `mlsys.org/Conferences/2027/CallForResearchPapers` and one more new target
-   not yet tried (e.g. a direct search of the MLSys 2026 proceedings page for
-   a "see you at 2027" postscript, or the OpenReview 2027 venue page's own
-   submission-instructions text rather than its group listing) — **this
-   deadline is now ~5.6 weeks out, inside the brief's <8-week
-   verify-every-iteration threshold for the tenth iteration running, and the
-   T-4-week WRITING-mode governor (~Oct 3, 2026) is ~12 days away** — do not
-   let this check lapse even on a literature-only iteration, and if the
-   T-4-week mark is crossed before Maria answers sub-question #2
+   not yet tried (both direct-CFP-page and OpenReview-group-page targets
+   were re-tried this iteration and are still `EGRESS_BLOCKED` — try a
+   different angle, e.g. a search restricted to `twitter.com`/`x.com` or
+   `linkedin.com` for an organizer announcement, or the MLSys 2026
+   proceedings/closing-remarks page for a "2027 dates" postscript) — **this
+   deadline is now ~5.4 weeks out, inside the brief's <8-week
+   verify-every-iteration threshold for the eleventh iteration running, and
+   the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is ~10 days away** —
+   do not let this check lapse even on a literature-only iteration, and if
+   the T-4-week mark is crossed before Maria answers sub-question #2
    (venue/timing), flag that explicitly as a sharpening timing note (still
    not a loop-authored gate, per her standing instruction not to re-ping on
    the five sub-questions).
@@ -2373,11 +2446,9 @@ acknowledge.
    every iteration, not just `experiments/results/`. Also re-verify local
    `main` is not behind `origin/main` before trusting any local file state
    — the leftover detached-HEAD/stale-branch-pointer pattern (iterations 8,
-   14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40) has been intermittent —
+   14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40, 44) has been intermittent —
    keep fetch+ff-merge (or `git checkout main && git pull`) as a standing
    check every iteration regardless.
-4. Pace-governor note: iteration 43 was **non-empty** (two citations
-   directly on point for the harness-OS thesis's core claim, three
-   related-work survey citations, three items filed to avoid re-discovery,
-   one data-hygiene fix, one clean-negative-result follow-up check, one
-   terminology finding logged); empty-iteration counter stays at 0 of 3.
+4. Pace-governor note: iteration 44 was **non-empty** (one genuinely useful
+   edge-robotics-VLM citation, five items filed to avoid re-discovery, two
+   data-hygiene fixes); empty-iteration counter stays at 0 of 3.
