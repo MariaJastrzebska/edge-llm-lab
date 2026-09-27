@@ -1,6 +1,74 @@
-# Paper machine — STATUS (updated 2026-09-26, iteration 48)
+# Paper machine — STATUS (updated 2026-09-27, iteration 49)
 
 **Scope decisions so far (newest first):**
+1. 2026-09-27 (iter 49): no scope-narrowing decision — the five sub-questions
+   reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
+   and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17/
+   2026-09-24 (re-checked this iteration). Local `main` was 3 commits behind
+   `origin/main` at the start of this iteration (this session's own stale
+   starting checkout — iters 46/47/48's own commits — not new remote work);
+   fast-forwarded via `git checkout main && git merge --ff-only`, nothing
+   lost. Did iteration 48's queued next action: swept the **correctness-tax
+   cluster** (last touched iter 45 — was the most stale of the four rotating
+   angles). Seven new-to-`seen.json` items. **"Repair, Not Improvement:
+   Decomposing Constrained Decoding in Tool-Call Abstention"** (arXiv
+   2608.13959) — differentiate-from/cite, tests open-weight **0.6B–4B
+   models — Maria's own regime** — on tool-call *abstention* specifically
+   (declining to call anything when no tool applies) and argues grammar-
+   constrained decoding's accuracy win for pick-a-tool doesn't extend to the
+   abstain case, since an enum over tool names deletes the "no tool applies"
+   answer along with the invalid ones; sharpens the cluster's core finding
+   into a concrete sub-1B–4B failure mode relevant to any future tool-calling
+   harness eval with a legitimate no-tool case. **"When JSON Is Not Enough:
+   Semantic Reliability of Schema-Constrained LLM Ordering Agents"** (arXiv
+   2607.18261) — differentiate-from/cite, OrderBench (agentic-ordering
+   domain), 100% schema validity but only ~80% semantic success on the
+   strongest model, double-digit schema-valid-but-unsafe acceptances on
+   weaker ones — another independent domain confirming schema-valid ≠
+   correct/safe. **PA-Tool** / "Don't Adapt Small Language Models for Tools;
+   Adapt Tool Schemas to the Models" (arXiv 2510.07248, ACL 2026) —
+   differentiate-from/cite, a genuinely different fix-side mechanism
+   (training-free schema-*renaming* to match pretraining familiarity, not
+   decode-time masking) — 17% improvement on MetaTool/RoTBench, 80% fewer
+   schema-misalignment errors, joins schema-key-wording/schema-descriptions
+   as a third schema-phrasing-matters fix family. **TOOLDEC** (arXiv
+   2310.07075, 2023) — differentiate-from, a fifth "foundational-precursor-
+   found-late" lineage citation (joins CRANE/GAD/AprAD/DOMINO), not an active
+   competitor. Three items filed **ignore** to avoid re-discovery: Projectional
+   Decoding (arXiv 2605.30054, SE-artifact domain, wrong task), ATLAS (arXiv
+   2510.25890, AUTOSAR/MDE domain, wrong field — **name collision with the
+   already-tracked ATLAS-RTC correctness-tax paper, distinct papers**), and
+   Semantic Probabilistic Control of Language Models (arXiv 2505.01954,
+   attribute/toxicity steering, a different sense of "semantic control"
+   entirely). **Second instance of the `seen.json` URL-format-duplicate
+   hygiene issue** (first flagged iter 45 for 2606.25605): a bare-date-only
+   `.../pdf/2605.02363` entry duplicates the properly-annotated
+   `.../abs/2605.02363` entry — not fixed unilaterally, flagged as a second
+   data point. **MLSys 2027:** standing CFP/Dates/2027-group/OpenReview
+   targets all still `EGRESS_BLOCKED`; **new angle tried — Wayback Machine /
+   archive.org — also `EGRESS_BLOCKED`** (archive.org itself is blocked by
+   the egress proxy, not just the specific snapshot); an area-chair/program-
+   chair search surfaced nothing dated for 2027. WebSearch reconfirmed the
+   **Oct 30, 2026, 20:00 UTC** submission-deadline figure — no change,
+   seventeenth iteration running. **New conference-date data point:** a
+   WebSearch synthesis attributes **"June 21–25, 2027, Bellevue, WA"** to
+   "the official MLSys website" (unverifiable directly, still
+   `EGRESS_BLOCKED`) — a **third distinct conference-date figure** (after
+   Feb-Montréal iter 28/36 and the unadopted May-Bellevue iter 45), diverging
+   on exact dates but **agreeing with the May-Bellevue figure on location**
+   — now 2-of-3 secondary sources point to Bellevue rather than Montréal;
+   still no primary-source confirmation of either. **No change to the Oct 30,
+   2026 estimate.** Now **~4.4 weeks out**; the T-4-week WRITING-mode
+   governor (~Oct 2–3, 2026) is **effectively here** — at the current pace it
+   is being crossed this iteration or next, before Maria answers
+   sub-question #2 (venue/timing). **Not a tier-1 event** — no scoop, no
+   confirmed deadline change (only further softening of a conference-
+   location/date discrepancy, not the deadline), no decision only Maria can
+   make; no `NEEDS_INPUT.md` change. **Non-empty iteration** (seven new
+   citations, three genuinely useful — one directly on Maria's own model
+   class, one new fix mechanism, one new independent domain — one lineage
+   precursor, three filed to avoid re-discovery) — empty-iteration counter
+   stays at 0 of 3. Full detail: `docs/research/digests/2026-09-27.md`.
 1. 2026-09-26 (iter 48): no scope-narrowing decision — the five sub-questions
    reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
    and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17/
@@ -1803,11 +1871,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-26, iter 48)
+## Nearest deadlines (re-checked 2026-09-27, iter 49)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now past — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~4.7 weeks out** | Standing CFP/Dates/OpenReview targets all still `EGRESS_BLOCKED` (and, new this iteration, direct `arxiv.org` WebFetch is also `EGRESS_BLOCKED` this session — a tooling note, not a research finding; abstracts stayed reachable via WebSearch). Tried the queued program-committee/reviewer-invitation search angle — nothing dated for 2027 specifically surfaced. WebSearch reconfirmed the Oct 30, 2026, 20:00 UTC figure via secondary aggregator — no change. **A new aggregator states MLSys 2027 conference dates/venue "have not yet been announced"** — doesn't resolve iter 47's Montréal/Feb-vs-Bellevue/May discrepancy but suggests neither specific figure should be treated as confirmed; softens rather than sharpens that discrepancy. **Sixteenth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is now **under a week away** — re-check every iteration; at the current pace this governor will almost certainly be crossed before Maria answers sub-question #2 (venue/timing). |
+| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~4.4 weeks out** | Standing CFP/Dates/2027-group/OpenReview targets all still `EGRESS_BLOCKED`. **New angle tried this iteration — Wayback Machine / archive.org — also `EGRESS_BLOCKED`** (archive.org itself is blocked by the egress proxy, not just the specific snapshot). Area-chair/program-chair search surfaced nothing dated for 2027. WebSearch reconfirmed the Oct 30, 2026, 20:00 UTC figure — no change. **New conference-date data point: a WebSearch synthesis attributes "June 21–25, 2027, Bellevue, WA" to "the official MLSys website"** (unverifiable directly, still `EGRESS_BLOCKED`) — a third distinct conference-date figure (after Feb-Montréal iter 28/36, unadopted May-Bellevue iter 45), diverging on exact dates but agreeing with the May-Bellevue figure on location — now 2-of-3 secondary sources point to Bellevue rather than Montréal; still no primary confirmation of either. **Seventeenth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is now **effectively here** — at the current pace it is being crossed this iteration or next, before Maria answers sub-question #2 (venue/timing). |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -2665,8 +2733,20 @@ acknowledge.
   45) better than Montréal/February. Does not affect the Oct 30, 2026
   submission-deadline estimate, which is unchanged and now pattern-
   corroborated.
+- New this iteration (49): if the correctness-tax-gap related-work section
+  ever discusses fix-side mechanisms beyond decode-time masking, **PA-Tool**
+  (arXiv 2510.07248) is directly relevant — a training-free, pre-decode
+  schema-*renaming* fix (align schema wording to a small model's pretrained
+  vocabulary familiarity) rather than a decoding-algorithm change, explicitly
+  validated on small models. Also worth noting alongside it: **"Repair, Not
+  Improvement"** (arXiv 2608.13959) tested tool-call *abstention* specifically
+  on 0.6B–4B models — if Maria's own agent schemas include a legitimate
+  "no tool applies" branch, this is the one citation on file that speaks
+  directly to whether constrained decoding helps or hurts that specific case.
+  Not an action now, just two citations to reach for when that section gets
+  written.
 
-## Next action (iteration 49)
+## Next action (iteration 50)
 1. **Check for Maria's answers to the five reserved sub-questions first**
    (paper scope, venue/timing, starting use case, co-author, Jetson — see
    "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
@@ -2677,35 +2757,38 @@ acknowledge.
    but should fold in whatever has landed and update "Current stage"
    accordingly if something has. If nothing new: no action needed, this
    is not a stale-gate situation the way A/B/C/D was.
-2. **Literature tracking (~15-20 min):** iteration 48 touched the
-   **edge-VLM/medical-structured-generation angle** (three genuinely useful
-   VLA/embodied-robotics finds — Embodied.cpp as a headline runtime/harness
-   analog, the Deployment Gauntlet survey, Jetson-PI — plus four edge-cloud
-   -split/medical-accuracy items filed to avoid re-discovery). Per the
-   no-repeat-two-iterations-running rule, iteration 49 should switch to the
-   **correctness-tax cluster** (last touched iter 45 — the scale-dependent
-   semantic-gap headline find, 2609.23742 — now the most stale of the four
-   rotating angles: correctness-tax iter 45, mask-speedup iter 46,
-   harness-OS-thesis iter 47, edge-VLM iter 48).
+2. **Literature tracking (~15-20 min):** iteration 49 touched the
+   **correctness-tax cluster** (seven new citations — the tool-call-abstention
+   find 2608.13959 directly on Maria's own 0.6B–4B model class, the OrderBench
+   find 2607.18261, the PA-Tool schema-renaming fix 2510.07248, TOOLDEC as a
+   fifth lineage precursor, three filed to avoid re-discovery). Per the
+   no-repeat-two-iterations-running rule, iteration 50 should switch to the
+   **algorithmic mask-speedup cluster** (last touched iter 46 — DOMINO
+   precursor found, cluster stayed at 11 members, fourth consecutive sweep
+   with no new numbered entrant — now the most stale of the four rotating
+   angles: mask-speedup iter 46, harness-OS-thesis iter 47, edge-VLM iter 48,
+   correctness-tax iter 49). Worth explicitly checking whether the cluster's
+   four-consecutive-nothing-new streak (iters 33/38/42/46) continues to a
+   fifth, which would further strengthen (not yet confirm) the
+   possible-saturation read.
    Citing-work re-checks not urgent for any of: 2605.12129 (~8 months old),
    AgentStop (checked iter 33), CRANE (clean negative, iter 35), DVFSLM
    (checked iter 39), EffGen (checked iter 43) — none worth repeating soon.
-   Also re-check MLSys 2027 CFP status — the standing CFP/Dates/OpenReview
-   targets are still `EGRESS_BLOCKED`, and this iteration additionally found
-   direct `arxiv.org` WebFetch is `EGRESS_BLOCKED` in this session too (a
-   tooling fact, not a research finding — WebSearch abstracts still work,
-   keep using them). Worth one more new angle not yet attempted for the CFP
-   page itself (e.g. a Google cache / Wayback Machine check on
-   `mlsys.org/Conferences/2027/CallForResearchPapers`, or a direct search for
-   the MLSys 2027 area-chair list, which sometimes surfaces before the CFP
-   page is indexable) — **this deadline is now ~4.7 weeks out, inside the
-   brief's <8-week verify-every-iteration threshold for the sixteenth
-   iteration running, and the T-4-week WRITING-mode governor (~Oct 2–3,
-   2026) is now under a week away** — do not let this check lapse even on a
-   literature-only iteration, and if the T-4-week mark is crossed before
-   Maria answers sub-question #2 (venue/timing), flag that explicitly as a
-   sharpening timing note (still not a loop-authored gate, per her standing
-   instruction not to re-ping on the five sub-questions).
+   Also re-check MLSys 2027 CFP status — the standing CFP/Dates/2027-group/
+   OpenReview targets and, new this iteration, Wayback Machine/archive.org
+   are all still `EGRESS_BLOCKED`. Worth one more new angle not yet
+   attempted (e.g. a direct search for MLSys 2027 workshop-proposal
+   deadlines, which sometimes post before the main CFP page, or a check of
+   whether `mlsys.org` itself — not just its `/Conferences/2027/*`
+   subpaths — is blocked or only those specific paths) — **this deadline is
+   now ~4.4 weeks out, inside the brief's <8-week verify-every-iteration
+   threshold for the eighteenth iteration running, and the T-4-week
+   WRITING-mode governor (~Oct 2–3, 2026) is effectively here** — do not let
+   this check lapse even on a literature-only iteration, and if the T-4-week
+   mark has now been crossed before Maria answers sub-question #2
+   (venue/timing), flag that explicitly and plainly as a crossed (not just
+   approaching) timing marker (still not a loop-authored gate, per her
+   standing instruction not to re-ping on the five sub-questions).
 3. Continue the check-the-working-tree-before-trusting-STATUS discipline —
    check `docs/research/DECISIONS.md`, `NEEDS_INPUT.md`,
    `docs/research/from-science/`, and `docs/` more broadly (real decisions
@@ -2714,17 +2797,20 @@ acknowledge.
    every iteration, not just `experiments/results/`. Also re-verify local
    `main` is not behind `origin/main` before trusting any local file state
    — the leftover detached-HEAD/stale-branch-pointer pattern (iterations 8,
-   14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40, 44, 48) has been
+   14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40, 44, 48, 49) has been
    intermittent — keep fetch+ff-merge (or `git checkout main && git pull`)
    as a standing check every iteration regardless.
-4. **`seen.json` URL-format hygiene note (still open, iter 45):** at least
-   one entry (`https://arxiv.org/pdf/2606.25605`) is keyed on a `.../pdf/...`
-   URL rather than the `.../abs/...` form used almost everywhere else, which
-   nearly caused a re-discovery iter 45. Not urgent enough to fix
-   unilaterally (would mean editing a past iteration's entry key), but if a
-   future sweep flags another near-duplicate, consider normalizing to
-   `.../abs/...` as a small standalone data-hygiene pass.
-5. Pace-governor note: iteration 48 was **non-empty** (seven new citations —
-   three genuinely useful, including a headline embodied-AI runtime/harness
-   analog — four items filed to avoid re-discovery); empty-iteration counter
-   stays at 0 of 3.
+4. **`seen.json` URL-format hygiene note (open since iter 45, second instance
+   found iter 49):** at least two entries are keyed on a `.../pdf/...` URL
+   rather than the `.../abs/...` form used almost everywhere else —
+   `https://arxiv.org/pdf/2606.25605` (iter 45) and
+   `https://arxiv.org/pdf/2605.02363` (iter 49) — each nearly/actually caused
+   a bare-date duplicate entry. Not urgent enough to fix unilaterally (would
+   mean editing past iterations' entry keys), but two independent instances
+   now on file — worth a standalone normalization pass (grep `seen.json` for
+   all `.../pdf/...` keys, cross-check each against a same-ID `.../abs/...`
+   key, merge annotations, keep one canonical key) sooner rather than later.
+5. Pace-governor note: iteration 49 was **non-empty** (seven new citations —
+   three genuinely useful, one directly on Maria's own 0.6B–4B model class —
+   one lineage precursor, three filed to avoid re-discovery); empty-iteration
+   counter stays at 0 of 3.
