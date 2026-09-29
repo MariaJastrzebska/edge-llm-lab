@@ -1,6 +1,88 @@
-# Paper machine — STATUS (updated 2026-09-28, iteration 50)
+# Paper machine — STATUS (updated 2026-09-29, iteration 51)
 
 **Scope decisions so far (newest first):**
+1. 2026-09-29 (iter 51): no scope-narrowing decision — the five sub-questions
+   reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
+   and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17/
+   2026-09-24 (re-checked via `find -newer`, only `STATUS.md`/`seen.json`
+   have moved). Local checkout was detached HEAD pinned exactly on
+   `origin/main`'s tip (`2959b5d`, iter 50's own commit) at the start of
+   this iteration — same harmless pattern noted many times before, not
+   drift; checked out `main` and fast-forwarded, nothing lost. Did
+   iteration 50's queued next action: swept the **harness-OS-thesis angle**
+   (last touched iter 47 — was the most stale of the four rotating angles).
+   Eight new-to-`seen.json` items, six discussed substantively, two filed
+   for hygiene only. **Headline find: "Transition-Aware Backend Dispatch
+   for Edge LLM Inference"** (arXiv 2607.17415) — differentiate-from/cite,
+   a runtime dispatch policy for edge transformer inference (backend
+   selection under shape/transition-cost awareness) validated on real
+   **Jetson hardware** with real latency/energy/EDP telemetry (17.4%/
+   14.4%/28.5% average reductions over the best static policy) — closest
+   "runtime-adaptive decision backed by real edge energy telemetry"
+   precedent since DVFSLM (iter 39); same *contribution shape* as the
+   harness-OS thesis (a runtime layer that adapts to device/workload
+   state) at the backend-selection layer rather than G1's constrained-
+   decoding-mask layer — not a scoop, no grammar/mask angle. **"The Agent
+   Operating System (AOS)"** (arXiv 2608.03214, Open Compute Project) —
+   differentiate-from/cite, naming-relevant: a reference architecture
+   literally named "Operating System" for agentic systems — 4th
+   independent "OS/harness for agents" naming precedent found (joins
+   2605.12129, 2602.00887, 2607.08938), but application/orchestration-level
+   only, no edge-hardware or telemetry claim — sharpens rather than
+   threatens the requirement that bigos's contribution be the edge-
+   hardware-mechanism layer these all lack. **"Toward a Modular
+   Architecture for Embedded AI Agent Systems at the Edge"**
+   (arXiv 2606.02862) — differentiate-from/cite, a tiered on-device/
+   cloud-augmented-SLM architecture with a governance layer, targeting
+   embedded-microcontroller constraints — closer to BRIEF.md's own
+   fleet-of-home-robots framing than most harness-taxonomy finds, still
+   architecture-proposal-level (no telemetry, no mechanism). **"AgenTEE:
+   Confidential LLM Agent Execution on Edge Devices"** (arXiv 2604.18231,
+   EuroMLSys 2026) — differentiate-from/cite, real edge TEE-based
+   (Arm CCA) confidential agent execution, <5.15% overhead — a distinct
+   privacy mechanism (hardware isolation) complementary to bigos's
+   nothing-leaves-the-device framing, not competing. **SWARM-LLM**
+   (arXiv 2606.14711) — cite, an edge-SLM-swarm + optional-cloud routing/
+   collaboration layer with explicit on-premises-trust-boundary privacy
+   framing, resonates with BRIEF.md's federated/fleet candidate axis.
+   **SparseDVFS** (arXiv 2603.21908) — differentiate-from/cite, DVFS
+   sub-thread 5th member (joins DVFSLM, 2507.02135, 2604.15357, 2606.16106)
+   — generic-DNN not LLM-specific, but independently converges with iter
+   47's memory-clock-state finding that EMC is a governance factor
+   DVFSLM's own governor doesn't model. Two filed for hygiene only:
+   GPU-DVFS-for-fine-tuning (arXiv 2607.05933, wrong task — training not
+   inference) and "Toward Super Agent System with Hybrid AI Routers"
+   (arXiv 2504.10519, same shape as the standing 5-member escalation/
+   cascade cluster, not counted as a 6th member since that cluster wasn't
+   this iteration's target). Three more cascade/routing papers (PRISM
+   2511.22788, Privacy-Preserving LLM Routing 2604.15728, Reliable
+   Edge-Cloud-Expert Cascades 2512.20012) recognized as the same cluster
+   shape on sight and not individually logged, per digest-size discipline.
+   "Last Harness" (named BRIEF.md candidate) searched again — still no
+   matching paper, clean-negative status unchanged. **MLSys 2027:**
+   `mlsys.org/Conferences/2027/Dates` direct `WebFetch` still
+   `EGRESS_BLOCKED` (domain-level, unchanged). Tried the queued new angle
+   — MLSys 2027 program-committee/reviewer-invitation announcements dated
+   Sept/Oct 2026 — nothing dated surfaced. WebSearch reconfirmed the
+   **Oct 30, 2026, 20:00 UTC** submission-deadline figure — no change.
+   **No change to the Oct 30, 2026 estimate.** Now **~4.4 weeks out,
+   twentieth iteration running inside the brief's "<8 weeks away"
+   threshold**; the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is
+   **still not crossed** (today is 2026-09-29, governor date ~3–4 days
+   out) — this corrects iter 50's prediction that it would "almost
+   certainly" be crossed by this iteration; it wasn't, but will very
+   likely be crossed before iteration 52, still before Maria answers
+   sub-question #2 (venue/timing). **Not a tier-1 event** — AOS and the
+   modular-embedded-agent architecture are the closest naming/framing
+   overlaps found yet, but neither claims an edge-hardware mechanism or
+   telemetry result, so no scoop; no confirmed deadline change; no
+   decision only Maria can make; no `NEEDS_INPUT.md` change. **Non-empty
+   iteration** (eight new citations, six substantively discussed — one
+   headline runtime/telemetry precedent, one naming-relevant "Agent OS"
+   framing, one fleet/on-device-tier architecture precedent, one
+   confidential-edge-execution mechanism, one federated/swarm-SLM
+   citation, one DVFS-thread 5th member) — empty-iteration counter stays
+   at 0 of 3. Full detail: `docs/research/digests/2026-09-29.md`.
 1. 2026-09-28 (iter 50): no scope-narrowing decision — the five sub-questions
    reserved for Maria are still unanswered; `DECISIONS.md`, `NEEDS_INPUT.md`,
    and `docs/research/from-science/` unchanged since 2026-09-07/2026-09-17/
@@ -1924,11 +2006,11 @@ much larger sweep specifically for the route-selection question — see
 
 </details>
 
-## Nearest deadlines (re-checked 2026-09-28, iter 50)
+## Nearest deadlines (re-checked 2026-09-29, iter 51)
 | Venue | Deadline | Note |
 |---|---|---|
 | ~~ICRA 2027~~ | ~Sep 15, 2026 | now past — closed as a primary-target option regardless of route; from-science review already scored Route B (robot-grammar) as losing to Route A partly for this reason. Stays open as a paper #2 possibility in the spring robotics season. |
-| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~4.3 weeks out** | Standing CFP/Dates/2027-group/OpenReview targets all still `EGRESS_BLOCKED`. **This iteration confirmed the block is at the domain level** (`mlsys.org` itself, not just its `/Conferences/2027/*` subpaths) — closes the open question from iter 49's next-action list; no different subpath is worth trying going forward. Tried the queued workshop-proposal-deadline angle — nothing dated found. WebSearch reconfirmed the Oct 30, 2026, 20:00 UTC figure — no change. A further venue/date search reconfirmed the unadopted "May 17–22, 2027, location TBA" secondary figure (same family as iter 45's Bellevue claim) — not newly confirmed, not a new contradiction. **Nineteenth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is **not yet crossed** (today is 2026-09-28, governor date ~4 days out) but will almost certainly be crossed before the next iteration, before Maria answers sub-question #2 (venue/timing). |
+| **MLSys 2027** | **Oct 30, 2026 — still UNCONFIRMED against a primary source, now ~4.4 weeks out** | Standing CFP/Dates/2027-group/OpenReview targets all still `EGRESS_BLOCKED` (domain-level block, confirmed iter 50, unchanged). This iteration's new angle — MLSys 2027 program-committee/reviewer-invitation announcements dated Sept/Oct 2026 — nothing dated surfaced. WebSearch reconfirmed the Oct 30, 2026, 20:00 UTC figure — no change. **Twentieth iteration this estimate falls inside the brief's "<8 weeks away" threshold**, and the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is **still not crossed** (today is 2026-09-29, governor date ~3–4 days out) — corrects iter 50's prediction that it would be crossed by this iteration; will very likely be crossed before iteration 52, before Maria answers sub-question #2 (venue/timing). |
 | RA-L | rolling | backup — absorbs any MLSys slip with no loss; also Route C's (zero-egress) named venue if that route is picked. |
 | IROS 2027 / RO-MAN / ICORR | ~Feb–Mar 2027 | paper #2 / medical-HRI angle; also where Route B would land if revived. |
 | SenSys 2027 | 2026 round had a May deadline; next cycle unchecked this iteration | embedded-AI flagship; Route C's named alternate venue. |
@@ -1987,7 +2069,7 @@ overlapping Maria's own — its eval design (not its code, unpublished) is a
 direct template for the harness change this section keeps flagging as
 outstanding.
 
-## Scoop-check status (iter 50: zero new competitive papers — algorithmic mask-speedup cluster sweep, fifth consecutive nothing-new sweep (iters 33/38/42/46/50), two new-to-seen.json items both ignore (Guided Decoding for RAG 2509.06631, ~1yr-old application-level comparison study; Control-DAG 2404.06854, non-autoregressive paradigm mismatch), one OSS tool logged for data hygiene (anishesg/dfa-sample, GPU-fused DFA-mask+sampling kernel, cloud-GPU-shaped, no paper); MLSys 2027 estimate unchanged (~4.3 weeks out, nineteenth iteration inside the <8-week threshold), confirmed mlsys.org is blocked at the domain level (not just /Conferences/2027/* subpaths), closing that open question; iter 47: zero new competitive papers — four new-to-seen.json items from the harness-OS-thesis sweep, none competitive: one headline runtime/kernel-layer find ("Edge-Inference Governors Need Memory-Clock State," arXiv 2606.16106, real Jetson Orin, extends the DVFS sub-thread with a memory-clock factor DVFSLM's own governor doesn't model — differentiate-from/cite, different mechanism layer than G1) plus three telemetry-methodology precedents (Transferable Latency Prediction 2607.21602 — real Pixel/Jetson Nano/Orange Pi 5 Pro/RTX 3090 hardware; Triple-Bottom-Line Sustainability 2609.00665 — SLM-vs-quantized-LLM Holistic Sustainability Score, GPU-only; Adaptive Compression for Edge-based RAG 2608.19535 — real Jetson AGX Thor, a runtime-control-mechanism-adaptive-to-device-telemetry precedent for a different task than G1 but the same contribution shape); three items filed ignore (cloud-native distributed-systems research-agenda survey 2604.17227, geo-distributed multi-edge-node context management DisCEdge 2511.22599, multi-LLM edge-orchestration survey 2507.00672); MLSys 2027 estimate unchanged (~5.0 weeks out, fourteenth iteration inside the <8-week threshold), OpenReview 2027 group page still EGRESS_BLOCKED, but a named-organizer search surfaced real primary-source tweets (Zhihao Jia, Jeff Dean) about MLSys 2026 specifically — corroborates the Oct-30 deadline pattern for the first time via a quasi-primary source, and newly flags the standing "Feb 2027 Montréal" conference-location figure as likely wrong (MLSys evidently runs in May) though unconfirmed for 2027 itself; iter 46: zero new competitive papers — one new-to-seen.json item from the algorithmic-mask-speedup-cluster sweep, DOMINO (arXiv 2403.06988, ETH Zurich, Feb 2024), a lineage/precursor citation (same non-numbered role as 2502.05111/SynCode), not a 12th cluster member — cluster stays at 11, fourth consecutive nothing-new sweep (iters 33/38/42/46), flagged as a strengthening possible-saturation signal not a conclusion; one data-hygiene fix (arXiv 2608.10137, "The Parser Already Knows," bare since iter 1-2, now annotated as a fifth correctness-tax-cluster fix-side mechanism); MLSys 2027 estimate unchanged (~5.1 weeks out, thirteenth iteration inside the <8-week threshold), both the standing CFP-page target and the queued x.com/mlsysconf organizer-account target still EGRESS_BLOCKED; iter 41: zero new competitive papers — six new-to-seen.json items from the correctness-tax cluster sweep, none competitive: four differentiate-from/cite additions strengthening the cluster's own problem/fix-side taxonomy (AprAD 2410.01103, a fourth independent fix-side mechanism predating the 2026 cluster by over a year; a causal-inference confirmation of the problem, 2509.21791; an SE-domain replication, 2606.09395; a third mechanism family, schema-description-as-instruction-channel, 2608.08254) plus one methodology find flagged as directly reusable for the harness-OS paper's own correctness-grading gate (Where vs What / SCD, 2608.25358) and one ignore (The Architecture of Errors, 2605.30628, general reliability theory not structured-output-specific); two data-hygiene fixes on bare-date entries since iter 1-2 (JSONSchemaBench 2501.10868, benchmarks llama.cpp's own grammar engine, no edge-energy axis; Attention Meets Reachability 2603.05540, a mask-speedup-cluster lineage paper not correctness-tax); MLSys 2027 estimate unchanged (~5.9 weeks out, eighth iteration inside the <8-week threshold), all three tried URLs plus a new call-for-reviewers search still yield nothing past secondary-source aggregation; iter 36: zero new competitive papers — four new-to-seen.json items from the edge-VLM/medical-structured-generation sweep: three edge-cloud split-computing papers (CoVSpec 2605.02218, INAR-VL 2605.18853, LAST 2607.27952) all scored ignore, the target/large model never runs on-device in any of them, weakening rather than serving the on-device-privacy framing; one methodology citation (Phase Matters, arXiv 2606.27906, real phone-SoC — Snapdragon 8 Elite — hardware-in-the-loop thermal+energy+phase-level telemetry, independent confirmation that hetero-core speedup is phase-dependent) scored differentiate-from/cite; plus four data-hygiene fixes on bare-date-only entries since iter 1-2 (VLM-edge survey 2502.07855 cite; robotic-VLM edge-server paper 2601.14921 ignore, also a "G1" name collision with an unrelated Unitree humanoid robot; LiteVLM 2506.07416 differentiate-from, genuine on-device edge+robotics VLM optimization but different mechanism axis; and arXiv 2603.23640 cite/high-value, directly benchmarks Maria's own iPhone 16 Pro showing ~40% thermal-throttling throughput loss under sustained load); MLSys 2027 estimate unchanged (~6.7 weeks out, third iteration inside the <8-week threshold), the secondary-source spread iter 34/35 flagged as growing actually narrowed this iteration (Nov 30 2026 notification date and Feb 16-23 2027 Montréal dates reaffirmed, matching iter 28 rather than iter 34's contradictory figure); iter 35: zero new competitive papers — eight new-to-seen.json items from the harness-OS-thesis sweep, none competitive: two unrelated "HARBOR"-named papers (robot-RL pipeline automation 2606.08610, agentic-eval infra 2609.04298) scored ignore but flagged as a name collision worth remembering; two coding-agent-domain harness-terminology papers (2606.10106 cited as a definitional precedent, 2609.00006 ignored); one training-time SLM-research-sandbox paper (Pico, 2509.16413) ignored as a different meaning of "framework"; three more escalation/cascade-routing papers (UCCI, Signed Rescue Routing, Routing/Cascades/User Choice) extending that cluster to 5 members, all cloud-serving-shaped; plus a clean negative result on the queued CRANE citing-work check (no edge-focused follow-up found); MLSys 2027 estimate now ~6.5 weeks out, second iteration inside the brief's <8-week verify threshold, secondary-source spread growing (new notification-date mismatch) but no confirmed change; iter 34: zero new competitive papers — four new-to-seen.json items from the correctness-tax cluster sweep, one a genuine mechanism-level find (CRANE, arXiv 2502.09061, formal proof of why constrained decoding loses functional accuracy + a fix, joins the cluster's fix-side alongside ATLAS-RTC/DCCD) and three ignores (Constraint Decay — a name-collision with unrelated software-architecture constraints; DINGO — diffusion-LLM paradigm mismatch, same shape as LAVE; LLM Data Auditor — unrelated synthetic-training-data survey); MLSys 2027 estimate now ~7 weeks out, first iteration inside the brief's <8-week verify threshold, flagged as a timing note not a deadline change; iter 33: zero new competitive papers — one new algorithmic-mask-speedup-cluster member (Earley-Driven Dynamic Pruning/Formatron, 11th) and two data-hygiene fixes (2502.05111 cluster-lineage precursor, 2605.29986 Token-Space-Compression member, both previously bare-date-only), plus a direct AgentStop-repo mechanism-depth check confirming no decode-time/kernel angle exists there beyond the known agent-loop early-termination policy; iter 32: zero direct scoops of G1's mechanism — nine new-to-seen.json items, headlined by AgentStop (arXiv 2605.15206, harness-level early-termination mechanism + real edge energy telemetry, differentiate-from/high-priority, first-of-its-kind combination found but different mechanism layer than G1) plus CLONE (edge-LLM model-tailoring+system-optimization framework, joins general-purpose speedup cluster), a third harness-taxonomy survey, one architecture-pattern paper, one edge-cloud ECG system (ignore), three background surveys (cite), one VLA-redundancy paper (ignore), and one data-hygiene fix (EdgeCIM's 32-iteration-old bare-date entry now annotated); iter 31: zero new competitive papers — five new-to-seen.json harness-taxonomy/agent-orchestration items (two cite/differentiate-from as terminology precedent, three ignore), two data-hygiene fixes (2511.11624 Jetson/Pi5 energy-characterization paper and 2606.25605 tool-suppression correctness-tax paper, both previously bare-date-only), "Last Harness" thread further narrowed to a dead end; iter 30: zero direct scoops of G1's mechanism or a low-level-systems edge-telemetry contribution, but the bigos harness-OS *umbrella claim* ("harness beats model size for SLMs") is not novel as a bare statement — at least three 2026 papers (2605.12129, 2602.00887, 2607.08938) and two OSS packages already say versions of it; none combine it with edge-hardware energy/latency measurement or a pluggable mechanism module, so not a kill-criterion scoop, but sharpens the contribution requirement; eight new-to-seen.json items from the first harness-OS-thesis sweep, gate reconciliation also folded in Maria's 2026-09-07 decision; iter 29: zero new competitive papers, one new algorithmic-mask-speedup-cluster member (WGRAMMAR, 10th) and one data-hygiene fix (PSC's arXiv ID recorded, no cluster-size change); iter 28: zero new competitive papers, three edge-VLM/medical-structured-generation items, all ignore (no edge/latency/constrained-decoding angle in any), continuing the standing zero-systems-cost-competitor pattern; iter 27: zero new competitive papers, four cluster-relevant citations (two code-gen-domain constrained-decoding papers scored ignore, two edge-hardware-measurement papers — lm-Meter, Sustainable LLM Inference for Edge AI — scored differentiate-from/cite as methodology precedent); iter 26: zero new competitive papers, one cluster-member citation (EdgeFM joins general-purpose inference-engine speedup cluster as its first VLM-specific member), two ignores reinforcing the standing no-systems-cost-competitor pattern in edge-VLM/medical literature; iter 25: zero new competitive papers, one cluster-member citation (Trie Automata joins mask-speedup cluster as 9th member), one new-generation-paradigm item filed as ignore (LAVE/diffusion-LLM decoding); iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
+## Scoop-check status (iter 51: zero new competitive papers — harness-OS-thesis sweep, eight new-to-seen.json items, none competitive: headline runtime-layer find ("Transition-Aware Backend Dispatch for Edge LLM Inference," arXiv 2607.17415, real Jetson hardware, backend-dispatch policy reduces latency/energy/EDP by 17.4%/14.4%/28.5% over best static policy — differentiate-from/cite, closest runtime-adaptive-decision-backed-by-real-edge-telemetry precedent since DVFSLM, backend-selection layer not decoding-mask layer) plus "The Agent Operating System (AOS)" (arXiv 2608.03214, Open Compute Project, literally named "OS" for agentic systems — 4th independent OS/harness-for-agents naming precedent, application-level only) and "Toward a Modular Architecture for Embedded AI Agent Systems at the Edge" (arXiv 2606.02862, tiered on-device/cloud-augmented-SLM architecture, closer to BRIEF.md's fleet-of-home-robots framing than most harness-taxonomy finds) and "AgenTEE" (arXiv 2604.18231, EuroMLSys 2026, real edge TEE-based confidential agent execution, distinct privacy mechanism) and SWARM-LLM (arXiv 2606.14711, edge-SLM-swarm + optional-cloud routing layer, federated/fleet-axis citation) and SparseDVFS (arXiv 2603.21908, DVFS sub-thread 5th member, converges with iter-47's memory-clock finding); two filed for hygiene only (GPU-DVFS-for-fine-tuning 2607.05933, wrong task; Hybrid-AI-Routers 2504.10519, escalation-cluster shape); MLSys 2027 estimate unchanged (~4.4 weeks out, twentieth iteration inside the <8-week threshold, T-4-week WRITING-mode governor still not crossed, correcting iter 50's prediction that it would be); iter 50: zero new competitive papers — algorithmic mask-speedup cluster sweep, fifth consecutive nothing-new sweep (iters 33/38/42/46/50), two new-to-seen.json items both ignore (Guided Decoding for RAG 2509.06631, ~1yr-old application-level comparison study; Control-DAG 2404.06854, non-autoregressive paradigm mismatch), one OSS tool logged for data hygiene (anishesg/dfa-sample, GPU-fused DFA-mask+sampling kernel, cloud-GPU-shaped, no paper); MLSys 2027 estimate unchanged (~4.3 weeks out, nineteenth iteration inside the <8-week threshold), confirmed mlsys.org is blocked at the domain level (not just /Conferences/2027/* subpaths), closing that open question; iter 47: zero new competitive papers — four new-to-seen.json items from the harness-OS-thesis sweep, none competitive: one headline runtime/kernel-layer find ("Edge-Inference Governors Need Memory-Clock State," arXiv 2606.16106, real Jetson Orin, extends the DVFS sub-thread with a memory-clock factor DVFSLM's own governor doesn't model — differentiate-from/cite, different mechanism layer than G1) plus three telemetry-methodology precedents (Transferable Latency Prediction 2607.21602 — real Pixel/Jetson Nano/Orange Pi 5 Pro/RTX 3090 hardware; Triple-Bottom-Line Sustainability 2609.00665 — SLM-vs-quantized-LLM Holistic Sustainability Score, GPU-only; Adaptive Compression for Edge-based RAG 2608.19535 — real Jetson AGX Thor, a runtime-control-mechanism-adaptive-to-device-telemetry precedent for a different task than G1 but the same contribution shape); three items filed ignore (cloud-native distributed-systems research-agenda survey 2604.17227, geo-distributed multi-edge-node context management DisCEdge 2511.22599, multi-LLM edge-orchestration survey 2507.00672); MLSys 2027 estimate unchanged (~5.0 weeks out, fourteenth iteration inside the <8-week threshold), OpenReview 2027 group page still EGRESS_BLOCKED, but a named-organizer search surfaced real primary-source tweets (Zhihao Jia, Jeff Dean) about MLSys 2026 specifically — corroborates the Oct-30 deadline pattern for the first time via a quasi-primary source, and newly flags the standing "Feb 2027 Montréal" conference-location figure as likely wrong (MLSys evidently runs in May) though unconfirmed for 2027 itself; iter 46: zero new competitive papers — one new-to-seen.json item from the algorithmic-mask-speedup-cluster sweep, DOMINO (arXiv 2403.06988, ETH Zurich, Feb 2024), a lineage/precursor citation (same non-numbered role as 2502.05111/SynCode), not a 12th cluster member — cluster stays at 11, fourth consecutive nothing-new sweep (iters 33/38/42/46), flagged as a strengthening possible-saturation signal not a conclusion; one data-hygiene fix (arXiv 2608.10137, "The Parser Already Knows," bare since iter 1-2, now annotated as a fifth correctness-tax-cluster fix-side mechanism); MLSys 2027 estimate unchanged (~5.1 weeks out, thirteenth iteration inside the <8-week threshold), both the standing CFP-page target and the queued x.com/mlsysconf organizer-account target still EGRESS_BLOCKED; iter 41: zero new competitive papers — six new-to-seen.json items from the correctness-tax cluster sweep, none competitive: four differentiate-from/cite additions strengthening the cluster's own problem/fix-side taxonomy (AprAD 2410.01103, a fourth independent fix-side mechanism predating the 2026 cluster by over a year; a causal-inference confirmation of the problem, 2509.21791; an SE-domain replication, 2606.09395; a third mechanism family, schema-description-as-instruction-channel, 2608.08254) plus one methodology find flagged as directly reusable for the harness-OS paper's own correctness-grading gate (Where vs What / SCD, 2608.25358) and one ignore (The Architecture of Errors, 2605.30628, general reliability theory not structured-output-specific); two data-hygiene fixes on bare-date entries since iter 1-2 (JSONSchemaBench 2501.10868, benchmarks llama.cpp's own grammar engine, no edge-energy axis; Attention Meets Reachability 2603.05540, a mask-speedup-cluster lineage paper not correctness-tax); MLSys 2027 estimate unchanged (~5.9 weeks out, eighth iteration inside the <8-week threshold), all three tried URLs plus a new call-for-reviewers search still yield nothing past secondary-source aggregation; iter 36: zero new competitive papers — four new-to-seen.json items from the edge-VLM/medical-structured-generation sweep: three edge-cloud split-computing papers (CoVSpec 2605.02218, INAR-VL 2605.18853, LAST 2607.27952) all scored ignore, the target/large model never runs on-device in any of them, weakening rather than serving the on-device-privacy framing; one methodology citation (Phase Matters, arXiv 2606.27906, real phone-SoC — Snapdragon 8 Elite — hardware-in-the-loop thermal+energy+phase-level telemetry, independent confirmation that hetero-core speedup is phase-dependent) scored differentiate-from/cite; plus four data-hygiene fixes on bare-date-only entries since iter 1-2 (VLM-edge survey 2502.07855 cite; robotic-VLM edge-server paper 2601.14921 ignore, also a "G1" name collision with an unrelated Unitree humanoid robot; LiteVLM 2506.07416 differentiate-from, genuine on-device edge+robotics VLM optimization but different mechanism axis; and arXiv 2603.23640 cite/high-value, directly benchmarks Maria's own iPhone 16 Pro showing ~40% thermal-throttling throughput loss under sustained load); MLSys 2027 estimate unchanged (~6.7 weeks out, third iteration inside the <8-week threshold), the secondary-source spread iter 34/35 flagged as growing actually narrowed this iteration (Nov 30 2026 notification date and Feb 16-23 2027 Montréal dates reaffirmed, matching iter 28 rather than iter 34's contradictory figure); iter 35: zero new competitive papers — eight new-to-seen.json items from the harness-OS-thesis sweep, none competitive: two unrelated "HARBOR"-named papers (robot-RL pipeline automation 2606.08610, agentic-eval infra 2609.04298) scored ignore but flagged as a name collision worth remembering; two coding-agent-domain harness-terminology papers (2606.10106 cited as a definitional precedent, 2609.00006 ignored); one training-time SLM-research-sandbox paper (Pico, 2509.16413) ignored as a different meaning of "framework"; three more escalation/cascade-routing papers (UCCI, Signed Rescue Routing, Routing/Cascades/User Choice) extending that cluster to 5 members, all cloud-serving-shaped; plus a clean negative result on the queued CRANE citing-work check (no edge-focused follow-up found); MLSys 2027 estimate now ~6.5 weeks out, second iteration inside the brief's <8-week verify threshold, secondary-source spread growing (new notification-date mismatch) but no confirmed change; iter 34: zero new competitive papers — four new-to-seen.json items from the correctness-tax cluster sweep, one a genuine mechanism-level find (CRANE, arXiv 2502.09061, formal proof of why constrained decoding loses functional accuracy + a fix, joins the cluster's fix-side alongside ATLAS-RTC/DCCD) and three ignores (Constraint Decay — a name-collision with unrelated software-architecture constraints; DINGO — diffusion-LLM paradigm mismatch, same shape as LAVE; LLM Data Auditor — unrelated synthetic-training-data survey); MLSys 2027 estimate now ~7 weeks out, first iteration inside the brief's <8-week verify threshold, flagged as a timing note not a deadline change; iter 33: zero new competitive papers — one new algorithmic-mask-speedup-cluster member (Earley-Driven Dynamic Pruning/Formatron, 11th) and two data-hygiene fixes (2502.05111 cluster-lineage precursor, 2605.29986 Token-Space-Compression member, both previously bare-date-only), plus a direct AgentStop-repo mechanism-depth check confirming no decode-time/kernel angle exists there beyond the known agent-loop early-termination policy; iter 32: zero direct scoops of G1's mechanism — nine new-to-seen.json items, headlined by AgentStop (arXiv 2605.15206, harness-level early-termination mechanism + real edge energy telemetry, differentiate-from/high-priority, first-of-its-kind combination found but different mechanism layer than G1) plus CLONE (edge-LLM model-tailoring+system-optimization framework, joins general-purpose speedup cluster), a third harness-taxonomy survey, one architecture-pattern paper, one edge-cloud ECG system (ignore), three background surveys (cite), one VLA-redundancy paper (ignore), and one data-hygiene fix (EdgeCIM's 32-iteration-old bare-date entry now annotated); iter 31: zero new competitive papers — five new-to-seen.json harness-taxonomy/agent-orchestration items (two cite/differentiate-from as terminology precedent, three ignore), two data-hygiene fixes (2511.11624 Jetson/Pi5 energy-characterization paper and 2606.25605 tool-suppression correctness-tax paper, both previously bare-date-only), "Last Harness" thread further narrowed to a dead end; iter 30: zero direct scoops of G1's mechanism or a low-level-systems edge-telemetry contribution, but the bigos harness-OS *umbrella claim* ("harness beats model size for SLMs") is not novel as a bare statement — at least three 2026 papers (2605.12129, 2602.00887, 2607.08938) and two OSS packages already say versions of it; none combine it with edge-hardware energy/latency measurement or a pluggable mechanism module, so not a kill-criterion scoop, but sharpens the contribution requirement; eight new-to-seen.json items from the first harness-OS-thesis sweep, gate reconciliation also folded in Maria's 2026-09-07 decision; iter 29: zero new competitive papers, one new algorithmic-mask-speedup-cluster member (WGRAMMAR, 10th) and one data-hygiene fix (PSC's arXiv ID recorded, no cluster-size change); iter 28: zero new competitive papers, three edge-VLM/medical-structured-generation items, all ignore (no edge/latency/constrained-decoding angle in any), continuing the standing zero-systems-cost-competitor pattern; iter 27: zero new competitive papers, four cluster-relevant citations (two code-gen-domain constrained-decoding papers scored ignore, two edge-hardware-measurement papers — lm-Meter, Sustainable LLM Inference for Edge AI — scored differentiate-from/cite as methodology precedent); iter 26: zero new competitive papers, one cluster-member citation (EdgeFM joins general-purpose inference-engine speedup cluster as its first VLM-specific member), two ignores reinforcing the standing no-systems-cost-competitor pattern in edge-VLM/medical literature; iter 25: zero new competitive papers, one cluster-member citation (Trie Automata joins mask-speedup cluster as 9th member), one new-generation-paradigm item filed as ignore (LAVE/diffusion-LLM decoding); iter 24: zero new competitive papers, two cluster-member citations (SOB joins correctness-tax cluster as 9th member, Stay Within Your Bounds joins mask-speedup cluster as 7th member); iter 23: zero new competitive papers, one baseline-drift watch item re-verified and corrected (Ollama v0.30.0 MLX-default transition, no drift risk confirmed); iter 22: zero new competitive papers, three correctness-tax-cluster citations, one data-hygiene fix; iter 21: zero new competitive papers, one cluster-member citation, one background survey filed; iter 20: zero new competitive papers, a second independent negative result confirming Route A's mask-pipelining gap, three hetero-core speculative-decoding cluster citations, one old entry clarified; iter 19: zero new competitive papers, one negative result strengthening Route A's open gap, one hardware-class/technique citation; iter 18: zero new competitive papers, one design-relevant find, one standing ambiguity fixed; iter 17: zero new competitive papers, one carried-over citing-work check resolved; iter 16: zero new competitive papers, one baseline-drift item fully resolved; iter 15: zero new papers, one new engine-release baseline-drift event; iter 14: two new items, none a scoop; iter 13: one new item, not a scoop; iter 12: three new items, none a scoop; iter 11: six new items, none a scoop; iter 10: zero new items; iter 9: seven new items, none a scoop)
 Iter 30 is the first sweep under the new harness-OS thesis (route-
 confirmation gate closed 2026-09-07, see "Current stage"). Eight new-to-
 `seen.json` items, headlined by **"It's Not the Size: Harness Design
@@ -2799,7 +2881,7 @@ acknowledge.
   Not an action now, just two citations to reach for when that section gets
   written.
 
-## Next action (iteration 51)
+## Next action (iteration 52)
 1. **Check for Maria's answers to the five reserved sub-questions first**
    (paper scope, venue/timing, starting use case, co-author, Jetson — see
    "Current stage" above and `NEEDS_INPUT.md`'s current, non-archived
@@ -2810,37 +2892,45 @@ acknowledge.
    but should fold in whatever has landed and update "Current stage"
    accordingly if something has. If nothing new: no action needed, this
    is not a stale-gate situation the way A/B/C/D was.
-2. **Literature tracking (~15-20 min):** iteration 50 touched the
-   **algorithmic mask-speedup cluster** (no new numbered member — fifth
-   consecutive nothing-new sweep, iters 33/38/42/46/50 — two items filed to
-   avoid re-discovery, one OSS tool logged for completeness). Per the
-   no-repeat-two-iterations-running rule, iteration 51 should switch to the
-   **harness-OS-thesis angle** (last touched iter 47 — Edge-Inference
-   Governors memory-clock DVFS paper found — now the most stale of the four
-   rotating angles: harness-OS-thesis iter 47, edge-VLM iter 48,
-   correctness-tax iter 49, mask-speedup iter 50). Given the mask-speedup
-   cluster's own fifth-consecutive-nothing-new result, worth considering
-   (not deciding unilaterally) whether the rotation itself should widen its
-   net for that cluster specifically next time it comes up (iter 55) — e.g.
-   broadening beyond "new algorithmic mask-speedup paper" to also recheck
-   whether any 2026 llama.cpp/GGML-specific grammar-engine change has landed
-   (the harness's own actual engine, not just the academic cluster) — not an
-   action now, just a note for whoever plans iter 55's sweep.
-   Citing-work re-checks not urgent for any of: 2605.12129 (~8 months old),
+2. **Literature tracking (~15-20 min):** iteration 51 touched the
+   **harness-OS-thesis angle** (eight new-to-seen.json items, six
+   substantive — headline runtime-dispatch find, AOS naming precedent,
+   modular-embedded-agent architecture precedent, AgenTEE confidential-edge
+   mechanism, SWARM-LLM federated/fleet citation, SparseDVFS DVFS-thread
+   5th member — two filed for hygiene). Per the no-repeat-two-iterations-
+   running rule, iteration 52 should switch to the **edge-VLM/medical-
+   structured-generation angle** (last touched iter 48 — Embodied.cpp/
+   Deployment Gauntlet/Jetson-PI found — now the most stale of the four
+   rotating angles: edge-VLM iter 48, correctness-tax iter 49, mask-speedup
+   iter 50, harness-OS-thesis iter 51).
+   Newly-opened threads worth folding into future sweeps, not urgent now:
+   (a) the escalation/cascade-routing cluster is now at 8 recognized
+   members counting this iteration's unlogged PRISM/Privacy-Preserving-
+   Routing/Edge-Cloud-Expert-Cascades/Hybrid-AI-Routers — if that cluster
+   itself is ever picked as a dedicated angle, do a proper sweep-and-count
+   pass rather than continuing to spot-recognize members in passing;
+   (b) the DVFS sub-thread is now 5 members deep (DVFSLM, 2507.02135,
+   2604.15357, 2606.16106, SparseDVFS 2603.21908) with two independent
+   papers now flagging memory-clock/EMC as an under-modeled governance
+   factor — worth a dedicated DVFS-thread-only citing-work check next time
+   harness-OS-thesis comes up (iter 55), separate from the general sweep.
+   Citing-work re-checks not urgent for any of: 2605.12129 (~9 months old),
    AgentStop (checked iter 33), CRANE (clean negative, iter 35), DVFSLM
    (checked iter 39), EffGen (checked iter 43) — none worth repeating soon.
    Also re-check MLSys 2027 CFP status — the standing CFP/Dates/2027-group/
-   OpenReview/Wayback-Machine targets are all still `EGRESS_BLOCKED`, and
-   iteration 50 confirmed the block is domain-level (`mlsys.org` itself), so
-   no new subpath is worth trying. Worth trying a genuinely different new
-   angle not yet attempted (e.g. searching for MLSys 2027 program-committee
-   invitations dated specifically Sept/Oct 2026, or a reviewer-bidding
-   announcement, which tends to precede the CFP-page update) — **this
-   deadline is now ~4.1–4.2 weeks out, inside the brief's <8-week
-   verify-every-iteration threshold for the twentieth iteration running, and
-   the T-4-week WRITING-mode governor (~Oct 2–3, 2026) is very likely to be
-   crossed by this iteration or already crossed by the time it runs** — do
-   not let this check lapse even on a literature-only iteration, and if the
+   OpenReview/Wayback-Machine targets and the program-committee-invitation
+   angle (tried iter 51) are all still `EGRESS_BLOCKED` or nothing-dated;
+   iteration 50 confirmed the block is domain-level (`mlsys.org` itself),
+   so no new subpath is worth trying. Worth trying a genuinely different
+   new angle not yet attempted (e.g. a search for the MLSys 2027 OpenReview
+   submission portal opening — the brief's own "submissions open Oct 10"
+   secondary-source figure means the portal itself might become checkable
+   independent of the CFP page once that date passes) — **this deadline is
+   now ~4.3 weeks out, inside the brief's <8-week verify-every-iteration
+   threshold for the twenty-first iteration running, and the T-4-week
+   WRITING-mode governor (~Oct 2–3, 2026) is very likely to be crossed by
+   this iteration or already crossed by the time it runs** — do not let
+   this check lapse even on a literature-only iteration, and if the
    T-4-week mark has now been crossed before Maria answers sub-question #2
    (venue/timing), flag that explicitly and plainly as a crossed (not just
    approaching) timing marker (still not a loop-authored gate, per her
@@ -2853,11 +2943,11 @@ acknowledge.
    every iteration, not just `experiments/results/`. Also re-verify local
    `main` is not behind `origin/main` before trusting any local file state
    — the leftover detached-HEAD/stale-branch-pointer pattern (iterations 8,
-   14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40, 44, 48, 49) has been
+   14, 20, 25, 27, 28, 29, 33, 34, 36, 38, 39-40, 44, 48, 49, 51) has been
    intermittent — keep fetch+ff-merge (or `git checkout main && git pull`)
    as a standing check every iteration regardless.
 4. **`seen.json` URL-format hygiene note (open since iter 45, second instance
-   found iter 49, still unfixed iter 50):** at least two entries are keyed on
+   found iter 49, still unfixed):** at least two entries are keyed on
    a `.../pdf/...` URL rather than the `.../abs/...` form used almost
    everywhere else — `https://arxiv.org/pdf/2606.25605` (iter 45) and
    `https://arxiv.org/pdf/2605.02363` (iter 49) — each nearly/actually caused
@@ -2866,8 +2956,9 @@ acknowledge.
    now on file — worth a standalone normalization pass (grep `seen.json` for
    all `.../pdf/...` keys, cross-check each against a same-ID `.../abs/...`
    key, merge annotations, keep one canonical key) sooner rather than later.
-5. Pace-governor note: iteration 50 was **non-empty** (the fifth-consecutive-
-   nothing-new result on the mask-speedup cluster is itself the substantive
-   finding, plus two items filed to avoid re-discovery, one OSS tool logged
-   for completeness, one standing MLSys-egress question closed out); empty-
-   iteration counter stays at 0 of 3.
+5. Pace-governor note: iteration 51 was **non-empty** (eight new-to-
+   seen.json items, six substantively discussed — one headline runtime/
+   telemetry precedent, one naming-relevant "Agent OS" framing, one fleet/
+   on-device-tier architecture precedent, one confidential-edge-execution
+   mechanism, one federated/swarm-SLM citation, one DVFS-thread 5th member);
+   empty-iteration counter stays at 0 of 3.
