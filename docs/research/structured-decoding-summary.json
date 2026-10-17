@@ -1,0 +1,430 @@
+{
+  "schema_version": 1,
+  "source": {
+    "csv": "experiments/results/20260812-211032-g1-short-forward-pass/repeat_01/tidy.csv",
+    "csv_sha256": "032bd79311ffee9273494ce030f1cc860aebbe00b2372432ba7a3919296b3866",
+    "manifest_sha256": "1a0ab07d8a087dc1cd199bfa0a67ec5a62e76f8b505d1c37c3f4d9e085359764",
+    "manifest": "experiments/results/20260812-211032-g1-short-forward-pass/repeat_01/raw.json"
+  },
+  "attempts": 480,
+  "prompt_count": 20,
+  "repeat_count": 3,
+  "condition_count": 2,
+  "seeds": [
+    "1001",
+    "1002",
+    "1003"
+  ],
+  "minimum_energy_coverage": 0.9,
+  "aggregation": "Mean within prompt across eligible repeats, then equal-weight prompt mean.",
+  "limitations": [
+    "Descriptive results from one experiment; no confidence intervals or population claim.",
+    "Schema validity applies to the extracted object and does not imply strict JSON-only output, correct arguments or clinical safety.",
+    "Conditions produce different output lengths; differences do not isolate grammar-mask cost.",
+    "Energy is gross package energy, not model-only or baseline-subtracted energy.",
+    "Compare conditions within a model; model-specific prompts and quantizations may differ.",
+    "Missing telemetry and failed requests are excluded per metric and counted explicitly."
+  ],
+  "models": [
+    {
+      "model": "gemma3:1b",
+      "quantization": "Q4_K_M",
+      "conditions": {
+        "unconstrained": {
+          "attempts": 60,
+          "errors": 0,
+          "energy_rejected_low_coverage": 8,
+          "schema_valid": {
+            "mean": 0.0,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0,
+            "true_count": 0
+          },
+          "wall_seconds": {
+            "mean": 5.495219166666667,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "generated_tokens": {
+            "mean": 255.46666666666667,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "energy_joules": {
+            "mean": 39.018455555555555,
+            "observations": 52,
+            "prompts": 18,
+            "missing": 8
+          }
+        },
+        "gbnf": {
+          "attempts": 60,
+          "errors": 0,
+          "energy_rejected_low_coverage": 0,
+          "schema_valid": {
+            "mean": 0.8666666666666667,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0,
+            "true_count": 52
+          },
+          "wall_seconds": {
+            "mean": 7.583000333333334,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "generated_tokens": {
+            "mean": 297.03333333333336,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "energy_joules": {
+            "mean": 47.9693355,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          }
+        }
+      },
+      "paired": {
+        "direction": "gbnf minus unconstrained",
+        "matched_attempts": 60,
+        "unmatched_attempts": 0,
+        "schema_valid": {
+          "mean": 0.8666666666666667,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "wall_seconds": {
+          "mean": 2.087781166666667,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "generated_tokens": {
+          "mean": 41.56666666666666,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "energy_joules": {
+          "mean": 12.728645185185185,
+          "observations": 52,
+          "prompts": 18,
+          "missing": 8
+        }
+      }
+    },
+    {
+      "model": "llama3.2:1b",
+      "quantization": "Q8_0",
+      "conditions": {
+        "unconstrained": {
+          "attempts": 60,
+          "errors": 0,
+          "energy_rejected_low_coverage": 0,
+          "schema_valid": {
+            "mean": 0.0,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0,
+            "true_count": 0
+          },
+          "wall_seconds": {
+            "mean": 6.700572,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "generated_tokens": {
+            "mean": 193.38333333333333,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "energy_joules": {
+            "mean": 43.0511715,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          }
+        },
+        "gbnf": {
+          "attempts": 60,
+          "errors": 0,
+          "energy_rejected_low_coverage": 0,
+          "schema_valid": {
+            "mean": 0.9666666666666667,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0,
+            "true_count": 58
+          },
+          "wall_seconds": {
+            "mean": 9.559997166666667,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "generated_tokens": {
+            "mean": 297.78333333333336,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "energy_joules": {
+            "mean": 60.8898525,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          }
+        }
+      },
+      "paired": {
+        "direction": "gbnf minus unconstrained",
+        "matched_attempts": 60,
+        "unmatched_attempts": 0,
+        "schema_valid": {
+          "mean": 0.9666666666666667,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "wall_seconds": {
+          "mean": 2.8594251666666666,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "generated_tokens": {
+          "mean": 104.4,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "energy_joules": {
+          "mean": 17.838681,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "model": "qwen2.5:0.5b",
+      "quantization": "Q4_K_M",
+      "conditions": {
+        "unconstrained": {
+          "attempts": 60,
+          "errors": 0,
+          "energy_rejected_low_coverage": 0,
+          "schema_valid": {
+            "mean": 0.0,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0,
+            "true_count": 0
+          },
+          "wall_seconds": {
+            "mean": 4.031387333333333,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "generated_tokens": {
+            "mean": 283.46666666666664,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "energy_joules": {
+            "mean": 30.237766,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          }
+        },
+        "gbnf": {
+          "attempts": 60,
+          "errors": 0,
+          "energy_rejected_low_coverage": 0,
+          "schema_valid": {
+            "mean": 1.0,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0,
+            "true_count": 60
+          },
+          "wall_seconds": {
+            "mean": 4.1459435,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "generated_tokens": {
+            "mean": 288.9,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "energy_joules": {
+            "mean": 31.214352833333333,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          }
+        }
+      },
+      "paired": {
+        "direction": "gbnf minus unconstrained",
+        "matched_attempts": 60,
+        "unmatched_attempts": 0,
+        "schema_valid": {
+          "mean": 1.0,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "wall_seconds": {
+          "mean": 0.11455616666666668,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "generated_tokens": {
+          "mean": 5.433333333333334,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "energy_joules": {
+          "mean": 0.9765868333333331,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "model": "qwen3:0.6b",
+      "quantization": "Q4_K_M",
+      "conditions": {
+        "unconstrained": {
+          "attempts": 60,
+          "errors": 0,
+          "energy_rejected_low_coverage": 0,
+          "schema_valid": {
+            "mean": 0.0,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0,
+            "true_count": 0
+          },
+          "wall_seconds": {
+            "mean": 7.828284,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "generated_tokens": {
+            "mean": 504.1666666666667,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "energy_joules": {
+            "mean": 62.88400083333333,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          }
+        },
+        "gbnf": {
+          "attempts": 60,
+          "errors": 0,
+          "energy_rejected_low_coverage": 0,
+          "schema_valid": {
+            "mean": 1.0,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0,
+            "true_count": 60
+          },
+          "wall_seconds": {
+            "mean": 4.696358333333333,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "generated_tokens": {
+            "mean": 268.55,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          },
+          "energy_joules": {
+            "mean": 39.161330666666665,
+            "observations": 60,
+            "prompts": 20,
+            "missing": 0
+          }
+        }
+      },
+      "paired": {
+        "direction": "gbnf minus unconstrained",
+        "matched_attempts": 60,
+        "unmatched_attempts": 0,
+        "schema_valid": {
+          "mean": 1.0,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "wall_seconds": {
+          "mean": -3.1319256666666666,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "generated_tokens": {
+          "mean": -235.61666666666667,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        },
+        "energy_joules": {
+          "mean": -23.722670166666667,
+          "observations": 60,
+          "prompts": 20,
+          "missing": 0
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "timestamp_utc": "2026-08-12T19:10:35.475617+00:00",
+    "repo_git_sha": "706e7455956a2a78f0fcb4ac1f72593f94a3caa4",
+    "repo_git_dirty": true,
+    "llama_cpp_git_sha": "030ebb558a5820b444a8f836ed5cdd46c9b4bd7a",
+    "prompt_set_id": "g1-medical-toolcall-v1",
+    "sampler": {
+      "n_predict": 768,
+      "temperature": 0.7,
+      "top_p": 0.95,
+      "top_k": 40,
+      "cache_prompt": false
+    },
+    "platform": "macOS-26.3-arm64-arm-64bit",
+    "machine": "arm64",
+    "energy_backend": "PowermetricsRecorder(cpu_power, 100ms, integrated per window)",
+    "energy_caveat": "powermetrics reports whole-SoC package power, not per-process. Values are gross; baseline_idle_mw is recorded for subtraction.",
+    "energy_status": "ok",
+    "n_runs": 480
+  }
+}

@@ -108,3 +108,15 @@ temp/
 .neptune/
 examples/desktop/llama.cpp/
 results.db
+
+# Portable captures and Inspect logs may contain sensitive transcripts.
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.artifacts/
+logs/
+
+# Local Inspect trial evidence; publish only reviewed summaries.
+inspect-private/
+
+experiments/results/harness-demo-2026-10-17/verified-single-report/

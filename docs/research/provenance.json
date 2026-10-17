@@ -1,0 +1,34 @@
+{
+  "export_timestamp_from_filename": "2026-01-18_02-38-36",
+  "protocol": "referenced",
+  "figures": [
+    {
+      "file": "figures/scores.png",
+      "source_commit": "07ffb90ba938b39c5c2287053256da93cb1bcc34",
+      "source_path": "examples/desktop/output/agents/constant_data_en/referenced/all_models/run_130/all_models_with_reference_2026-01-18_02-38-36_scores.png",
+      "sha256": "8c9aabd0c8038a66d14d390bf46df9b490d056d9d2f9316337eaa5b7206ad70d",
+      "status": "original aggregate export; raw measurements not recovered"
+    },
+    {
+      "file": "figures/latency_bars.png",
+      "source_commit": "07ffb90ba938b39c5c2287053256da93cb1bcc34",
+      "source_path": "examples/desktop/output/agents/constant_data_en/referenced/all_models/run_130/all_models_with_reference_2026-01-18_02-38-36_latency_bars.png",
+      "sha256": "3a0b768586b9d2fac25f4c0c8b82ad8e36b45a00b5caac149f22cfbfbcac12db",
+      "status": "original aggregate export; raw measurements not recovered"
+    },
+    {
+      "file": "figures/resources.png",
+      "source_commit": "07ffb90ba938b39c5c2287053256da93cb1bcc34",
+      "source_path": "examples/desktop/output/agents/constant_data_en/referenced/all_models/run_130/all_models_with_reference_2026-01-18_02-38-36_resources.png",
+      "sha256": "a7ee3d3876c3c7af3d369a3a16c127b9e3434bfa663ee41320c4d796c4af6c74",
+      "status": "original aggregate export; raw measurements not recovered"
+    },
+    {
+      "file": "figures/scatter.png",
+      "source_commit": "07ffb90ba938b39c5c2287053256da93cb1bcc34",
+      "source_path": "examples/desktop/output/agents/constant_data_en/referenced/all_models/run_130/all_models_with_reference_2026-01-18_02-38-36_scatter.png",
+      "sha256": "7e0b29535b9f9ac2bb6bc34624bfbfaa27325c2fac5404aa01d2e5cf1b6452f6",
+      "status": "original aggregate export; raw measurements not recovered"
+    }
+  ]
+}

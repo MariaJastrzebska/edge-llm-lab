@@ -1,0 +1,2 @@
+# Optional integration tested against this Inspect release.
+inspect-ai==0.3.281

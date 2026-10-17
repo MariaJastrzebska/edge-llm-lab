@@ -63,7 +63,7 @@ class BaseEvaluation:
     def __init__(self, model_name, agent, eval_type="default"):
         """Initialize BaseEvaluation with model name, agent, and optional source path.
         Checks if model metadata is cached and sets parameters for referenced and unreferenced evaluations.
-        
+
         # >>> from base_eval import Agent
         # >>> be = BaseEvaluation(model_name=model_name, agent=Agent.CONSTANT_DATA_EN)
         >>> from base_eval import BaseEvaluation
@@ -73,7 +73,7 @@ class BaseEvaluation:
         >>> with redirect_stdout(io.StringIO()):
         ...    be = BaseEvaluation(model_name=model_name, agent=Agent.CONSTANT_DATA_EN)
         """
-               
+
         self.model_name = model_name
         self.model_name_norm = self.model_name.replace(':', '_').replace('/', '_')
         self.folders_to_cleanup = []
@@ -81,7 +81,7 @@ class BaseEvaluation:
         self.agent_type = self.agent_enum.value
         self.agent = self.agent_enum
         self.eval_type = eval_type# Domyślna wartość, do nadpisania w klasach potomnych
-        
+
 
         self.BASE_PATH = os.path.dirname(os.path.abspath(__file__))
         self.SOURCE_PATH = os.path.abspath(os.path.join(self.BASE_PATH, "../../../examples/desktop"))
@@ -91,7 +91,7 @@ class BaseEvaluation:
         # Path relative to project root (3 levels up from this file)
         self.APP_PARAMS_PATH = os.path.abspath(os.path.join(self.BASE_PATH, "../../../examples/desktop/config/inference_params.yaml"))
 
-        
+
 
         # Add examples/desktop to sys.path to allow importing pydantic_models
         desktop_path = os.path.abspath(os.path.join(self.BASE_PATH, "../../../examples/desktop"))
@@ -145,13 +145,13 @@ class BaseEvaluation:
 
 
         # --- Configuration ---
-        self.evaluator_model_name = 'gpt-4o-mini'
+        self.evaluator_model_name = os.getenv('EDGE_LAB_JUDGE_MODEL', 'gpt-4o-mini')
         # Judge key: env first, then GCP Secret Manager (see utils/gcp_secrets.py).
         self.evaluator_api_key = resolve_secret("OPENAI_API_KEY")
         self.OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
         self.OLLAMA_CLIENT = ollama.Client(host=self.OLLAMA_HOST)
-        self.OPENAI_CLIENT = openai.OpenAI(api_key=self.evaluator_api_key)
-        self.PATCHED_OPENAI_CLIENT = instructor.patch(self.OPENAI_CLIENT, mode=instructor.Mode.MD_JSON)
+        self.OPENAI_CLIENT = openai.OpenAI(api_key=self.evaluator_api_key) if self.evaluator_api_key else None
+        self.PATCHED_OPENAI_CLIENT = instructor.patch(self.OPENAI_CLIENT, mode=instructor.Mode.MD_JSON) if self.OPENAI_CLIENT else None
         # Initialize llama server process and paths
         self.llama_server_process = None
         self.LLAMA_CPP_PATH = os.path.abspath(os.path.join(self.BASE_PATH, "../../../examples/desktop/llama.cpp"))
@@ -160,7 +160,7 @@ class BaseEvaluation:
         self.LLAMA_SERVER_HOST = "127.0.0.1"
         self.LLAMA_SERVER_PORT = 8080
         self.LLAMA_SERVER_URL = f"http://{self.LLAMA_SERVER_HOST}:{self.LLAMA_SERVER_PORT}"
-        
+
         # # Create instructor-patched client for llama-server (structured output support)
         # self.PATCHED_LLAMA_CLIENT = instructor.from_provider(
         #     "openai/gpt-4",  # Model name (will be overridden in actual calls)
@@ -183,23 +183,73 @@ class BaseEvaluation:
         # Pluggable Tracking (Default to Neptune if available, else Mock/Console)
         self.neptune: Optional[RunTracker] = NeptuneManager()
         self.inference_engine = "llama-server"
+    @classmethod
+    def from_local_model(cls, model_path, server_path, *, tools=None, prompt='',
+                         context_size=2048, max_tokens=128, temperature=0, port=8080,
+                         timeout=120, metrics_profile='structured'):
+        """Configure the existing evaluator for arbitrary local GGUF tasks.
+
+        This factory avoids Ollama discovery, cloud credentials and domain assets.
+        The structured profile requires JSON references and makes no judge calls.
+        """
+        from pathlib import Path
+        if metrics_profile not in {'structured', 'text'}:
+            raise ValueError('Local factory supports structured or text grading')
+        model = Path(model_path).resolve()
+        server = Path(server_path).resolve()
+        if not model.is_file() or not server.is_file():
+            raise FileNotFoundError('Model and llama-server executable must exist')
+        instance = cls.__new__(cls)
+        instance.model_name = model.name
+        instance.model_name_norm = model.stem
+        instance.agent_type = 'custom_en'
+        instance.eval_type = 'referenced' if cls.__name__ == 'EvalModelsReferenced' else 'unreferenced'
+        instance.folders_to_cleanup = []
+        instance.tools = tools or []
+        instance.cot_prompt = prompt
+        instance.metrics_profile = metrics_profile
+        instance.request_options = {'chat_template_kwargs': {'enable_thinking': False}, 'cache_prompt': False}
+        instance.SEED = 11
+        instance.CONTEXT_SIZE, instance.MAX_TOKENS = context_size, max_tokens
+        instance.TEMPERATURE, instance.TOP_P = temperature, 1.0
+        instance.TIMEOUT = timeout
+        instance.LLAMA_SERVER_PATH = str(server)
+        instance.LLAMA_SERVER_HOST, instance.LLAMA_SERVER_PORT = '127.0.0.1', port
+        instance.LLAMA_SERVER_URL = f'http://127.0.0.1:{port}'
+        instance.local_model_path = str(model)
+        sha = hashlib.sha256()
+        with model.open('rb') as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                sha.update(chunk)
+        instance.current_model_metadata = {'name': model.name, 'sha256': sha.hexdigest(),
+                                           'model_size_bytes': model.stat().st_size,
+                                           'backend_sha256': hashlib.sha256(server.read_bytes()).hexdigest()}
+        instance.all_model_metadata = {'model': {model.name: instance.current_model_metadata}}
+        instance.MULTI_TURN_GLOBAL_CONFIG = {'context_size': context_size, 'max_tokens': max_tokens,
+                                           'temperature': temperature, 'top_p': 1.0}
+        instance.evaluator_model_name = None
+        instance.OPENAI_CLIENT = instance.PATCHED_OPENAI_CLIENT = None
+        instance.neptune = None
+        instance.llama_server_process = None
+        return instance
+
     def _finalize_init(self, model_name, agent, eval_type):
         # check if model metadata cashed
         if self.eval_type in ("referenced", "unreferenced"):
             self.EVALUATION_PROMPT_PATH = os.path.join(self.SOURCE_PATH, "input","agents", self.agent_type, "evaluation_prompt", "gpt_judge_prompt.txt")
             self.PATIENT_SIMULATION_PROMPT_PATH = os.path.join(self.SOURCE_PATH, "input","agents", self.agent_type, "conversation_stimulation","patient_simulation_prompt.txt")
-            
-            
-            
-            
-            
+
+
+
+
+
     def __del__(self):
         """Destruktor - czyści puste foldery na koniec, niezależnie od błędów"""
         self._cleanup_empty_folders()
-    
+
     def _cleanup_empty_folders(self):
         """Czyści puste foldery z listy folders_to_cleanup oraz ich pustych rodziców"""
-        for folder_path in self.folders_to_cleanup:
+        for folder_path in getattr(self, 'folders_to_cleanup', []):
             current_path = os.path.abspath(folder_path)
             # Walk up the tree and remove empty folders
             while current_path and current_path.startswith(self.SOURCE_PATH) and current_path != self.SOURCE_PATH:
@@ -213,9 +263,9 @@ class BaseEvaluation:
                 except Exception as e:
                     print(f"  Could not remove folder {current_path}: {e}")
                     break
-        
-        
-        
+
+
+
     def create_session(self, model_name=None, fixed_run_number: int = None, fixed_timestamp: str = None, create_all_models: bool = True) -> dict:
         """
         Tworzy sesję ewaluacji.
@@ -237,7 +287,7 @@ class BaseEvaluation:
         print(f"DEBUG: create_session called with create_all_models={create_all_models}")
         run_path_map = self._create_session_folders_and_log_file(main_path_map, self.SOURCE_PATH, fixed_run_number=fixed_run_number, fixed_timestamp=fixed_timestamp, create_all_models=create_all_models)
         print("run_path_map: ", run_path_map)
-        
+
         log_folder = run_path_map["log_folder"]
         model_run_folder = run_path_map["model_run_folder"]
         all_models_run_folder = run_path_map["all_models_run_folder"]
@@ -252,7 +302,7 @@ class BaseEvaluation:
         self.folders_to_cleanup.append(all_models_run_folder)
         self.folders_to_cleanup.append(log_folder)
         return {"model_run":model_run, "all_models_run":all_models_run, "log_folder": log_folder, "model_run_folder": model_run_folder, "all_models_run_folder": all_models_run_folder, "timestamp": timestamp, "current_model_metadata": self.current_model_metadata, "all_model_metadata": self.all_model_metadata}
-    
+
     def get_or_create_file_or_folder(self, file_name:str, type_of_file: Literal["reference", "log", "cache", "metadata"], source_path:str=None)->Tuple[str, bool]:
         """
         Tworzy plik referencyjny w katalogu referencyjnym
@@ -286,13 +336,13 @@ class BaseEvaluation:
             folder = os.path.join(source_path, "output", "metadata")
 
         if type_of_file == "cache":
-            folder_existed = os.path.exists(folder) 
+            folder_existed = os.path.exists(folder)
             if not folder_existed:
                 self.folders_to_cleanup.append(folder)
 
             os.makedirs(folder, exist_ok=True)
             return folder, folder_existed
-        
+
 
         file = os.path.join(folder, file_name + ".json")
         if not os.path.exists(file):
@@ -314,7 +364,7 @@ class BaseEvaluation:
 
 
 
-        
+
 
     @staticmethod
     def load_json_file(file_path):
@@ -329,42 +379,21 @@ class BaseEvaluation:
 
     @staticmethod
     def save_json_file(data, file_path, evaluations=True):
-        """Save data to JSON file. New data will be overwritten.
-        Validates data before saving to avoid empty structures.
-        """
-        if evaluations:
-            if isinstance(data, str):
-                # with open(file_path, 'w', encoding='utf-8') as f:
-                #     f.write(data)
-                data = BaseEvaluation.pretty_json(data, 'json')
+        """Persist all observations atomically, including failures and patient runs."""
+        from edge_llm_lab.storage.json_log import atomic_write_json
+        if isinstance(data, str):
+            data = json.loads(data)
+        atomic_write_json(data, file_path)
 
-            elif isinstance(data, dict):
-                # Walidacja: usuń puste rounds z evaluations
-                if "evaluations" in data:
-                    cleaned_evaluations = []
-                    for evaluation in data["evaluations"]:
-                        if evaluation.get("rounds") and len(evaluation["rounds"]) > 0:
-                            cleaned_evaluations.append(evaluation)
-                        else:
-                            print(f"  Skipping evaluation with empty rounds: {evaluation.get('model_info', {}).get('name', 'unknown')}")
-                    data["evaluations"] = cleaned_evaluations
-                
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    json.dump(data, f, indent=2, ensure_ascii=False)
-                    print(f"Saved data to {file_path}")
-        else:
-            with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
-                print(f"Saved data to {file_path}")
 
-                
+
     @staticmethod
     def read_txt( path):
         if isinstance(path, str):
             with open(path, 'r', encoding='utf-8') as f:
                 return f.read()
         return None
-        
+
 
     # NOTE: a dead `save_evaluation_log` method was removed here — it had zero
     # call sites and called two methods with wrong keyword-argument names
@@ -375,8 +404,8 @@ class BaseEvaluation:
         """Load YAML configuration file."""
         with open(config_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
-  
-    
+
+
     def create_tool_for_agent(self):
         return self._create_tool(self.TOOLS_DICT[self.agent_type]['pydantic_model'], self.TOOLS_DICT[self.agent_type]['name'], self.TOOLS_DICT[self.agent_type]['description'])
 
@@ -412,7 +441,7 @@ class BaseEvaluation:
 
     @staticmethod
     def pretty_json(obj, output_type:Literal['json', 'str']='json'):
-        """Format JSON object with proper indentation.   
+        """Format JSON object with proper indentation.
         eg
 
         >>> from base_eval import BaseEvaluation, Agent
@@ -448,7 +477,7 @@ class BaseEvaluation:
             return json_obj
         elif output_type == 'str':
             return json.dumps(json_obj, indent=2, ensure_ascii=False, sort_keys=True)
-        
+
 
     # def init_cache(self, file_name, source_path:str=None):
 
@@ -459,7 +488,7 @@ class BaseEvaluation:
     #     cache_file, _ = self.get_or_create_file_or_folder(file_name=file_name, type_of_file="cache", source_path=source_path)
     #     return Memory(cache_file, verbose=0)
 
-    
+
     def get_prompt_hash(self, data: Dict) -> str:
         """Generuje unikalny hash na podstawie parametrów zapytania."""
         input_str = json.dumps(data, sort_keys=True)
@@ -515,13 +544,13 @@ class BaseEvaluation:
         ...     final_answer: str
         >>> tools_schema = BaseEvaluation._create_tool(CoTReasoning, "CoTReasoning", "reasoining about user guestion")
         >>> with redirect_stdout(io.StringIO()):
-        ...     be = BaseEvaluation(model_name=model_name, agent=Agent.CONSTANT_DATA_EN) 
+        ...     be = BaseEvaluation(model_name=model_name, agent=Agent.CONSTANT_DATA_EN)
         >>> response = be.get_openai_response(
-        ...         messages=[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is the capital of France?"}], 
-        ...         tools_schema=tools_schema, 
+        ...         messages=[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is the capital of France?"}],
+        ...         tools_schema=tools_schema,
         ...         custom_catch_type="test",
         ...         response_model=CoTReasoning,
-        ...         response_format='str', 
+        ...         response_format='str',
         ...         use_cache=True)
         💰 Używam cache w 'examples/desktop/output/agents/constant_data_en/default/prompt_cache/gpt-4o'
         >>> print(response) # doctest: +NORMALIZE_WHITESPACE
@@ -541,7 +570,7 @@ class BaseEvaluation:
           },
           "id": "1",
           "name": "GetCapitalOfFrance"
-        }  
+        }
         """
         # Generowanie klucza cache (tylko dane JSON-serializowalne)
         cache_key_data = {
@@ -550,7 +579,7 @@ class BaseEvaluation:
             "tryb": custom_catch_type if custom_catch_type else None,
             "messages": messages if messages else None,
             "tools_schema": tools_schema if tools_schema else None,
-            "response_model_name": response_model.__name__ if response_model else None,
+            "response_model_schema": response_model.model_json_schema() if response_model else None,
             "temperature": self.TEMPERATURE,
             "top_p": self.TOP_P,
             "max_tokens": self.MAX_TOKENS,
@@ -562,7 +591,7 @@ class BaseEvaluation:
         # Dane dla funkcji call_openai (bez obiektów nie-picklowalnych)
         cache_data = cache_key_data.copy()  # Tylko dane serializowalne
         # Inicjalizacja cache z joblib
-        
+
         cache_dir, _ = self.get_or_create_file_or_folder(file_name=custom_catch_type or "cache", type_of_file="cache")
         memory = Memory(cache_dir, verbose=0)
 
@@ -588,7 +617,7 @@ class BaseEvaluation:
                 messages=messages_param,
                 tools=tools_param if tools_param else None,
                 tool_choice="auto" if tools_param else None,
-                response_model=ToolCall if response_model_param else None,
+                **({"response_model": ToolCall} if response_model_param else {}),
                 temperature=cache_data_param["temperature"],
                 max_tokens=cache_data_param["max_tokens"],
                 top_p=cache_data_param["top_p"],
@@ -617,7 +646,7 @@ class BaseEvaluation:
                         print(f"🔄 Cache miss - wysyłam nowe zapytanie do API i zapisuję w '{cache_dir}'")
                 else:
                     print(f"💰 Używam cache w '{cache_dir}'")
-                
+
                 result = cached_call(cache_data)
             else:
                 print("Pomijam cache, wysyłam nowe zapytanie do API")
@@ -627,7 +656,7 @@ class BaseEvaluation:
             elif isinstance(result, dict) and "content" in result:
                 content = result["content"]  # Extract content from dict
                 # Only try to parse JSON if format is 'json', not 'str'
-                
+
                 content = self.pretty_json(content, response_format)
 
             else:
@@ -647,7 +676,7 @@ class BaseEvaluation:
 
 
 
-    
+
     def _load_referenced_params(self):
         """Load parameters specific to referenced evaluation for multi tunr trategy or agent type.
         >>> from base_eval import Agent
@@ -697,8 +726,8 @@ class BaseEvaluation:
 
     @staticmethod
     def get_agent_value(agent):
-        """Helper function to get string value from Agent enum or string 
-        eg. 
+        """Helper function to get string value from Agent enum or string
+        eg.
         >>> from base_eval import BaseEvaluation, Agent
         >>> BaseEvaluation.get_agent_value(Agent.CONSTANT_DATA_EN)
         'constant_data_en'
@@ -718,7 +747,7 @@ class BaseEvaluation:
 
 
 
-    
+
     @staticmethod
     def select_agent():
         """Wybór agenta z menu 1-5"""
@@ -730,7 +759,7 @@ class BaseEvaluation:
         print("5. SYMPTOM - zbieranie objawów")
 
         agent_choice = input("Wybór (1-5): ").strip() or "2"
-        
+
         agent_map = {
             "1": Agent.CONSTANT_DATA,
             "2": Agent.CONSTANT_DATA_EN,
@@ -757,11 +786,11 @@ class BaseEvaluation:
         """Sprawdź dostępność modelu i zainstaluj jeśli potrzeba"""
         import ollama
         from edge_llm_lab.core.model_config_loader import delete_all_models, pull_model_with_progress
-        
+
         try:
             available_models = ollama.list()
             available_model_names = []
-            
+
             if hasattr(available_models, 'models'):
                 for model in available_models.models:
                     name = model.model if hasattr(model, 'model') else str(model)
@@ -776,28 +805,28 @@ class BaseEvaluation:
         except Exception as e:
             print(f" Błąd sprawdzania modeli: {e}")
             return False
-            
+
         if model_name in available_model_names:
             print(f"  Model {model_name} już jest zainstalowany!")
             return True
-            
+
         # Model nie jest zainstalowany
         print(f" Model {model_name} nie jest zainstalowany!")
         if install_choice is None:
             install_choice = input(f"Zainstalować {model_name}? (y/n): ").lower().strip()
-        
+
         if install_choice == 'y':
             try:
                 print(f" 📥 Instalowanie modelu {model_name}...")
                 # DISABLED: Don't delete all models - we want to keep multiple models
                 # delete_all_models()
                 pull_model_with_progress(model_name)
-                
+
                 # Sprawdź czy model rzeczywiście się zainstalował
                 try:
                     available_models = ollama.list()
                     available_model_names = []
-                    
+
                     if hasattr(available_models, 'models'):
                         for model in available_models.models:
                             name = model.model if hasattr(model, 'model') else str(model)
@@ -809,18 +838,18 @@ class BaseEvaluation:
                             else:
                                 name = str(model)
                             available_model_names.append(name)
-                    
+
                     if model_name in available_model_names:
                         print(f"  Model {model_name} zainstalowany!")
                         return True
                     else:
                         print(f" Model {model_name} nie został zainstalowany poprawnie!")
                         return False
-                        
+
                 except Exception as verify_error:
                     print(f" Błąd weryfikacji instalacji {model_name}: {verify_error}")
                     return False
-                    
+
             except Exception as e:
                 print(f" Błąd instalacji {model_name}: {e}")
                 return False
@@ -831,7 +860,7 @@ class BaseEvaluation:
     @staticmethod
     def ensure_agent_enum(agent):
         """Helper function to ensure we have an Agent enum
-        eg. 
+        eg.
         >>> import io, sys
         >>> from contextlib import redirect_stdout
         >>> from base_eval import BaseEvaluation, Agent
@@ -880,7 +909,7 @@ class BaseEvaluation:
 
     def get_llama_response(self, tools_schema, context_messages, optimisations=None):
         """Get response using local llama-server. Returns same format as get_ollama_response."""
-        
+
         payload = {
             "messages": context_messages,
             "temperature": self.TEMPERATURE,
@@ -890,35 +919,41 @@ class BaseEvaluation:
             "stream": False,
             "seed": self.SEED,
         }
+        payload.update(getattr(self, 'request_options', {}))
         if tools_schema:
             payload["tools"] = tools_schema
         print("🦙 Using local llama-server for inference")
         try:
             start_resources = self.monitor_resources()
-            
-            start_time = time.time()
-            response = requests.post(
+
+            start_time = time.perf_counter()
+            if not hasattr(self, '_http_session'):
+                self._http_session = requests.Session()
+            response = self._http_session.post(
                 f"{self.LLAMA_SERVER_URL}/v1/chat/completions",
                 json=payload,
                 timeout=self.TIMEOUT
             )
-            end_time = time.time()
+            end_time = time.perf_counter()
+            response.raise_for_status()
             end_resources = self.monitor_resources()
             result = response.json()
-  
+            if not result.get('choices'):
+                raise ValueError('Inference response contains no choices')
+
         except Exception as e:
             print(f"Error in llama-server request: {e}")
             raise
-        
+
         # Model odpowiada zgodnie z promptem - zwracamy jego naturalną odpowiedź
         # Może to być content (tekst) lub tool_calls (wywołania narzędzi)
         message = result.get('choices', [{}])[0].get('message', {})
-        
+
         # Model odpowiedział - wyciągnij tylko tool_calls jeśli istnieją
         if message.get('tool_calls'):
             # Rekurencyjnie parsuj wszystkie JSON stringi dla czytelnego formatowania
             parsed_tool_calls = self._parse_json_strings_recursively(message['tool_calls'])
-            
+
             response_json = self.pretty_json({
                 "tool_calls": parsed_tool_calls
             }, 'str')
@@ -930,19 +965,21 @@ class BaseEvaluation:
 
         # Build latency breakdown from llama-server timings if available
         latency_breakdown = self._parse_llama_timings(result, start_time, end_time, optimisations)
+        latency_breakdown['finish_reason'] = result['choices'][0].get('finish_reason')
+        latency_breakdown['truncated'] = result['choices'][0].get('finish_reason') == 'length'
         latency_breakdown['start_resources'] = start_resources
         latency_breakdown['end_resources'] = end_resources
-        
+
         # Calculate resource differences
         resource_differences = self.calculate_resource_differences(start_resources, end_resources)
         if resource_differences:
             latency_breakdown['resource_differences'] = resource_differences
 
         return response_json, latency_breakdown
-        
+
 
     def get_ollama_response(self, tools_schema, context):
-        
+
         #print(f"ollama response round_number: {round_number}")
         print(f"generating ollama response")
         start_resources = self.monitor_resources()
@@ -995,131 +1032,20 @@ class BaseEvaluation:
 
         return response_json, latency_breakdown
 
-    def _parse_llama_timings(self, result: dict, start_time: float, end_time: float, optimisations: dict = None) -> dict:
-        """Parse llama-server timing fields into a consistent latency_breakdown dict.
-        Supports both top-level result['timings'] and per-choice timings under result['choices'][0]['timings'].
-        When fields are missing, falls back to wall-clock total time.
-        """
-        total_time_ms = round((end_time - start_time) * 1000, 2)
-        timings = result.get('timings') or {}
-        choice_timings = None
-        try:
-            choice_timings = result.get('choices', [{}])[0].get('timings')
-        except Exception:
-            choice_timings = None
-
-        # Prefer top-level timings; fallback to choice timings
-        src = timings if isinstance(timings, dict) and timings else (choice_timings if isinstance(choice_timings, dict) else {})
-
-        prompt_ms = src.get('prompt_ms') if isinstance(src, dict) else None
-        predicted_ms = src.get('predicted_ms') if isinstance(src, dict) else None
-        prompt_n = src.get('prompt_n') if isinstance(src, dict) else None
-        predicted_n = src.get('predicted_n') if isinstance(src, dict) else None
+    def _parse_llama_timings(self, result, start_time, end_time, optimisations=None):
+        from edge_llm_lab.runtime.timings import parse_llama_timings
+        return parse_llama_timings(result, start_time, end_time, optimisations)
 
 
-        # Compute total from parts when available
-        if isinstance(prompt_ms, (int, float)) and isinstance(predicted_ms, (int, float)):
-            computed_total = round(prompt_ms + predicted_ms, 2)
-        else:
-            computed_total = total_time_ms
+    def run_inference(self, tools_schema, context, fallback=False, optimisations=None):
+        """Infer using the same owned server until model/runtime options change."""
+        self.inference_engine = "llama-server"
+        model_path = getattr(self, 'local_model_path', None) or self.get_model_path_from_ollama(self.model_name)
+        if not model_path:
+            raise FileNotFoundError(f"No local model file for {self.model_name}")
+        self.start_local_llama_server(model_path, optimisations=optimisations)
+        return self.get_llama_response(tools_schema, context, optimisations=optimisations)
 
-        throughput = None
-        if isinstance(predicted_ms, (int, float)) and predicted_ms > 0 and isinstance(predicted_n, (int, float)):
-            throughput = predicted_n / (predicted_ms / 1000.0)
-
-               # Dodatkowe statystyki z llama.cpp
-        prompt_per_token_ms = src.get('prompt_per_token_ms') if isinstance(src, dict) else None
-        prompt_per_second = src.get('prompt_per_second') if isinstance(src, dict) else None
-        predicted_per_token_ms = src.get('predicted_per_token_ms') if isinstance(src, dict) else None
-        predicted_per_second = src.get('predicted_per_second') if isinstance(src, dict) else None
-        
-        breakdown = {
-            'total_ms': computed_total,
-            'model_loading_ms': None,  # llama-server API does not expose model load time here
-            'prompt_eval_ms': float(prompt_ms) if isinstance(prompt_ms, (int, float)) else None,
-            'token_generation_ms': float(predicted_ms) if isinstance(predicted_ms, (int, float)) else None,
-            'optimizations_details': optimisations if optimisations else {},  # Track optimization parameters
-            'breakdown_percentage': {
-                'loading': None,
-                'prompt_eval': (float(prompt_ms) / computed_total * 100.0) if isinstance(prompt_ms, (int, float)) and computed_total else None,
-                'generation': (float(predicted_ms) / computed_total * 100.0) if isinstance(predicted_ms, (int, float)) and computed_total else None,
-            },
-            'tokens': {
-                'prompt_count': int(prompt_n) if isinstance(prompt_n, (int, float)) else None,
-                'generated_count': int(predicted_n) if isinstance(predicted_n, (int, float)) else None,
-                'throughput_tokens_per_sec': throughput,
-                'prompt_per_token_ms': float(prompt_per_token_ms) if isinstance(prompt_per_token_ms, (int, float)) else None,
-                'prompt_per_second': float(prompt_per_second) if isinstance(prompt_per_second, (int, float)) else None,
-                'predicted_per_token_ms': float(predicted_per_token_ms) if isinstance(predicted_per_token_ms, (int, float)) else None,
-                'predicted_per_second': float(predicted_per_second) if isinstance(predicted_per_second, (int, float)) else None
-            }
-        }
-        # Safely calculate model_loading_ms with None checks
-        if computed_total is not None and prompt_ms is not None and predicted_ms is not None:
-            model_loading_ms = float(computed_total) - float(prompt_ms) - float(predicted_ms)
-            if model_loading_ms < 0:
-                model_loading_ms = 0.0
-        else:
-            model_loading_ms = 0.0 
-        breakdown['model_loading_ms'] = model_loading_ms
-        breakdown['breakdown_percentage']['loading'] = (model_loading_ms / computed_total * 100.0) if isinstance(computed_total, (int, float)) and computed_total else None
-        print(f"breakdown: \n{breakdown}")
-        return breakdown
-
-    def run_inference(self, tools_schema, context, fallback = False,optimisations={}):
-        """Run inference using the best available method."""
-        import requests
-        import subprocess
-        import time
-
-        # Check if llama-server is running and supports tools
-        self.inference_engine = "llama-server" # Primary engine
-        try:
-            model_path = self.get_model_path_from_ollama(self.model_name)
-            response = requests.get(f"{self.LLAMA_SERVER_URL}/v1/models", timeout=self.TIMEOUT)
-            if response.status_code == 200:
-                server_models = response.json().get("data", [])
-                loaded_model_path = server_models[0].get("id") if server_models else None
-                
-                # Verify loaded model matches self.model_name or its path
-                is_correct = False
-                if loaded_model_path and model_path:
-                    # Normalize paths for absolute comparison
-                    norm_loaded = os.path.abspath(os.path.expanduser(loaded_model_path))
-                    norm_target = os.path.abspath(os.path.expanduser(model_path))
-                    is_correct = (norm_loaded == norm_target)
-                
-                if not is_correct and loaded_model_path:
-                    # Fallback check: maybe it's just the name or basename
-                    is_correct = (self.model_name in loaded_model_path or os.path.basename(loaded_model_path) in self.model_name)
-
-                if is_correct:
-                    print(f" Reusing existing llama-server with correct model: {loaded_model_path}")
-                    return self.get_llama_response(tools_schema, context, optimisations=optimisations)
-                else:
-                    print(f"  Existing llama-server has different model loaded: {loaded_model_path}. Target: {model_path}. Restarting...")
-                    self._kill_llama_server_processes()
-        except requests.exceptions.RequestException as e:
-            print(f"Error checking llama-server: {e}")
-
-        # Start a new llama-server
-        if model_path and self.start_local_llama_server(model_path, optimisations=optimisations):
-            print(" Started new llama-server. Waiting 5s for stability...")
-            time.sleep(5)  # Add stability buffer
-            try:
-                return self.get_llama_response(tools_schema, context, optimisations=optimisations)
-            except Exception as e:
-                print(f"llama-server call failed after start: {e}")
-        else:
-            print("Could not start llama-server")
-        
-        # Fallback to Ollama API is commented out per user request
-        # print("🔄 Fallback to Ollama API is disabled")
-        # if fallback:
-        #     self.inference_engine = "ollama"
-        #     return self.get_ollama_response(tools_schema, context)
-        
-        return None, {}
 
     # def start_local_llama_server(self, model_path, optimisations={}):
     #     """Start local llama-server with the specified model."""
@@ -1130,7 +1056,7 @@ class BaseEvaluation:
     #     self._kill_llama_server_processes()
 
     #     print(f"🦙 Starting llama-server on port {self.LLAMA_SERVER_PORT} with model: {model_path}")
-        
+
     #     cmd = [
     #         self.LLAMA_SERVER_PATH,
     #         "--model", model_path,
@@ -1149,7 +1075,7 @@ class BaseEvaluation:
     #             optimisations["--cache-type-v"] = kv_cache
     #         else:
     #             print(f"No optimal KV cache type found for {kv_cache}")
-        
+
     #     for param, value in optimisations.items():
     #         print(f"Optimisation: {param} = {value}")
     #         if value is not None:
@@ -1176,175 +1102,37 @@ class BaseEvaluation:
     #     return False
 
     def start_local_llama_server(self, model_path, optimisations=None):
-        """Start local llama-server with the specified model and optimizations.
-        
-        Args:
-            model_path: Path to the model file
-            optimisations: Dictionary of optimization parameters (e.g., {"--flash-attn": None})
-            
-        Returns:
-            bool: True if server started successfully, False otherwise
-        """
-        import subprocess
-        import time
-        import requests
-        
-        # Initialize optimisations if not provided
-        if optimisations is None:
-            optimisations = {}
-        
-        # Clean up old llama-server processes
-        self._kill_llama_server_processes()
+        from edge_llm_lab.runtime.server import LlamaServerRuntime
+        if not hasattr(self, '_runtime'):
+            self._runtime = LlamaServerRuntime(self.LLAMA_SERVER_PATH, self.LLAMA_SERVER_HOST,
+                                               self.LLAMA_SERVER_PORT, self.TIMEOUT)
+        self.llama_server_process = self._runtime.ensure(
+            model_path, self.CONTEXT_SIZE, self.MAX_TOKENS, optimisations or {})
+        return True
 
-        print(f"🦙 Starting llama-server on port {self.LLAMA_SERVER_PORT}")
-        print(f" Model: {model_path}")
-        
-        # Base command
-        cmd = [
-            self.LLAMA_SERVER_PATH,
-            "--model", model_path,
-            "--port", str(self.LLAMA_SERVER_PORT),
-            "--host", str(self.LLAMA_SERVER_HOST),
-            "--ctx-size", str(self.CONTEXT_SIZE),
-            "--n-predict", str(self.MAX_TOKENS),
-            "--jinja",
-            "--verbose",
-        ]
-        print(f'optimisations: {optimisations}')
-        print(f'optimisation.key("--cache-type-k"): {optimisations.get("--cache-type-k")}')
-        # Handle KV cache optimization
-        if optimisations is None:
-            optimisations = {}
-
-        kv_cache = self._get_optimal_kv_cache_type()
-        
-        # # If KV cache is enabled but no specific cache types are set
-        # if "--kv-cache" in optimisations and not any(k in optimisations for k in ["--cache-type-k", "--cache-type-v"]):
-        #     if kv_cache:
-        #         optimisations["--cache-type-k"] = kv_cache
-        #         optimisations["--cache-type-v"] = kv_cache
-        #         print(f"  Using KV cache type: {kv_cache}")
-        #     else:
-        #         print("   No optimal KV cache type found, using defaults")
-        
-        # Add optimization parameters
-        if optimisations:
-            print("\n🛠️  Applying optimizations:")
-            for param, value in optimisations.items():
-                print(f"   {param}" + (f"={value}" if value is not None else ""))
-                cmd.append(param)
-                if value is not None:
-                    cmd.append(str(value))
-        
-        # Start the server
-        try:
-            print("\n🚀 Starting server with command:")
-            print("   " + " ".join(f'"{x}"' if " " in str(x) else str(x) for x in cmd))
-            
-            self.llama_server_process = subprocess.Popen(
-                cmd, 
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE, 
-                text=True
-                
-            )
-            
-            # Wait for server to be ready
-            print("\n⏳ Waiting for model to load...")
-   
-
-            start_time = time.time()
-            
-            for attempt in range(self.TIMEOUT):  # Timeout from config.yaml
-                # Check if process crashed
-                if self.llama_server_process.poll() is not None:
-                    stderr_output = self.llama_server_process.stderr.read()
-                    stdout_output = self.llama_server_process.stdout.read()
-                    print(f"\nllama-server process crashed!")
-                    print(f"Exit code: {self.llama_server_process.returncode}")
-                    if stderr_output:
-                        print(f"STDERR:\n{stderr_output[:2000]}")
-                    if stdout_output:
-                        print(f"STDOUT:\n{stdout_output[:2000]}")
-                    return False
-                
-                try:
-                    response = requests.get(
-                        f"{self.LLAMA_SERVER_URL}/v1/models", 
-                        timeout=2
-                    )
-                    if response.status_code == 200:
-                        load_time = time.time() - start_time
-                        print(f" Server started successfully in {load_time:.1f}s")
-                        return True
-                except (requests.RequestException, ConnectionError):
-                    pass
-                    
-                # Print status every 10 seconds
-                if attempt > 0 and attempt % 10 == 0:
-                    print(f"   Still loading... ({attempt}s)")
-                    
-                time.sleep(1)
-                
-        except Exception as e:
-            print(f"\nFailed to start server: {str(e)}")
-            if hasattr(self, 'llama_server_process'):
-                self.llama_server_process.kill()
-            return False
-        
-        print("\n❌ Server failed to start: Timeout")
-        # Print stderr/stdout on timeout
-        if hasattr(self, 'llama_server_process'):
-            try:
-                stderr_output = self.llama_server_process.stderr.read()
-                stdout_output = self.llama_server_process.stdout.read()
-                if stderr_output:
-                    print(f"STDERR (last 2000 chars):\n{stderr_output[-2000:]}")
-                if stdout_output:
-                    print(f"STDOUT (last 2000 chars):\n{stdout_output[-2000:]}")
-            except:
-                pass
-            self.llama_server_process.kill()
-        return False
 
     def _kill_llama_server_processes(self):
-        """Safely terminate ONLY llama-server processes bound to the configured port.
-        Avoid killing the Python client which may also have an open socket to that port.
-        """
-        import subprocess
-        import os
-        import signal
-        try:
-            # Get PIDs listening on the port (LISTEN only avoids clients)
-            result = subprocess.run(
-                ["lsof", "-tiTCP:%s" % self.LLAMA_SERVER_PORT, "-sTCP:LISTEN"],
-                capture_output=True, text=True
-            )
-            pids = [pid for pid in result.stdout.strip().split("\n") if pid]
-            if not pids:
-                return
-            for pid in pids:
-                # Confirm the process is llama-server
-                cmdline = subprocess.run(["ps", "-p", pid, "-o", "command="], capture_output=True, text=True)
-                command = cmdline.stdout.strip()
-                if not command:
-                    continue
-                if os.path.basename(self.LLAMA_SERVER_PATH) in command or "llama-server" in command:
-                    try:
-                        print(f"🦙 Killing llama-server process {pid} ({command})")
-                        os.kill(int(pid), signal.SIGTERM)
-                    except Exception as e:
-                        print(f"  SIGTERM failed for {pid}: {e}")
-                    # If still alive, force kill
-                    try:
-                        subprocess.run(["kill", "-9", pid], capture_output=True)
-                    except Exception as e:
-                        print(f"  SIGKILL failed for {pid}: {e}")
-                else:
-                    # Skip non llama-server processes (e.g. our Python client)
-                    print(f"↩️ Skipping non llama-server process {pid}: {command}")
-        except Exception as e:
-            print(f"  Failed to enumerate/kill llama-server processes: {e}")
+        """Compatibility method: stop only the process owned by this evaluator."""
+        if hasattr(self, '_runtime'):
+            self._runtime.stop()
+        self.llama_server_process = None
+
+    def close(self):
+        if hasattr(self, '_runtime'):
+            self._runtime.close()
+        if hasattr(self, '_http_session'):
+            self._http_session.close()
+        if getattr(self, 'OPENAI_CLIENT', None) is not None:
+            self.OPENAI_CLIENT.close()
+        if getattr(self, 'neptune', None) is not None:
+            self.neptune.stop()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
     @staticmethod
     def get_next_run_number_for_path(base_dir: str) -> int:
         """Get next run number for model and all_models directories - returns (model_run, all_models_run).
@@ -1389,10 +1177,10 @@ class BaseEvaluation:
         return max(run_numbers) + 1 if run_numbers else 1
 
 
-    
+
     def construct_main_paths_for_eval(self, model_name_norm=None) -> str:
-        """Construct path from metadata. 
-        eg. 
+        """Construct path from metadata.
+        eg.
         >>> from referenced_clean import EvalModelsReferenced
         >>> from base_eval import Agent
         >>> from pprint import pprint
@@ -1444,10 +1232,10 @@ class BaseEvaluation:
         else:
              model_run_num = BaseEvaluation.get_next_run_number_for_path(model_folder)
              all_models_run_num = BaseEvaluation.get_next_run_number_for_path(all_models_folder)
-             
+
              model_run = f"run_{model_run_num:03d}"
              all_models_run = f"run_{all_models_run_num:03d}"
-        
+
 
         model_folder = os.path.join( model_folder, model_run)
         all_models_folder = os.path.join(all_models_folder, all_models_run)
@@ -1464,50 +1252,50 @@ class BaseEvaluation:
         """Get the local file path for a model from Ollama storage using Ollama API."""
         try:
             import ollama
-            
+
             # Use Ollama API to get model info
             model_info = ollama.show(model_name)
-            
+
             # Extract the modelfile to find the FROM line with blob reference
             modelfile = model_info.get('modelfile', '')
-            
+
             # Parse the FROM line to get the blob hash
             # Format: FROM /path/to/blob or FROM @sha256:hash
             for line in modelfile.split('\n'):
                 line = line.strip()
                 if line.startswith('FROM '):
                     from_path = line[5:].strip()
-                    
+
                     # If it's already a full path, use it
                     if from_path.startswith('/') or from_path.startswith('~'):
                         blob_path = os.path.expanduser(from_path)
                         if os.path.exists(blob_path):
                             return blob_path
-                    
+
                     # If it's a blob reference (@sha256:hash), construct path
                     if from_path.startswith('@sha256:'):
                         blob_hash = from_path[8:]  # Remove '@sha256:' prefix
                         blob_path = os.path.expanduser(f"~/.ollama/models/blobs/sha256-{blob_hash}")
                         if os.path.exists(blob_path):
                             return blob_path
-            
+
             # Fallback: try to extract from model details
             details = model_info.get('details', {})
             if 'parent_model' in details:
                 # Recursively try parent model
                 return self.get_model_path_from_ollama(details['parent_model'])
-                
+
             print(f"  Could not find blob path for {model_name}")
             return None
-            
+
         except Exception as e:
             print(f"❌ Error getting model path for {model_name}: {e}")
             return None
 
-    
+
     def _get_optimal_kv_cache_type(self, quantisation=None):
         """Determine optimal KV cache type based on cached model metadata.
-        
+
         >>> from base_eval import BaseEvaluation, Agent
         >>> import io, sys
         >>> from contextlib import redirect_stdout
@@ -1531,16 +1319,16 @@ class BaseEvaluation:
             return "f16"  # Fallback
 
         normalized_quantization = str(quantization).lower()
-        
+
         if normalized_quantization in allowed:
             return normalized_quantization
-        
+
         # Wyciągnij liczbę z inputu (np. "16" z "fp16")
         number_match = re.search(r'\d+', normalized_quantization)
         if not number_match:
             return "f16"  # Fallback jeśli brak liczby
         input_number = int(number_match.group())  # np. 16 jako int
-        
+
         # Porównaj numerycznie z liczbami w allowed
         for option in allowed:
             option_number_match = re.search(r'\d+', option)
@@ -1548,18 +1336,18 @@ class BaseEvaluation:
                 option_number = int(option_number_match.group())  # np. 16 z "f16"
                 if input_number == option_number:
                     return option
-        
+
         return "f16"  # Fallback jeśli brak dopasowania
 
     #@todo sprawdzic i poprawic
-    
+
     def save_and_get_current_model_metadata(self, source_path:str=None) -> tuple[dict, dict]:
         """Ensure model metadata is cached.
         eg:
         >>> from base_eval import BaseEvaluation, Agent
         >>> import io, sys
         >>> from contextlib import redirect_stdout
-        >>> from pprint import pprint 
+        >>> from pprint import pprint
         >>> import tempfile
         >>> model_name = BaseEvaluation.get_random_avilable_model_for_doctest()
         >>> with redirect_stdout(io.StringIO()):
@@ -1580,18 +1368,18 @@ class BaseEvaluation:
         if metadata_data.get("model", {}).get(self.model_name):  
             cached_metadata = metadata_data["model"][self.model_name]
             print(f" Model metadata already cached for {self.model_name} - NEVER overwriting")
-            
+
             # Warn if metadata has invalid values (but don't fix them)
             if cached_metadata.get('model_size_gb', 0) == 0.0:
                 print(f"  WARNING: Cached metadata for {self.model_name} has model_size_gb=0.0")
                 print(f"  This likely means metadata was saved when model was not in Ollama")
                 print(f"  To fix: restore old models_metadata.json or delete this entry and re-run with model in Ollama")
-            
+
             return cached_metadata, metadata_data
-        
-        # Only fetch and save metadata if it doesn't exist yet    
+
+        # Only fetch and save metadata if it doesn't exist yet
         print(f"📥 Fetching NEW metadata for {self.model_name} (first time)")
-        
+
         # CRITICAL: Check if model is in Ollama before fetching metadata
         try:
             self.OLLAMA_CLIENT.show(self.model_name)
@@ -1615,7 +1403,7 @@ class BaseEvaluation:
                 'parameter_size_display': '0B'
             }
             return dummy_metadata, metadata_data
-        
+
         current_model_metadata = self.extract_and_norma_model_param_from_ollama()
         metadata_data["model"][self.model_name] = current_model_metadata
         print(f"  Saving metadata for {self.model_name} (this will NEVER be overwritten)")
@@ -1629,15 +1417,15 @@ class BaseEvaluation:
     def extract_and_norma_model_param_from_ollama(self):
         """
         Pobiera informacje o modelu z Ollamy (rozmiar, parametry, etc.)
-        
+
         Args:
             model_name (str): Nazwa modelu w Ollamie
-            
+
         Returns:
             Optional[Dict[str, Any]]: Metadane modelu lub None jeśli błąd
 
         Przyklad pelnego wyniku dla modelu granite3.1-dense:2b-instruct-fp16:
-        > pprint(extracted_model_details) 
+        > pprint(extracted_model_details)
         {
             'architecture': 'granite',
             'cached_at': '...',
@@ -1652,7 +1440,7 @@ class BaseEvaluation:
             'parameter_size_display': '2.5B',
             'parameter_size_orginal': '2.5B',
             'quantization_level': 'F16'
-        } 
+        }
 
         >>> from base_eval import BaseEvaluation, Agent
         >>> from pprint import pprint
@@ -1666,15 +1454,15 @@ class BaseEvaluation:
         dict_keys(['architecture', 'parameter_size', 'parameter_size_orginal', 'context_length', 'embedding_length', 'quantization_level', 'model_format', 'model_size_bytes', 'model_size_gb', 'cached_at', 'context_size', 'max_tokens', 'parameter_size_display'])
         """
         print(f"📥 Fetching model metadata for {self.model_name}...")
-        
+
         # Check cached metadata first to avoid unnecessary ollama calls
         if hasattr(self, 'models_metadata') and self.models_metadata and self.model_name in self.models_metadata:
              print(f" Found cached metadata for {self.model_name}")
              return self.models_metadata[self.model_name]
-             
+
         model_details = {}
         show_output = ""
-        
+
         try:
             result = subprocess.run(['ollama', 'show', self.model_name], capture_output=True, text=True, check=True)
             show_output = result.stdout
@@ -1697,14 +1485,14 @@ class BaseEvaluation:
                 default_val = '0'
             elif key == 'parameter_size':
                 default_val = '0B'
-            
+
             match = re.search(pattern, show_output)
             model_details[key] = match.group(1) if match else default_val
         print(f"Step 1: extracted from ollama show: {model_details}")
 
         model_details['format'] = 'gguf'
         model_size_bytes = 0
-        
+
         try:
             result = subprocess.run(['ollama', 'list'], capture_output=True, text=True)
             print(f"Step 2: ollama list output: {result}")
@@ -1732,10 +1520,10 @@ class BaseEvaluation:
                         break
         except Exception as e:
             print(f"  Could not run 'ollama list': {e}")
-        
+
         print(f"Step 3: normalized model_size_bytes: {model_size_bytes}")
 
-        
+
         param_size = model_details['parameter_size']
         if isinstance(param_size, str):
             # Convert "2.5B" to 2.5, "600M" to 0.6, etc.
@@ -1763,8 +1551,8 @@ class BaseEvaluation:
                     param_size_extracted = float(param_size_upper)
                     param_size_dispaly = param_size_extracted
                     parameter_size_nominal = param_size_extracted
-                
-        
+
+
             except ValueError as e:
                 print(f"problem with param_size_extracted: {e} no conversion possible from {param_size_upper} to number")
 
@@ -1832,40 +1620,40 @@ class BaseEvaluation:
     @staticmethod
     def get_truly_untested_models(agent_type, evaluation_type, only_tested_true=True):
         """Pobiera modele z config.yaml które NIE mają wyników w evaluation_resultus.json
-        
+
         Args:
             agent_type: Typ agenta (np. 'constant_data_en')
             evaluation_type: Typ ewaluacji ('referenced' lub 'unreferenced')
             only_tested_true: Czy filtrować tylko modele z tested: true
             optimization_configs: Lista konfiguracji optymalizacji do przetestowania
                                  np. [{'param1': 'value1'}, {'param2': 'value2'}]
-        
+
         Returns:
             Lista tupli (model_name, optimization_config) lub lista model_name jeśli brak optymalizacji
         """
         import os
         import yaml
-        
+
         # Załaduj modele z config (z filtrowaniem tested: true)
         base_path = os.path.dirname(os.path.abspath(__file__))
         config_file = os.path.abspath(os.path.join(base_path, "..", "..", "..", "examples", "desktop", "input", "agents", agent_type, "evaluation_config", "config.yaml"))
-        
+
         if not os.path.exists(config_file):
             print(f"  Config file not found: {config_file}")
             return []
-        
+
         try:
             with open(config_file, 'r', encoding='utf-8') as f:
                 config = yaml.safe_load(f)
-            
+
             models_config = config.get('models_to_evaluate', [])
             all_models = []
-            
+
             for model in models_config:
                 if isinstance(model, dict):
                     model_name = model['name']
                     tested_flag = model.get('tested', False)
-                    
+
                     if only_tested_true:
                         # Tylko modele z tested: true
                         if tested_flag:
@@ -1876,20 +1664,20 @@ class BaseEvaluation:
                 elif isinstance(model, str):
                     if not only_tested_true:  # Tylko gdy nie filtrujemy tested: true
                         all_models.append(model)
-            
 
-        
+
+
         except Exception as e:
             print(f"❌ Error loading config: {e}")
             return []
-        
+
         if not all_models:
             return []
-        
+
 
         # Sprawdź które modele mają wyniki w evaluation_results.json
         log_file = os.path.abspath(os.path.join(base_path, "..", "..", "..", "examples", "desktop", "output", "agents", agent_type, evaluation_type, "log", "evaluation_results.json"))
-        
+
         tested_models = set()
         if os.path.exists(log_file):
             try:
@@ -1903,10 +1691,10 @@ class BaseEvaluation:
                 print(f" Znaleziono {len(tested_models)} modeli z wynikami w {evaluation_type} log")
             except Exception as e:
                 print(f"  Błąd odczytu loga: {e}")
-        
+
         # Zwróć modele które nie mają wyników
         untested_models = [model for model in all_models if model not in tested_models]
-        
+
         print(f"  Modeli do testowania ({evaluation_type}): {len(untested_models)}/{len(all_models)}")
         for model in untested_models:
             print(f"  • {model}")
@@ -1920,7 +1708,7 @@ class BaseEvaluation:
         # else:
         #     return all_models
         return untested_models
-        
+
 # if __name__ == "__main__":
 #     from base_eval import BaseEvaluation, Agent
 #     import dotenv
@@ -1936,7 +1724,7 @@ class BaseEvaluation:
 #         write_cache=False
 #     )
 #     print(response)
-    #    x = { 
+    #    x = {
     #     "choices": [
     #         {
     #         "finish_reason": "stop",
@@ -1981,16 +1769,16 @@ class BaseEvaluation:
     def get_last_sessions(self, key_dict, log_file, group_by_keys) -> dict:
         """
         Returns newest non-empty session for each optimisation type from log file, grouped by model_name and optimisation.
-        
+
         Args:
             key_dic: Dictionary of keys to filter sessions (e.g., model_name, agent_type)
             log_file: Path to log file with evaluation results
             group_by: List of fields to group sessions by (e.g., ['model_name', 'optimisation'])
             optimisation_types: List of optimization configs to filter by, None = all
-            
+
         Returns:
             Dictionary with optimization as key and session data as value
-            
+
         Example:
             >>> import json
             >>> from unittest.mock import mock_open, MagicMock
@@ -2081,19 +1869,19 @@ class BaseEvaluation:
 
 
         return last_sessions_by_group
-    
+
     @staticmethod
     def _group_sessions_by_and_filter_last(session_data: List, group_by_keys: Optional[List[str]] = None) -> Dict:
         """
         Groups sessions by optimization type.
-        
+
         Args:
             session_data: List of session data
             group_by: List of fields to group sessions by (e.g., ['model_name', 'optimisation'])
-            
+
         Returns:
             Dictionary with optimization as key and session data as value
-            
+
         Example:
         >>> session_data = [
         ...     {
@@ -2140,7 +1928,7 @@ class BaseEvaluation:
         # if group_by_keys not in session_data:
         #     raise ValueError(f"Group by keys {group_by_keys} not found in session data")
         #     return {}
-        
+
         from collections import defaultdict
         try:
             if group_by_keys is not None:
@@ -2156,7 +1944,7 @@ class BaseEvaluation:
                         key_parts.append(value)
                     key = tuple(key_parts)
                     groups[key].append(session)  # return list of sessions for each key
-                
+
                 latest = {}
                 for key, sessions in groups.items():
                     latest[key] = max(sessions, key=lambda s: s['session_timestamp'])
@@ -2165,25 +1953,25 @@ class BaseEvaluation:
             print(f"❌ Failed to group sessions: {e}")
             return {}
 
-        
 
 
-        
+
+
 
     @staticmethod
     def _filter_by_key_dic(session_data: List, key_dic: Dict, min_run_number: int = 1) -> List:
         """
         Returns newest non-empty session for each optimisation type from log file, grouped by model_name and optimisation.
-        
+
         Args:
             key_dic: Dictionary of keys to filter sessions (e.g., model_name, agent_type)
             session_data: Session data with evaluations
             group_by: List of fields to group sessions by (e.g., ['model_name', 'optimisation'])
             optimisation_types: List of optimization configs to filter by, None = all
-            
+
         Returns:
             Dictionary with optimization as key and session data as value
-            
+
         Example:
         >>> key_dic = {
         ...     "model_name": "A",
@@ -2252,7 +2040,7 @@ class BaseEvaluation:
         import platform
         memory = psutil.virtual_memory()
         swap = psutil.swap_memory()
-        
+
         # Dodatkowe informacje o urządzeniu
         device_info = {
             "platform": platform.platform(),
@@ -2263,7 +2051,7 @@ class BaseEvaluation:
             "cpu_count": psutil.cpu_count(),
             "cpu_freq": psutil.cpu_freq()._asdict() if psutil.cpu_freq() else None,
         }
-        
+
         memory_info = {
             "ram_total_gb": memory.total / (1024 ** 3),
             "ram_used_gb": memory.used / (1024 ** 3),
@@ -2281,7 +2069,7 @@ class BaseEvaluation:
             # Parsuj proste metryki (np. CPU power, GPU power)
             cpu_power = None
             gpu_power = None
-            
+
             # Look for CPU Power and GPU Power (case insensitive)
             for line in output.split('\n'):
                 if 'CPU Power:' in line and 'mW' in line:
@@ -2289,7 +2077,7 @@ class BaseEvaluation:
                         cpu_power = float(line.split('CPU Power:')[1].split('mW')[0].strip())
                     except (IndexError, ValueError):
                         pass
-                        
+
                 if 'GPU Power:' in line and 'mW' in line:
                     try:
                         gpu_power = float(line.split('GPU Power:')[1].split('mW')[0].strip())
@@ -2316,12 +2104,12 @@ class BaseEvaluation:
         """Calculate differences between start and end resources."""
         if not start_resources or not end_resources:
             return None
-            
+
         start_memory = start_resources.get('memory', {})
         end_memory = end_resources.get('memory', {})
         start_energy = start_resources.get('energy', {})
         end_energy = end_resources.get('energy', {})
-        
+
         # Calculate memory differences
         memory_diff = {
             "ram_delta_gb": end_memory.get('ram_used_gb', 0) - start_memory.get('ram_used_gb', 0),
@@ -2331,13 +2119,13 @@ class BaseEvaluation:
             "swap_start_gb": start_memory.get('swap_used_gb', 0),
             "swap_end_gb": end_memory.get('swap_used_gb', 0)
         }
-        
+
         # Calculate energy differences (if available)
         start_cpu = start_energy.get('cpu_power_mw')
         end_cpu = end_energy.get('cpu_power_mw')
         start_gpu = start_energy.get('gpu_power_mw')
         end_gpu = end_energy.get('gpu_power_mw')
-        
+
         energy_diff = {
             "cpu_power_start_mw": start_cpu,
             "cpu_power_end_mw": end_cpu,
@@ -2346,8 +2134,5 @@ class BaseEvaluation:
             "cpu_power_delta_mw": (end_cpu - start_cpu) if start_cpu is not None and end_cpu is not None else None,
             "gpu_power_delta_mw": (end_gpu - start_gpu) if start_gpu is not None and end_gpu is not None else None
         }
-        
+
         return {"memory": memory_diff, "energy": energy_diff}
-
-
-

@@ -172,16 +172,18 @@ def test_status_reports_source_without_values(monkeypatch, fake_client):
         assert set(info) == {"source", "secret", "length"}
 
 
-def test_registry_matches_the_secrets_that_exist():
-    """Guards against drifting back to invented names.
+def test_registry_matches_documented_secret_names():
+    """Guard the documented registry without contacting Secret Manager.
 
     Edge_lab_fed_bot is a Telegram bot, not the Neptune token — an earlier
     revision mapped it to NEPTUNE_API_TOKEN and would have handed a bot token
     to the Neptune client.
+    Commit 706e745 corrected the recipient to USER_ID; EDGE_LAB_CHAT_ID names
+    the bot's own ID and must not replace the configured recipient.
     """
     assert gcp_secrets.SECRETS == {
         "NEPTUNE_API_TOKEN": "NEPTUNE_API_TOKEN",
         "OPENAI_API_KEY": "OPENAI_API_KEY",
         "TELEGRAM_BOT_TOKEN": "Edge_lab_fed_bot",
-        "TELEGRAM_CHAT_ID": "EDGE_LAB_CHAT_ID",
+        "TELEGRAM_CHAT_ID": "USER_ID",
     }
