@@ -8,6 +8,36 @@ trajectory evaluator, portable capture storage, offline scoring and optional
 Inspect AI tasks. Diabetes intake agents are worked examples. The reusable
 referenced runner also accepts other JSON or text tasks.
 
+## Research: quality and resource constraints
+
+The historical study explored model and quantization choices for structured intake
+agents, alongside response quality, latency, throughput, memory pressure and power.
+Two evaluation modes serve different purposes: **referenced replay** holds the
+conversation prefix fixed; **unreferenced simulation** examines an interactive
+trajectory. Their results should be reported separately.
+
+The recovered January 2026 exports illustrate why response quality and execution
+cost need to be inspected together. In the selected referenced run, the fastest
+configurations also received substantially lower judge scores. Speed alone would
+therefore select a different configuration from a quality-oriented analysis.
+
+![Historical judge score versus latency for six model configurations](docs/research/figures/scatter.png)
+
+*Original export dated 2026-01-18. Each point is a model configuration; lower latency
+and higher judge score are preferable. Judge scores are not task success rates.
+The export does not establish sample count, uncertainty or a controlled causal
+comparison of optimizations. Bubble size follows the original model-size encoding.*
+
+[Research figures and interpretation](docs/research/README.md) provide separate
+quality, latency and power views, provenance, and a review of misleading legacy
+charts. These are exploratory historical results, not a current model leaderboard
+or evidence of clinical safety. Original figure labels are preserved in Polish;
+new documentation and code use English.
+
+The specialized intake agents remain worked examples. A modern comparison should
+include a consolidated agent on the same held-out scenarios and budgets, measuring
+whether specialization justifies its extra calls, latency and maintenance.
+
 ## Evaluation protocol
 
 1. Define cases, allowed actions and budgets. Separate development and test cases
@@ -94,23 +124,11 @@ packaged dependency set still targets Python 3.10–3.13.
 include model/runtime hashes. Model source:
 [ggml-org/Qwen3.5-0.8B-GGUF](https://huggingface.co/ggml-org/Qwen3.5-0.8B-GGUF).
 
-![Per-case agreement](experiments/results/harness-demo-2026-10-17/intake-report/case-scores.svg)
-
-![Request timing and coverage](experiments/results/harness-demo-2026-10-17/intake-report/diagnostics.svg)
-
-## Historical research
-
-Historical runs explored selected scenarios, model configurations and hardware
-available at the time. Referenced replay uses frozen conversation prefixes;
-unreferenced runs exercise interactive trajectories through a patient simulator.
-These protocols answer different questions and their results should not be pooled.
-Historical figures retain their original scope: exploratory configuration evidence,
-not population-wide reliability or clinical safety estimates.
-
-The original specialized intake agents remain useful examples. For newer models,
-compare them with a consolidated agent on the same held-out cases and budgets.
-Measure whether specialization improves correctness or boundaries enough to justify
-extra calls, latency and maintenance. Model size alone does not settle that question.
+[Per-case results](experiments/results/harness-demo-2026-10-17/intake-report/case-scores.svg) and
+[execution diagnostics](experiments/results/harness-demo-2026-10-17/intake-report/diagnostics.svg)
+are available separately. In the diagnostic chart, request index is only the
+ordinal position of a recorded request. It is useful for spotting unusually slow
+requests; it is not an optimization axis or a comparison of models.
 
 ## Validation
 
