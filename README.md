@@ -67,16 +67,15 @@ Both settings completed all trials and matched **12/20 references (60%)**, versu
 one thread** and **10.28 s with two**. More threads did not improve request time
 in this run; the shared-host protocol does not support a general threading rule.
 
-<table>
-<tr>
-<td width="50%"><a href="experiments/results/thread-study-2026-10-17/report/case-scores.svg"><img src="experiments/results/thread-study-2026-10-17/report/case-scores.png" width="410" alt="Exact agreement for twenty cases at one and two CPU threads"></a><br><b>Task agreement.</b> Which named cases match the frozen reference?</td>
-<td width="50%"><a href="experiments/results/thread-study-2026-10-17/report/request-cost.svg"><img src="experiments/results/thread-study-2026-10-17/report/request-cost.png" width="410" alt="Measured seconds per named case at one and two CPU threads"></a><br><b>Execution cost.</b> How much time does each case require?</td>
-</tr>
-<tr>
-<td width="50%"><a href="experiments/results/thread-study-2026-10-17/report/paired-request-cost.svg"><img src="experiments/results/thread-study-2026-10-17/report/paired-request-cost.png" width="410" alt="Paired request-time differences for the same twenty cases"></a><br><b>Paired difference.</b> Does the same case become faster or slower with two threads?</td>
-<td width="50%"><a href="experiments/results/thread-study-2026-10-17/report/coverage.svg"><img src="experiments/results/thread-study-2026-10-17/report/coverage.png" width="410" alt="Scored, unscored, failed and unrun trials for both configurations"></a><br><b>Evidence coverage.</b> Are all expected trials accounted for?</td>
-</tr>
-</table>
+| Task agreement | Execution cost |
+| --- | --- |
+| [![Exact agreement for twenty cases at one and two CPU threads](experiments/results/thread-study-2026-10-17/report/case-scores.png)](experiments/results/thread-study-2026-10-17/report/case-scores.svg) | [![Measured seconds per named case at one and two CPU threads](experiments/results/thread-study-2026-10-17/report/request-cost.png)](experiments/results/thread-study-2026-10-17/report/request-cost.svg) |
+| Which named cases match the frozen reference? | How much time does each case require? |
+
+| Paired difference | Evidence coverage |
+| --- | --- |
+| [![Paired request-time differences for the same twenty cases](experiments/results/thread-study-2026-10-17/report/paired-request-cost.png)](experiments/results/thread-study-2026-10-17/report/paired-request-cost.svg) | [![Scored, unscored, failed and unrun trials for both configurations](experiments/results/thread-study-2026-10-17/report/coverage.png)](experiments/results/thread-study-2026-10-17/report/coverage.svg) |
+| Does the same case become faster or slower with two threads? | Are all expected trials accounted for? |
 
 *This is a small CPU execution study on a shared Linux host. One deterministic
 observation per case and configuration supplies paired descriptions, not confidence
@@ -102,16 +101,15 @@ wall time, output length and measured CPU/GPU/ANE energy. The validity metric ch
 may recover JSON from surrounding text. It is not a strict-output or task-correctness
 metric.
 
-<table>
-<tr>
-<td width="50%"><a href="docs/research/figures/structured-decoding-validity.svg"><img src="docs/research/figures/structured-decoding-validity.png" width="410" alt="Schema-valid extracted objects by decoding condition"></a><br><b>Format reliability.</b> Does the recovered JSON object satisfy the schema?</td>
-<td width="50%"><a href="docs/research/figures/structured-decoding-latency.svg"><img src="docs/research/figures/structured-decoding-latency.png" width="410" alt="Request wall time by decoding condition"></a><br><b>Request cost.</b> How long does each condition take?</td>
-</tr>
-<tr>
-<td width="50%"><a href="docs/research/figures/structured-decoding-tokens.svg"><img src="docs/research/figures/structured-decoding-tokens.png" width="410" alt="Generated token counts by decoding condition"></a><br><b>Output length.</b> Is the speed difference accompanied by a change in generated text?</td>
-<td width="50%"><a href="docs/research/figures/structured-decoding-energy.svg"><img src="docs/research/figures/structured-decoding-energy.png" width="410" alt="Measured CPU GPU and ANE energy by decoding condition"></a><br><b>Energy cost.</b> How much measured SoC energy does a request consume?</td>
-</tr>
-</table>
+| Format reliability | Request cost |
+| --- | --- |
+| [![Schema-valid extracted objects by decoding condition](docs/research/figures/structured-decoding-validity.png)](docs/research/figures/structured-decoding-validity.svg) | [![Request wall time by decoding condition](docs/research/figures/structured-decoding-latency.png)](docs/research/figures/structured-decoding-latency.svg) |
+| Does the recovered JSON object satisfy the schema? | How long does each condition take? |
+
+| Output length | Energy cost |
+| --- | --- |
+| [![Generated token counts by decoding condition](docs/research/figures/structured-decoding-tokens.png)](docs/research/figures/structured-decoding-tokens.svg) | [![Measured CPU GPU and ANE energy by decoding condition](docs/research/figures/structured-decoding-energy.png)](docs/research/figures/structured-decoding-energy.svg) |
+| Is the speed difference accompanied by a change in generated text? | How much measured SoC energy does a request consume? |
 
 *Read the panels together: changing decoding can change the amount of text
 produced, so a wall-time or energy difference does not isolate grammar-processing
@@ -130,16 +128,15 @@ intake agents: response quality, latency, throughput, resource pressure and
 optimization settings. The selected original figures below come from a referenced
 run exported on **2026-01-18**. Click a thumbnail for the full-size image.
 
-<table>
-<tr>
-<td width="50%"><a href="docs/research/figures/scores.png"><img src="docs/research/figures/scores.png" width="360" alt="Historical judge ratings by model configuration"></a><br><b>Response quality.</b> Judge ratings on a 0–10 scale; not a success percentage.</td>
-<td width="50%"><a href="docs/research/figures/latency_bars.png"><img src="docs/research/figures/latency_bars.png" width="360" alt="Historical latency comparison"></a><br><b>Latency.</b> Mean response time for the selected configurations.</td>
-</tr>
-<tr>
-<td width="50%"><a href="docs/research/figures/scatter.png"><img src="docs/research/figures/scatter.png" width="360" alt="Historical quality versus latency"></a><br><b>Quality–latency trade-off.</b> The fastest configurations received lower judge ratings in this run.</td>
-<td width="50%"><a href="docs/research/figures/resources.png"><img src="docs/research/figures/resources.png" width="360" alt="Historical CPU and GPU power measurements"></a><br><b>Power.</b> Reported CPU/GPU power in mW; not energy per task.</td>
-</tr>
-</table>
+| Response quality | Latency |
+| --- | --- |
+| [![Historical judge ratings by model configuration](docs/research/figures/scores.png)](docs/research/figures/scores.png) | [![Historical latency comparison](docs/research/figures/latency_bars.png)](docs/research/figures/latency_bars.png) |
+| Judge ratings on a 0–10 scale; not a success percentage. | Mean response time for the selected configurations. |
+
+| Quality–latency trade-off | Power |
+| --- | --- |
+| [![Historical quality versus latency](docs/research/figures/scatter.png)](docs/research/figures/scatter.png) | [![Historical CPU and GPU power measurements](docs/research/figures/resources.png)](docs/research/figures/resources.png) |
+| The fastest configurations received lower judge ratings in this run. | Reported CPU/GPU power in mW; not energy per task. |
 
 **Historical methodology.** These were exploratory evaluations of selected
 scenarios under the models and hardware available at the time. Frozen-reference
