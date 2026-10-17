@@ -105,17 +105,6 @@ def parse_llama_timings(
         },
     }
 
-    # Safely calculate model_loading_ms with None checks
-    if computed_total is not None and prompt_ms is not None and predicted_ms is not None:
-        model_loading_ms = float(computed_total) - float(prompt_ms) - float(predicted_ms)
-        if model_loading_ms < 0:
-            model_loading_ms = 0.0
-    else:
-        model_loading_ms = 0.0
-    breakdown["model_loading_ms"] = model_loading_ms
-    breakdown["breakdown_percentage"]["loading"] = (
-        (model_loading_ms / computed_total * 100.0)
-        if isinstance(computed_total, (int, float)) and computed_total
-        else None
-    )
+    # Startup occurs before the completion request and cannot be inferred here.
+    breakdown['wall_ms'] = total_time_ms
     return breakdown

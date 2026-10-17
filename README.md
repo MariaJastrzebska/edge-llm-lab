@@ -1,48 +1,129 @@
-# Edge-LLM-Lab: A Research Framework for the Quantitative Evaluation of Large Language Models on Resource-Constrained Hardware
+# Edge-LLM-Lab
 
-Edge-LLM-Lab is a comprehensive scholarly framework designed for the rigorous evaluation of Large Language Models (LLMs) deployed on edge compute environments, bridging the gap between desktop and mobile platforms. This framework facilitates high-resolution performance benchmarking, semantic accuracy assessment, and comparative analysis of "mobile readiness" across heterogeneous hardware architectures.
+Evaluate small language models under device constraints, with separate evidence
+for task correctness, inference cost and application boundaries.
 
-## Core Capabilities
+The framework combines frozen-reference replay, an existing simulator-driven
+trajectory evaluator, portable capture storage, offline scoring and optional
+Inspect AI tasks. Diabetes intake agents are worked examples. The reusable
+referenced runner also accepts other JSON or text tasks.
 
-- **Modular Agent-Based Architecture**: Enables the definition of specialized autonomous agents through granular prompt engineering and JSON-based schema validation.
-- **Cross-Platform Benchmarking Protocol**: Standardized evaluation metrics across desktop (macOS/Linux) and mobile environments.
-- **Multi-Factor Analytic Metrics**: Implementation of semantic fidelity measures (P-BERT/R-BERT), structural integrity metrics (Levenshtein distance), and precise tool-argument verification.
-- **High-Resolution Resource Monitoring**: Temporal analysis of hardware telemetry, including round-by-round monitoring of RAM occupancy, SWAP pressure, and CPU thermal throttling.
-- **Persistent Reference Caching Layer**: Session-aware caching mechanisms and model-agnostic API response persistence to ensure reproducibility and computational efficiency.
-- **Hybrid Evaluation Methodology**: Robust support for both referenced (gold-standard) and unreferenced (exploratory) evaluation strategies.
-- **Extensible Configuration System**: Declarative YAML-based configuration for streamlined experimental reproducibility.
+## Evaluation protocol
 
-## Experimental Methodology and Workflow
+1. Define cases, allowed actions and budgets. Separate development and test cases
+   by scenario family; tune only on development data.
+2. Generate responses on the target device. Record the model/runtime hashes,
+   prompt, tools, decoding settings, seed, request timings and failures.
+3. Run heavy grading and plotting after capture, on a workstation if convenient.
+   Preserve the original responses; changing graders must not rerun the target.
+4. Report usefulness, boundary violations, measurement coverage and resource cost
+   separately. Repeated seeds and turns are not independent patients.
 
-### Core Evaluation Pipeline
-The framework employs a multi-stage pipeline encompassing model selection, quantization validation, and runtime optimization. The primary execution interface is as follows:
+Read the [full methodology](docs/methodology/evaluation-boundaries.md),
+[architecture and migration boundaries](docs/methodology/architecture.md), and
+[reusable example runner](examples/desktop/evaluate_dataset.py).
+
+## Local example
+
+The local referenced runner uses a GGUF file and a `llama-server` executable.
+It does not require Ollama discovery, a judge-model key or experiment tracking.
+The existing project environment uses Poetry; optional Inspect support is installed
+with `python -m pip install -r requirements-inspect.txt`. The historical dependency set remains
+heavy and is not a minimal mobile installation.
 
 ```bash
-# Execute the full research pipeline for a designated agent configuration
-poetry run python examples/desktop/run_evaluation_pipeline.py --agent constant_data_en
+PYTHONPATH=src python examples/desktop/evaluate_dataset.py \
+  --model /path/to/model.gguf --server /path/to/llama-server \
+  --dataset examples/datasets/intake-boundaries.jsonl \
+  --output runs/intake.sqlite --seed 11 --defer-scoring
+
+PYTHONPATH=src python -m edge_llm_lab.evaluation.posthoc \
+  runs/intake.sqlite --output runs/intake-scores.sqlite
 ```
 
-### Credentials
-Tokens (`NEPTUNE_API_TOKEN`, `OPENAI_API_KEY`) resolve environment-first, then from
-GCP Secret Manager, so an exported variable or a local `.env` always wins and a
-device without GCP configured runs unchanged:
+Use `--profile text` for literal text references. The default structured profile
+checks JSON agreement, including ordered tool calls and their arguments. It does
+not silently repair invalid outputs or treat unavailable scores as zero.
+
+SQLite stores indexed scalar measurements and trial metadata. Compressed,
+content-addressed sidecar artifacts store transcripts. Copy the closed database
+and its adjacent `.artifacts` directory together. Raw captures are ignored by Git;
+review any exported results before publication.
+
+For inline deterministic grading and offline figures, omit `--defer-scoring` and
+add `--figures runs/report`. The report shows case-level agreement, individual
+request times and evaluation coverage. Request wall time is distinct from total
+trial duration, which can include model startup and other work.
+
+## Inspect AI
+
+The optional adapter shares case validation and graders with the local runner.
+It supports native reference replay through an Inspect provider and scoring of
+captured Edge-LLM-Lab responses without calling the target again.
 
 ```bash
-export GCP_PROJECT_ID=other-project           # OPTIONAL — overrides llm-apps-425420
-gcloud auth application-default login         # local credentials
-poetry run python -m edge_llm_lab.utils.gcp_secrets   # verify; prints no values
+PYTHONPATH=src inspect eval src/edge_llm_lab/integrations/inspect_ai.py@referenced_task \
+  -T dataset="$PWD/examples/datasets/intake-boundaries.jsonl" \
+  --model YOUR_PROVIDER/YOUR_MODEL --no-score
+
+PYTHONPATH=src inspect eval src/edge_llm_lab/integrations/inspect_ai.py@captured_task \
+  -T capture="$PWD/runs/intake.sqlite" --model mockllm/model --log-format json
 ```
 
-The environment-variable-to-secret-name mapping lives in
-`src/edge_llm_lab/utils/gcp_secrets.py` (`SECRETS`): `NEPTUNE_API_TOKEN` and
-`OPENAI_API_KEY` map to secrets of the same name, and `TELEGRAM_BOT_TOKEN` /
-`TELEGRAM_CHAT_ID` map to `Edge_lab_fed_bot` / `EDGE_LAB_CHAT_ID` for reporting
-sweep progress. `source_of()` reports where a credential came from (`env` /
-`secret-manager` / `missing`) for inclusion in a run manifest.
+The seven synthetic intake cases demonstrate policy routing, including benign
+controls, contradictory data and attempts to override scope. They do not execute
+tools or constitute clinical validation or a standardized security benchmark.
+[The methodology](docs/methodology/evaluation-boundaries.md) explains what a larger,
+clinician-reviewed and threat-specific study would require.
 
-### Operational Modes
-The `run_evaluation_pipeline.py` script supports distinct operational modes for granular data collection:
-- `logs_only`: Focuses on empirical data collection and primary metric calculation.
-- `logs_and_viz`: (Default) Comprehensive data collection with automated generation of comparative visualizations and synchronization with the Neptune research repository.
-- `viz_only`: Facilitates post-hoc visualization and statistical re-analysis from existing telemetry logs.
+## Executed demonstration
 
+On 2026-10-17, Qwen3.5-0.8B Q4_0 completed a one-case command smoke test
+(1/1 exact match), followed by seven synthetic intake-routing cases (4/7 exact
+matches, zero execution errors). The model failed the instruction-override case
+and two clarification cases. This is a harness demonstration, not a model ranking
+or medical safety assessment.
+
+The run used Linux/CPU, llama.cpp build b11669, context 2048, output limit 128,
+temperature 0 and seed 11. Request wall times exclude server startup but include
+HTTP overhead. No controlled thermal, energy or cold/warm comparison was made.
+Python 3.14 was used in the local experimental environment; the repository's
+packaged dependency set still targets Python 3.10–3.13.
+
+[Recorded configuration and scores](experiments/results/harness-demo-2026-10-17/intake-report/summary.json)
+include model/runtime hashes. Model source:
+[ggml-org/Qwen3.5-0.8B-GGUF](https://huggingface.co/ggml-org/Qwen3.5-0.8B-GGUF).
+
+![Per-case agreement](experiments/results/harness-demo-2026-10-17/intake-report/case-scores.svg)
+
+![Request timing and coverage](experiments/results/harness-demo-2026-10-17/intake-report/diagnostics.svg)
+
+## Historical research
+
+Historical runs explored selected scenarios, model configurations and hardware
+available at the time. Referenced replay uses frozen conversation prefixes;
+unreferenced runs exercise interactive trajectories through a patient simulator.
+These protocols answer different questions and their results should not be pooled.
+Historical figures retain their original scope: exploratory configuration evidence,
+not population-wide reliability or clinical safety estimates.
+
+The original specialized intake agents remain useful examples. For newer models,
+compare them with a consolidated agent on the same held-out cases and budgets.
+Measure whether specialization improves correctness or boundaries enough to justify
+extra calls, latency and maintenance. Model size alone does not settle that question.
+
+## Validation
+
+Tests cover shared structured/text grading, reference leakage and family splits,
+SQLite integrity and resume checks, runtime ownership, offline scoring, Inspect
+replay, and plotting semantics. Plot tests use unequal turn counts, unscored trials
+and known expected aggregates; SVG/PNG rendering runs without a display.
+
+```bash
+PYTHONPATH=src pytest tests/unit tests/test_posthoc.py
+```
+
+Inspect tests require the optional dependency. The [validation record](docs/methodology/validation.md)
+records a pre-existing credential-registry test failure and remaining migration work.
+See the methodology for limitations;
+passing harness tests is not evidence that the evaluated model is safe.

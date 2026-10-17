@@ -37,9 +37,11 @@ def test_prefill_decode_split_from_top_level_timings():
     assert breakdown["tokens"]["generated_count"] == 128
     # throughput derived: predicted_n / (predicted_ms/1000)
     assert abs(breakdown["tokens"]["throughput_tokens_per_sec"] - 128 / 2.1684) < 0.01
-    # percentages sum to ~100
+    assert breakdown["model_loading_ms"] is None
+    assert breakdown["wall_ms"] == 3500.0
+    # Measured server phases sum to approximately 100 percent.
     pct = breakdown["breakdown_percentage"]
-    assert abs(pct["prompt_eval"] + pct["generation"] + pct["loading"] - 100.0) < 0.01
+    assert abs(pct["prompt_eval"] + pct["generation"] - 100.0) < 0.01
 
 
 def test_per_choice_timings_fallback():
