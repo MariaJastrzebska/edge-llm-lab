@@ -58,6 +58,13 @@ passed. The final full run passed all 138 tests (including optional Inspect test
 eight dependency deprecation warnings remain. Undefined-name lint and editor
 diagnostics were clean.
 
+Local validation used Python 3.14.4 in the existing development environment;
+this is outside the package's declared Python range and does not replace the
+supported-version CI matrix. A wheel build also passed without resolving or
+installing the full dependency graph. CI now includes the posthoc tests, names
+each OS/Python combination separately, and runs the real Inspect replay tests
+with explicit optional dependencies instead of an empty integration directory.
+
 The eight current README figure views and four original historical thumbnails were
 reviewed visually. New plots are regenerated from recorded observations; no values
 were reconstructed from screenshots. Historical originals retain their provenance.
