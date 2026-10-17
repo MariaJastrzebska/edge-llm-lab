@@ -5,18 +5,21 @@ versioned grader. Diabetes-specific prompts and schemas are example inputs, not
 requirements of the capture store or scoring API.
 
 ```text
-Frozen JSONL cases ── validation / reference_turns ──┬─ referenced evaluator ─ llama-server
-                                                   └─ Inspect task ─ provider endpoint
-                                                                │
-                                                     captured responses
-                                                                │
-                          SQLite scalar measurements + compressed trace artifacts
-                                         │                      │
-                                    SQL reports             CaptureReader
-                                                                │
-                                             offline scorer / Inspect replay
-                                                                │
-                                                  shared grade_response
+Frozen JSONL cases → validation / strict reference prefixes
+                   → DatasetEvaluation → local llama-server
+                                       → SQLite + compressed trace artifacts
+                                            ├─ scalar SQL → capture reports
+                                            ├─ CaptureReader → offline scorer → scores.sqlite
+                                            └─ CaptureReader → Inspect replay → Inspect logs
+
+Same JSONL cases → native Inspect task → provider model → Inspect logs
+
+Legacy interactive evaluator:
+scenario + expected outcome → target ↔ patient simulator → trajectory outcome
+
+Separate resource experiment:
+prompt/configuration sweep → llama-server + power sampler → raw.json + tidy.csv
+                                                         → paired study reports
 ```
 
 - `evaluation/dataset.py`: validates splits and families, sequences trials and
@@ -28,6 +31,9 @@ Frozen JSONL cases ── validation / reference_turns ──┬─ referenced e
   loading, credentials, plotting or network access.
 - `integrations/inspect_ai.py`: optional adapters; no copied scoring or reference slicing.
 - `visualization/dataset_report.py`: offline SQL aggregation and figure rendering.
+  `visualization/paired_report.py`: analysis of the separate decoding-study CSV format.
+  Native Inspect logs and offline score databases retain their own schemas; neither
+  is implicitly converted into the capture-report schema.
 - Existing referenced/unreferenced classes preserve historical entry points. Their
   plotting methods were moved to compatibility mixins and referenced metrics to a
   separate module. These legacy mixins are not the new extension API.

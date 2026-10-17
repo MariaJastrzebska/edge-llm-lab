@@ -31,3 +31,33 @@ translating remaining historical comments/docstrings, testing further historical
 plot combinations, packaging a lightweight install, and providing a generic injected
 simulator/tool environment for interactive evaluations. These are not claimed complete
 by the new dataset path or the module extraction.
+
+## Report-gallery revision and fresh thread study
+
+The report revision adds contract tests for named-case alignment, grouped
+configurations, paired differences, missing-versus-zero values, unequal turn/repeat
+counts, energy coverage, strict CSV booleans and complete PNG/SVG rendering.
+Regression tests prevent a rejected rerender from mixing old figures with new
+JSON/CSV data, including through the public database-rendering entry point.
+Incomplete CSVs report observed counts rather than assuming a Cartesian grid.
+
+A fresh Qwen3.5-0.8B Q4_0 run completed 40/40 attempts across 20 synthetic cases
+and one/two CPU threads with no execution errors. Each configuration matched 12/20
+references; the always-decline baseline matches 9/20. Offline scoring reproduced
+all 40 inline exact scores. Inspect replay also completed 40 samples at 0.600
+accuracy without calling the target. No energy measurement was available on Linux.
+The separate sandbox attempt failed to start the local server and remains a local
+diagnostic capture; it is not presented as model behavior.
+
+The full suite initially reported 137 passes and the previously documented registry
+expectation failure. Historical commit 706e745 and the registry's existing comment
+confirm USER_ID as the intended recipient mapping. The outdated test expected the
+bot's own identifier; its expectation was corrected without changing credential
+resolution, accessing secret values or sending a message. All 16 registry tests then
+passed. The final full run passed all 138 tests (including optional Inspect tests);
+eight dependency deprecation warnings remain. Undefined-name lint and editor
+diagnostics were clean.
+
+The eight current README figure views and four original historical thumbnails were
+reviewed visually. New plots are regenerated from recorded observations; no values
+were reconstructed from screenshots. Historical originals retain their provenance.

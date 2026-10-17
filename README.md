@@ -1,147 +1,264 @@
 # Edge-LLM-Lab
 
-Evaluate small language models under device constraints, with separate evidence
-for task correctness, inference cost and application boundaries.
+**An evaluation harness for small language models under device constraints.**
 
-The framework combines frozen-reference replay, an existing simulator-driven
-trajectory evaluator, portable capture storage, offline scoring and optional
-Inspect AI tasks. Diabetes intake agents are worked examples. The reusable
-referenced runner also accepts other JSON or text tasks.
+Choosing an edge model means choosing a system: weights, quantization, decoding,
+prompts and tools all affect whether a useful answer fits the latency, memory and
+energy budget. Edge-LLM-Lab makes those choices measurable through controlled
+response replay, simulated conversations and instrumented inference experiments.
 
-## Research: quality and resource constraints
+The central question is: **what does a configuration gain in task performance,
+and what does that gain cost on the device?** Structured intake agents provide a
+worked example; the reusable replay path accepts other JSON and text tasks.
 
-The historical study explored model and quantization choices for structured intake
-agents, alongside response quality, latency, throughput, memory pressure and power.
-Two evaluation modes serve different purposes: **referenced replay** holds the
-conversation prefix fixed; **unreferenced simulation** examines an interactive
-trajectory. Their results should be reported separately.
+[Run an evaluation](#run-an-evaluation) · [Current reports](#current-reports) ·
+[Historical research](#historical-research) · [Methodology](docs/methodology/evaluation-boundaries.md)
 
-The recovered January 2026 exports illustrate why response quality and execution
-cost need to be inspected together. In the selected referenced run, the fastest
-configurations also received substantially lower judge scores. Speed alone would
-therefore select a different configuration from a quality-oriented analysis.
+## What the harness does
 
-![Historical judge score versus latency for six model configurations](docs/research/figures/scatter.png)
+A harness is the machinery that runs an evaluation: it presents inputs, controls
+execution, captures outputs and measurements, applies scoring rules, and produces
+an auditable result. A benchmark additionally needs a defined task population,
+versioned cases and a scoring protocol. This repository supplies the machinery
+and example studies; the seven-case example is not a standardized benchmark.
 
-*Original export dated 2026-01-18. Each point is a model configuration; lower latency
-and higher judge score are preferable. Judge scores are not task success rates.
-The export does not establish sample count, uncertainty or a controlled causal
-comparison of optimizations. Bubble size follows the original model-size encoding.*
+| Layer | Implemented behavior | Research purpose |
+| --- | --- | --- |
+| Cases | JSONL conversations, explicit dev/test splits, scenario-family checks | Keep references frozen and prevent known family overlap across splits. |
+| Execution | Local GGUF through `llama-server`; seeds and configuration sweeps; compatible-run resume | Evaluate the same cases under recorded settings and retain failures. |
+| Capture | SQLite metadata and scalar metrics; compressed, hashed response artifacts | Query measurements without repeatedly loading large conversation logs. |
+| Assessment | JSON validity and exact structured/text agreement; offline scoring; optional Inspect replay | Change assessment without generating the target response again. |
+| Analysis | Case-weighted scores, named-case timing, coverage; paired decoding-study reports | See both useful output and its execution cost, including missing observations. |
 
-[Research figures and interpretation](docs/research/README.md) provide separate
-quality, latency and power views, provenance, and a review of misleading legacy
-charts. These are exploratory historical results, not a current model leaderboard
-or evidence of clinical safety. Original figure labels are preserved in Polish;
-new documentation and code use English.
+```mermaid
+flowchart LR
+    A[Versioned cases + configurations] --> B[Target-device execution]
+    B --> C[Responses + request measurements]
+    C --> D[(SQLite + compressed artifacts)]
+    D --> E[Offline scoring / Inspect replay]
+    D --> F[Measurement reports]
+    E --> G[Task assessment]
+```
 
-The specialized intake agents remain worked examples. A modern comparison should
-include a consolidated agent on the same held-out scenarios and budgets, measuring
-whether specialization justifies its extra calls, latency and maintenance.
+**Two protocols answer different questions.** In *referenced replay*, each
+assistant target receives only the preceding frozen conversation. This controls
+the input, but does not test recovery from the model's own earlier mistakes.
+In *unreferenced evaluation*, a patient simulator responds to the agent and the
+whole trajectory is assessed. That existing path is domain-specific and depends
+on the simulator and expected outcome; it is not yet a generic tool environment.
 
-## Evaluation protocol
+The repository also contains a separate constrained-decoding experiment runner
+with request timing and Apple Silicon power sampling. Its CSV results are analyzed
+by the reporting layer. These experiments and the dataset harness have distinct
+capture formats and measurement protocols; they are not silently pooled.
 
-1. Define cases, allowed actions and budgets. Separate development and test cases
-   by scenario family; tune only on development data.
-2. Generate responses on the target device. Record the model/runtime hashes,
-   prompt, tools, decoding settings, seed, request timings and failures.
-3. Run heavy grading and plotting after capture, on a workstation if convenient.
-   Preserve the original responses; changing graders must not rerun the target.
-4. Report usefulness, boundary violations, measurement coverage and resource cost
-   separately. Repeated seeds and turns are not independent patients.
+## Current reports
 
-Read the [full methodology](docs/methodology/evaluation-boundaries.md),
-[architecture and migration boundaries](docs/methodology/architecture.md), and
-[reusable example runner](examples/desktop/evaluate_dataset.py).
+### Fresh execution: one CPU thread versus two
 
-## Local example
+A new **2026-10-17 execution** evaluates
+[Qwen3.5-0.8B Q4_0](https://huggingface.co/ggml-org/Qwen3.5-0.8B-GGUF) on 20 frozen synthetic
+intake-routing cases with one and two CPU threads: **40 target-model requests**.
+The same cases, prompt, model artifact, seed and output budget are used in both
+conditions; configuration order alternates across cases. No judge model is called.
 
-The local referenced runner uses a GGUF file and a `llama-server` executable.
-It does not require Ollama discovery, a judge-model key or experiment tracking.
-The existing project environment uses Poetry; optional Inspect support is installed
-with `python -m pip install -r requirements-inspect.txt`. The historical dependency set remains
-heavy and is not a minimal mobile installation.
+Both settings completed all trials and matched **12/20 references (60%)**, versus
+**9/20 (45%)** for always declining. Mean observed request time was **6.69 s with
+one thread** and **10.28 s with two**. More threads did not improve request time
+in this run; the shared-host protocol does not support a general threading rule.
+
+<table>
+<tr>
+<td width="50%"><a href="experiments/results/thread-study-2026-10-17/report/case-scores.svg"><img src="experiments/results/thread-study-2026-10-17/report/case-scores.png" width="410" alt="Exact agreement for twenty cases at one and two CPU threads"></a><br><b>Task agreement.</b> Which named cases match the frozen reference?</td>
+<td width="50%"><a href="experiments/results/thread-study-2026-10-17/report/request-cost.svg"><img src="experiments/results/thread-study-2026-10-17/report/request-cost.png" width="410" alt="Measured seconds per named case at one and two CPU threads"></a><br><b>Execution cost.</b> How much time does each case require?</td>
+</tr>
+<tr>
+<td width="50%"><a href="experiments/results/thread-study-2026-10-17/report/paired-request-cost.svg"><img src="experiments/results/thread-study-2026-10-17/report/paired-request-cost.png" width="410" alt="Paired request-time differences for the same twenty cases"></a><br><b>Paired difference.</b> Does the same case become faster or slower with two threads?</td>
+<td width="50%"><a href="experiments/results/thread-study-2026-10-17/report/coverage.svg"><img src="experiments/results/thread-study-2026-10-17/report/coverage.png" width="410" alt="Scored, unscored, failed and unrun trials for both configurations"></a><br><b>Evidence coverage.</b> Are all expected trials accounted for?</td>
+</tr>
+</table>
+
+*This is a small CPU execution study on a shared Linux host. One deterministic
+observation per case and configuration supplies paired descriptions, not confidence
+intervals. Request wall time excludes server startup. Changing thread settings
+restarts the server; these are not controlled steady-state mobile measurements.*
+
+The task chooses `record`, `clarify` or `decline`; it executes no tools and contains
+no patient records. There are five record cases, six clarification cases and nine
+decline cases, so **always declining scores 9/20 (45%)**. Privacy- and
+injection-themed cases test the routing policy, not real access-control enforcement.
+
+[Fresh-study protocol, configuration and reproduction](docs/research/current-reports.md#fresh-thread-comparison)
+include hashes, the trivial baseline and measurement limits. The
+[earlier seven-case smoke run](docs/research/current-reports.md#referenced-harness-demonstration)
+is retained as a separate integration check.
+
+### Does structured decoding improve format reliability, and at what cost?
+
+The four figures below are newly generated from the **2026-08-12 recorded experiment**:
+four 0.5B–1B model configurations, 20 prompts, three repeated seeds, unconstrained versus
+GBNF-constrained decoding — 480 requests. It compares schema validity, request
+wall time, output length and measured CPU/GPU/ANE energy. The validity metric checks the extracted JSON object against its schema; extraction
+may recover JSON from surrounding text. It is not a strict-output or task-correctness
+metric.
+
+<table>
+<tr>
+<td width="50%"><a href="docs/research/figures/structured-decoding-validity.svg"><img src="docs/research/figures/structured-decoding-validity.png" width="410" alt="Schema-valid extracted objects by decoding condition"></a><br><b>Format reliability.</b> Does the recovered JSON object satisfy the schema?</td>
+<td width="50%"><a href="docs/research/figures/structured-decoding-latency.svg"><img src="docs/research/figures/structured-decoding-latency.png" width="410" alt="Request wall time by decoding condition"></a><br><b>Request cost.</b> How long does each condition take?</td>
+</tr>
+<tr>
+<td width="50%"><a href="docs/research/figures/structured-decoding-tokens.svg"><img src="docs/research/figures/structured-decoding-tokens.png" width="410" alt="Generated token counts by decoding condition"></a><br><b>Output length.</b> Is the speed difference accompanied by a change in generated text?</td>
+<td width="50%"><a href="docs/research/figures/structured-decoding-energy.svg"><img src="docs/research/figures/structured-decoding-energy.png" width="410" alt="Measured CPU GPU and ANE energy by decoding condition"></a><br><b>Energy cost.</b> How much measured SoC energy does a request consume?</td>
+</tr>
+</table>
+
+*Read the panels together: changing decoding can change the amount of text
+produced, so a wall-time or energy difference does not isolate grammar-processing
+overhead. Repeats share prompts and are not independent examples. The figure
+reports descriptive summaries, not causal effects or a universal model ranking. Prompt templates and quantizations differ across models;
+read each model as its own condition comparison.*
+
+[Study design, aggregation and reproduction](docs/research/current-reports.md#structured-decoding-study)
+include the input table, provenance and measurement limits. This is a new analysis
+of existing measurements, not a new device run.
+
+## Historical research
+
+The earlier study investigated model and quantization choices for structured
+intake agents: response quality, latency, throughput, resource pressure and
+optimization settings. The selected original figures below come from a referenced
+run exported on **2026-01-18**. Click a thumbnail for the full-size image.
+
+<table>
+<tr>
+<td width="50%"><a href="docs/research/figures/scores.png"><img src="docs/research/figures/scores.png" width="360" alt="Historical judge ratings by model configuration"></a><br><b>Response quality.</b> Judge ratings on a 0–10 scale; not a success percentage.</td>
+<td width="50%"><a href="docs/research/figures/latency_bars.png"><img src="docs/research/figures/latency_bars.png" width="360" alt="Historical latency comparison"></a><br><b>Latency.</b> Mean response time for the selected configurations.</td>
+</tr>
+<tr>
+<td width="50%"><a href="docs/research/figures/scatter.png"><img src="docs/research/figures/scatter.png" width="360" alt="Historical quality versus latency"></a><br><b>Quality–latency trade-off.</b> The fastest configurations received lower judge ratings in this run.</td>
+<td width="50%"><a href="docs/research/figures/resources.png"><img src="docs/research/figures/resources.png" width="360" alt="Historical CPU and GPU power measurements"></a><br><b>Power.</b> Reported CPU/GPU power in mW; not energy per task.</td>
+</tr>
+</table>
+
+**Historical methodology.** These were exploratory evaluations of selected
+scenarios under the models and hardware available at the time. Frozen-reference
+replay and simulator-driven conversations were separate protocols. Turns and
+repeated calls provide within-scenario observations, not additional independent
+patients. These exports preserve the research record; their underlying per-example
+measurements have not been recovered sufficiently to recompute weighting,
+uncertainty or failure handling. They therefore support descriptive observations,
+not population-level reliability claims.
+
+[The historical gallery](docs/research/README.md) documents provenance, interpretation
+and known chart defects. The images are unchanged original exports, including their
+Polish labels. The current reports above use English labels and reproducible code.
+Neither gallery requires a Neptune token.
+
+## Run an evaluation
+
+The packaged project targets **Python 3.10–3.13** and uses Poetry. Install the
+project environment with `poetry install`, then prefix the Python commands below with `poetry run`
+(or use an already activated project environment). The historical dependency set is
+still broad; this is a workstation evaluation package, not an iOS application.
+Supply a GGUF model and a compatible `llama-server` executable.
+
+Run deterministic scoring inline and generate the named-case report:
 
 ```bash
 PYTHONPATH=src python examples/desktop/evaluate_dataset.py \
   --model /path/to/model.gguf --server /path/to/llama-server \
   --dataset examples/datasets/intake-boundaries.jsonl \
-  --output runs/intake.sqlite --seed 11 --defer-scoring
-
-PYTHONPATH=src python -m edge_llm_lab.evaluation.posthoc \
-  runs/intake.sqlite --output runs/intake-scores.sqlite
+  --output runs/intake.sqlite --seed 11 --figures runs/report
 ```
 
-Use `--profile text` for literal text references. The default structured profile
-checks JSON agreement, including ordered tool calls and their arguments. It does
-not silently repair invalid outputs or treat unavailable scores as zero.
-
-SQLite stores indexed scalar measurements and trial metadata. Compressed,
-content-addressed sidecar artifacts store transcripts. Copy the closed database
-and its adjacent `.artifacts` directory together. Raw captures are ignored by Git;
-review any exported results before publication.
-
-For inline deterministic grading and offline figures, omit `--defer-scoring` and
-add `--figures runs/report`. The report shows case-level agreement, individual
-request times and evaluation coverage. Request wall time is distinct from total
-trial duration, which can include model startup and other work.
-
-## Inspect AI
-
-The optional adapter shares case validation and graders with the local runner.
-It supports native reference replay through an Inspect provider and scoring of
-captured Edge-LLM-Lab responses without calling the target again.
+For an isolated device capture, defer all response grading:
 
 ```bash
-PYTHONPATH=src inspect eval src/edge_llm_lab/integrations/inspect_ai.py@referenced_task \
-  -T dataset="$PWD/examples/datasets/intake-boundaries.jsonl" \
-  --model YOUR_PROVIDER/YOUR_MODEL --no-score
+PYTHONPATH=src python examples/desktop/evaluate_dataset.py \
+  --model /path/to/model.gguf --server /path/to/llama-server \
+  --dataset examples/datasets/intake-boundaries.jsonl \
+  --output runs/capture.sqlite --seed 11 --defer-scoring
 
-PYTHONPATH=src inspect eval src/edge_llm_lab/integrations/inspect_ai.py@captured_task \
-  -T capture="$PWD/runs/intake.sqlite" --model mockllm/model --log-format json
+# Run on a workstation after copying the closed capture bundle.
+PYTHONPATH=src python -m edge_llm_lab.evaluation.posthoc \
+  runs/capture.sqlite --output runs/scores.sqlite
 ```
 
-The seven synthetic intake cases demonstrate policy routing, including benign
-controls, contradictory data and attempts to override scope. They do not execute
-tools or constitute clinical validation or a standardized security benchmark.
-[The methodology](docs/methodology/evaluation-boundaries.md) explains what a larger,
-clinician-reviewed and threat-specific study would require.
+Copy the database **and its adjacent `.artifacts` directory** together. Offline
+scores go into a separate database; the current plotting API reads the capture's
+inline scalar scores, not that separate score database. Do not add `--figures`
+to an unscored capture and interpret missing scores as failure scores.
 
-## Executed demonstration
+### Bring your own task
 
-On 2026-10-17, Qwen3.5-0.8B Q4_0 completed a one-case command smoke test
-(1/1 exact match), followed by seven synthetic intake-routing cases (4/7 exact
-matches, zero execution errors). The model failed the instruction-override case
-and two clarification cases. This is a harness demonstration, not a model ranking
-or medical safety assessment.
+Provide one JSON object per line with a case ID, family, split and conversation.
+Assistant messages are the frozen targets; they are withheld until their turn is
+scored. For example, this independent command task needs no intake-agent code:
 
-The run used Linux/CPU, llama.cpp build b11669, context 2048, output limit 128,
-temperature 0 and seed 11. Request wall times exclude server startup but include
-HTTP overhead. No controlled thermal, energy or cold/warm comparison was made.
-Python 3.14 was used in the local experimental environment; the repository's
-packaged dependency set still targets Python 3.10–3.13.
+```json
+{"id":"window-01","family_id":"window-action","split":"test","conversation":[{"role":"user","content":"Return JSON with action and target: close the window."},{"role":"assistant","content":"{\"action\":\"close\",\"target\":\"window\"}"}]}
+```
 
-[Recorded configuration and scores](experiments/results/harness-demo-2026-10-17/intake-report/summary.json)
-include model/runtime hashes. Model source:
-[ggml-org/Qwen3.5-0.8B-GGUF](https://huggingface.co/ggml-org/Qwen3.5-0.8B-GGUF).
+Use `--profile text` for literal text equality. The structured profile checks
+JSON validity and exact agreement, including tool names and arguments. Neither
+profile measures paraphrase quality or clinical correctness. The Python
+[`evaluate_dataset`](src/edge_llm_lab/evaluation/dataset.py) API accepts multiple
+seeds, configurations and an explicit split; keep tuning on `dev` and freeze `test`
+for comparison. Resume requires a matching manifest.
 
-[Per-case results](experiments/results/harness-demo-2026-10-17/intake-report/case-scores.svg) and
-[execution diagnostics](experiments/results/harness-demo-2026-10-17/intake-report/diagnostics.svg)
-are available separately. In the diagnostic chart, request index is only the
-ordinal position of a recorded request. It is useful for spotting unusually slow
-requests; it is not an optimization axis or a comparison of models.
+### Optional Inspect AI assessment
+
+```bash
+python -m pip install -r requirements-inspect.txt
+PYTHONPATH=src inspect eval src/edge_llm_lab/integrations/inspect_ai.py@captured_task \
+  -T capture="$PWD/runs/capture.sqlite" --model mockllm/model --log-format json
+```
+
+The replay solver supplies the captured answer without calling the target model.
+Its execution time is grading time, not device inference time. The adapter also
+supports native provider-backed replay through `referenced_task`; see the
+[Inspect workflow](docs/methodology/evaluation-boundaries.md#implemented-inspect-adapter).
+Inspect integration provides an evaluation interface; security claims require
+specified threats, attack cases, benign controls and application-level checks.
+
+## Research protocol and extension points
+
+A useful comparison holds the task, prompt budget and evaluation rule fixed while
+varying the intended configuration. Record startup and steady-state measurements
+separately; preserve errors and telemetry gaps. Score turns within trials, repeats
+within cases, then cases equally. For uncertainty, resample independent cases or
+families rather than treating every turn or seed as a new subject.
+
+For an intake application, compare the historical specialized agents with a
+consolidated baseline on the same held-out cases. Measure task completion,
+boundary violations, calls and cost separately. Specialization is a hypothesis to
+test, not a requirement imposed by the framework.
+
+| Extend or inspect | Entry point |
+| --- | --- |
+| Case validation and trial orchestration | [Dataset evaluation](src/edge_llm_lab/evaluation/dataset.py) |
+| Local server lifecycle | [Runtime](src/edge_llm_lab/runtime/server.py) |
+| Capture storage and integrity | [Trial store](src/edge_llm_lab/storage/trials.py), [capture reader](src/edge_llm_lab/storage/capture.py) |
+| Deterministic scoring | [Shared graders](src/edge_llm_lab/metrics/grading.py) |
+| Dataset figures / decoding-study figures | [Dataset reports](src/edge_llm_lab/visualization/dataset_report.py), [paired reports](src/edge_llm_lab/visualization/paired_report.py) |
+| Full methodology and migration status | [Evaluation boundaries](docs/methodology/evaluation-boundaries.md), [architecture](docs/methodology/architecture.md) |
+
+Execution is currently sequential and the selected JSONL dataset is loaded into
+memory. The generic replay path is more mature than the interactive simulator
+path. Energy requires supported instrumentation; request wall time is not time
+to first token. Native iPhone execution, generic simulator injection and a minimal
+dependency distribution remain outside the implemented path.
 
 ## Validation
-
-Tests cover shared structured/text grading, reference leakage and family splits,
-SQLite integrity and resume checks, runtime ownership, offline scoring, Inspect
-replay, and plotting semantics. Plot tests use unequal turn counts, unscored trials
-and known expected aggregates; SVG/PNG rendering runs without a display.
 
 ```bash
 PYTHONPATH=src pytest tests/unit tests/test_posthoc.py
 ```
 
-Inspect tests require the optional dependency. The [validation record](docs/methodology/validation.md)
-records a pre-existing credential-registry test failure and remaining migration work.
-See the methodology for limitations;
-passing harness tests is not evidence that the evaluated model is safe.
+Tests exercise reference leakage, family splits, structured/text grading, capture
+integrity and resume, runtime ownership, offline assessment, Inspect replay and
+plot semantics. Plot tests check denominators, unequal repeat/turn counts, missing
+measurements, labels and actual SVG/PNG rendering. See the
+[validation record](docs/methodology/validation.md) for executed checks, the
+real-model run and remaining migration boundaries.
