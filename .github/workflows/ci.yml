@@ -2,22 +2,28 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, '**' ]  # Run on all branches
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
   workflow_dispatch:
 
-# Share a concurrency group between push and pull_request events for a branch.
-# github.ref differs between those events; head_ref || ref_name identifies the
-# source branch in both cases and avoids running duplicate test matrices.
+permissions:
+  contents: read
+
+# Avoid retaining multi-GB dependency wheels alongside installed packages.
+env:
+  PIP_NO_CACHE_DIR: "1"
+
+# PR numbers avoid collisions between same-named branches in different forks.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   test:
     name: Test on ${{ matrix.os }} / Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     
     strategy:
       fail-fast: false
@@ -28,23 +34,21 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     
-    - name: Cache pip packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # GitHub-hosted test runners do not need CUDA libraries.
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+        fi
         pip install -e .
         pip install pytest pytest-cov pytest-xdist
     
@@ -54,9 +58,9 @@ jobs:
     
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.xml
+        files: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
@@ -64,10 +68,13 @@ jobs:
   lint:
     name: Lint and Format Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -97,10 +104,13 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -127,11 +137,14 @@ jobs:
   build:
     name: Build Package
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [test, lint]
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -160,11 +173,14 @@ jobs:
   integration-test:
     name: Inspect AI Replay Integration
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: test
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -174,9 +190,30 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # GitHub-hosted test runners do not need CUDA libraries.
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+        fi
         pip install -e .
         pip install -r requirements-inspect.txt pytest
     
     - name: Run Inspect provider and capture replay tests
       run: |
         pytest tests/unit/test_inspect_adapter.py -v
+
+  required:
+    name: CI required
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: ${{ always() }}
+    needs: [test, build, integration-test]
+    steps:
+    - name: Require tests, build and Inspect replay to pass
+      env:
+        TEST_RESULT: ${{ needs.test.result }}
+        BUILD_RESULT: ${{ needs.build.result }}
+        INSPECT_RESULT: ${{ needs.integration-test.result }}
+      run: |
+        test "$TEST_RESULT" = success
+        test "$BUILD_RESULT" = success
+        test "$INSPECT_RESULT" = success
