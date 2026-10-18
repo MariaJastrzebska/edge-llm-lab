@@ -14,6 +14,10 @@ worked example; the reusable replay path accepts other JSON and text tasks.
 [Run an evaluation](#run-an-evaluation) · [Current reports](#current-reports) ·
 [Historical research](#historical-research) · [Methodology](docs/methodology/evaluation-boundaries.md)
 
+**Contributions welcome:** bug fixes, evaluation cases, hardware measurements and
+documentation. See the [contribution guide](CONTRIBUTING.md) for setup, evidence
+requirements and the pull-request review process.
+
 ## What the harness does
 
 A harness is the machinery that runs an evaluation: it presents inputs, controls

@@ -1,286 +1,96 @@
-# Contributing to Edge LLM Lab
+# Contributing to Edge-LLM-Lab
 
-Thank you for your interest in contributing to Edge LLM Lab! This document provides guidelines for development, testing, and contributions.
+Contributions are welcome: bug fixes, documentation, reproducible evaluation cases,
+hardware measurements and focused code changes. @MariaJastrzebska maintains the
+project and reviews contributions.
 
-## 📋 Table of Contents
+## Start with a focused change
 
-- [Development Setup](#development-setup)
-- [Running Tests](#running-tests)
-- [Code Quality](#code-quality)
-- [CI/CD Pipeline](#cicd-pipeline)
-- [Contributing Workflow](#contributing-workflow)
-- [MLOps Practices](#mlops-practices)
+Check existing issues and PRs. Discuss substantial API changes, new dependencies
+or expensive experiments in an issue first. Small fixes can go straight to a PR.
+A draft PR is welcome for early feedback; no special issue label is required.
 
-## 🛠️ Development Setup
+## Development setup
 
-### 1. Clone the Repository
+Use Python 3.10–3.13; CI currently tests 3.10, 3.11 and 3.12.
+Fork the public repository, then:
 
 ```bash
-git clone https://github.com/MariaJastrzebska/edge-llm-lab.git
+git clone https://github.com/YOUR-USERNAME/edge-llm-lab.git
 cd edge-llm-lab
+git remote add upstream https://github.com/MariaJastrzebska/edge-llm-lab.git
+git switch -c fix/short-description
+python -m pip install poetry
+poetry install --with dev
+poetry run python -m pytest tests/unit tests/test_posthoc.py
 ```
 
-### 2. Create Virtual Environment
+Invited collaborators can clone the original repository and push a feature branch
+there. Private repositories require an invitation; private forks depend on policy.
+Never push a contribution directly to `main`.
+
+Dependencies include native llama-cpp-python compilation, which may need a C/C++
+toolchain. Unit tests need no model weights or API credentials. Real inference
+experiments need a GGUF model and compatible llama-server; see the
+[README](README.md#run-an-evaluation).
+
+For optional Inspect adapter changes, also run:
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+poetry run python -m pip install -r requirements-inspect.txt
+poetry run python -m pytest tests/unit/test_inspect_adapter.py -v
 ```
 
-### 3. Install Development Dependencies
-
-```bash
-pip install -e ".[dev]"
-```
-
-### 4. Install Pre-commit Hooks
-
-```bash
-pre-commit install
-```
-
-## 🧪 Running Tests
-
-### Run All Tests
-
-```bash
-pytest
-```
-
-### Run Unit Tests Only
-
-```bash
-pytest tests/unit -v
-```
-
-### Run Integration Tests Only
-
-```bash
-pytest tests/integration -v
-```
-
-### Run with Coverage
-
-```bash
-pytest --cov=src/edge_llm_lab --cov-report=html --cov-report=term
-```
-
-View coverage report:
-```bash
-open htmlcov/index.html  # On macOS
-```
-
-### Run Specific Test File
-
-```bash
-pytest tests/unit/test_optimization.py -v
-```
-
-### Run Tests in Parallel
-
-```bash
-pytest -n auto
-```
-
-## ✨ Code Quality
-
-### Format Code with Black
-
-```bash
-black src/ tests/
-```
-
-### Lint with Ruff
-
-```bash
-ruff check src/ tests/
-```
-
-### Fix Lint Issues Automatically
-
-```bash
-ruff check --fix src/ tests/
-```
-
-### Sort Imports with isort
-
-```bash
-isort src/ tests/
-```
-
-### Type Check with MyPy
-
-```bash
-mypy src/
-```
-
-### Security Scan with Bandit
-
-```bash
-bandit -r src/
-```
-
-### Run All Quality Checks
-
-```bash
-# Format
-black src/ tests/
-isort src/ tests/
-
-# Lint
-ruff check src/ tests/
-
-# Type check
-mypy src/
-
-# Security
-bandit -r src/
-```
-
-## 🔄 CI/CD Pipeline
-
-The project uses GitHub Actions for CI/CD. The pipeline runs automatically on:
-- Push to `main` or `develop` branches
-- Pull requests to `main` or `develop`
-- Manual workflow dispatch
-
-### Pipeline Jobs
-
-1. **Test** - Runs on Python 3.10, 3.11, 3.12 on Ubuntu and macOS
-   - Unit tests with pytest
-   - Coverage reporting to Codecov
-
-2. **Lint** - Code quality checks
-   - Ruff linting
-   - Black formatting check
-   - isort import sorting check
-
-3. **Security** - Security scanning
-   - Bandit security analysis
-   - Uploads security report
-
-4. **Build** - Package building
-   - Builds distribution packages
-   - Validates package integrity
-   - Uploads build artifacts
-
-5. **Integration Test** - Integration tests
-   - Runs integration test suite
-
-### View CI/CD Results
-
-Check the "Actions" tab in GitHub to see pipeline results.
-
-## 🔀 Contributing Workflow
-
-### 1. Create a Feature Branch
-
-```bash
-git checkout -b feature/your-feature-name
-```
-
-### 2. Make Changes
-
-- Write clean, well-documented code
-- Add tests for new functionality
-- Follow existing code style
-
-### 3. Run Tests Locally
-
-```bash
-pytest
-black src/ tests/
-ruff check src/ tests/
-```
-
-### 4. Commit Changes
-
-Pre-commit hooks will run automatically:
-
-```bash
-git add .
-git commit -m "feat: add new feature"
-```
-
-### Commit Message Convention
-
-Follow conventional commits:
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `test:` - Test changes
-- `refactor:` - Code refactoring
-- `chore:` - Build/tooling changes
-
-### 5. Push and Create Pull Request
-
-```bash
-git push origin feature/your-feature-name
-```
-
-Then create a Pull Request on GitHub.
-
-## 🚀 MLOps Practices
-
-### Version Control
-
-- Use semantic versioning (MAJOR.MINOR.PATCH)
-- Tag releases: `git tag -a v0.1.0 -m "Release v0.1.0"`
-- Keep main branch stable
-
-### Testing Strategy
-
-1. **Unit Tests** - Test individual components
-   - Fast, isolated tests
-   - Mock external dependencies
-   - Target: >80% coverage
-
-2. **Integration Tests** - Test component interactions
-   - Test configuration loading
-   - Test end-to-end workflows
-   - Use real (but minimal) data
-
-3. **Performance Tests** - Track performance metrics
-   - Monitor optimization effectiveness
-   - Track latency and throughput
-
-### Code Quality Metrics
-
-- **Coverage**: Maintain >80% code coverage
-- **Linting**: Zero lint errors in production code
-- **Security**: Regular Bandit scans
-- **Type Hints**: Gradually add type hints
-
-### Experiment Tracking
-
-When adding new optimizations:
-
-1. Document in `src/edge_llm_lab/utils/optimization.py`
-2. Add test in `tests/unit/test_optimization.py`
-3. Update README with new optimization options
-4. Log results in evaluation logs for comparison
-
-### Continuous Improvement
-
-- Review test coverage regularly
-- Refactor code for maintainability
-- Update dependencies quarterly
-- Monitor GitHub Actions for failures
-
-## 📝 Documentation
-
-- Update README.md for user-facing changes
-- Add docstrings to all public functions
-- Include examples for new features
-- Keep CONTRIBUTING.md up to date
-
-## 🤝 Getting Help
-
-- Open an issue for bugs or feature requests
-- Join discussions in GitHub Discussions
-- Check existing issues before creating new ones
-
-## 📄 License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
-
+## Pull request and review
+
+1. Keep the change focused. Add regression tests for changed behavior and update
+   relevant docs/examples. Documentation-only changes need no artificial tests.
+2. Run relevant tests and the unit/posthoc command above. State actual commands,
+   results and anything untested in the PR. Match surrounding style; avoid
+   unrelated repository-wide formatting.
+3. Commit, push your branch and open a PR to `main`, linking an issue if applicable.
+4. Address review comments and resolve discussions after handling the concern.
+   New changes may require another approval. The maintainer merges accepted PRs,
+   preferably with squash merge; the feature branch can then be deleted.
+
+CI installs CPU-only PyTorch on Linux to avoid downloading unused CUDA packages.
+CI runs the unit matrix, Inspect replay tests and package build. `CI required`
+reports whether all three passed. Lint/format and Bandit checks are currently
+advisory: a green workflow does not certify those findings are resolved.
+
+PR workflows use a read-only GitHub token on GitHub-hosted runners and receive no
+project secrets. GitHub may require approval before a fork workflow runs.
+Maintainers must inspect workflow changes before approving execution. Do not use
+pull_request_target to execute contributed code or run untrusted PRs on a
+self-hosted device runner.
+
+## Research contributions
+
+Describe data provenance and redistribution permission. Use synthetic or
+appropriately shareable data; never commit patient records, private conversations,
+personal data or credentials. Keep model weights and large generated artifacts
+out of PRs.
+
+Record dataset/version, split and case families, model and quantization, prompt,
+seed, device, runtime configuration and reproduction commands. Separate development
+from held-out test cases. Preserve failures and missing measurements. Distinguish
+fresh runs from re-analysis; explain baselines and limitations. Report task quality
+separately from latency and energy. See the
+[evaluation boundaries](docs/methodology/evaluation-boundaries.md).
+
+## Ownership and protection
+
+[CODEOWNERS](.github/CODEOWNERS) names the maintainer. Owner review requests depend
+on GitHub features/settings. The intended policy is PRs, one approval, resolved
+conversations and passing required CI, with no force-push or deletion of the
+default branch. Files alone do not activate protection: administrators must enable
+and verify the rules in GitHub Settings. Exceptional maintainer bypasses should
+still use a PR.
+
+Keep discussions constructive. Do not post credentials or exploit details in public
+issues. Use GitHub private vulnerability reporting if enabled; otherwise arrange a
+private channel with the maintainer before sharing sensitive details.
+
+No repository-level LICENSE file is currently present. Do not assume an MIT
+license or add one on the owner's behalf. Clarify licensing with the maintainer
+before contributing third-party material or redistributing the project.
