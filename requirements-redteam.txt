@@ -1,0 +1,5 @@
+# Optional DeepTeam callback and offline DeepEval metric integration.
+# Use Python 3.10-3.13: DeepTeam 1.0.9 declares Python <3.14.
+# DeepEval is supplied by DeepTeam's declared dependency constraint.
+# This pins the integration entry point, not a complete transitive lock.
+deepteam==1.0.9

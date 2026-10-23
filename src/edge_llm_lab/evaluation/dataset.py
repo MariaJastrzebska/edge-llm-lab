@@ -21,21 +21,37 @@ def reference_turns(conversation):
             yield index, conversation[:index], message['content']
 
 
+def validate_case_splits(cases, split):
+    """Share identity and family-leakage checks across evaluation protocols."""
+    if split not in {'dev', 'test'}:
+        raise ValueError('Choose dev or test split')
+    if not cases or any(not isinstance(c.get('id'), str) or not c['id'] for c in cases):
+        raise ValueError('Dataset must contain unique, nonempty case IDs')
+    if len({c['id'] for c in cases}) != len(cases):
+        raise ValueError('Dataset must contain unique, nonempty case IDs')
+    families = {}
+    for case in cases:
+        family = case.get('family_id', case['id'])
+        if not isinstance(family, str) or not family:
+            raise ValueError('Every case requires a nonempty family ID')
+        if family in families and families[family] != case.get('split'):
+            raise ValueError('A case family cannot span dev and test splits')
+        families[family] = case.get('split')
+        if case.get('split') not in {'dev', 'test'}:
+            raise ValueError('Every case requires an explicit dev/test split')
+    selected = [c for c in cases if c['split'] == split]
+    if not selected:
+        raise ValueError(f'No cases in split {split}')
+    return selected
+
+
 def load_cases(path, mode, split):
     if mode not in {'referenced', 'unreferenced'}:
         raise ValueError('Unknown evaluation mode')
     path = Path(path)
     cases = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
-    if not cases or len({c['id'] for c in cases}) != len(cases):
-        raise ValueError('Dataset must contain unique, nonempty case IDs')
-    families = {}
+    selected = validate_case_splits(cases, split)
     for case in cases:
-        family = case.get('family_id', case['id'])
-        if family in families and families[family] != case.get('split'):
-            raise ValueError('A case family cannot span dev and test splits')
-        families[family] = case.get('split')
-        if not isinstance(case['id'], str) or not case['id'] or case.get('split') not in {'dev', 'test'}:
-            raise ValueError('Every case requires id and an explicit dev/test split')
         if mode == 'referenced':
             conversation = case.get('conversation')
             if not conversation or not any(m.get('role') == 'assistant' for m in conversation):
@@ -53,9 +69,6 @@ def load_cases(path, mode, split):
             expected = json.loads(Path(case['expected_file']).read_text())
             if expected.get('patient_type') not in {'successful', 'unsuccessful'}:
                 raise ValueError('Expected file requires a valid patient_type')
-    selected = [c for c in cases if c['split'] == split]
-    if not selected:
-        raise ValueError(f'No cases in split {split}')
     return selected
 
 

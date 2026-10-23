@@ -926,20 +926,12 @@ class BaseEvaluation:
         try:
             start_resources = self.monitor_resources()
 
-            start_time = time.perf_counter()
             if not hasattr(self, '_http_session'):
                 self._http_session = requests.Session()
-            response = self._http_session.post(
-                f"{self.LLAMA_SERVER_URL}/v1/chat/completions",
-                json=payload,
-                timeout=self.TIMEOUT
-            )
-            end_time = time.perf_counter()
-            response.raise_for_status()
+            from edge_llm_lab.runtime.chat import request_completion
+            result, start_time, end_time = request_completion(
+                self._http_session, self.LLAMA_SERVER_URL, payload, self.TIMEOUT)
             end_resources = self.monitor_resources()
-            result = response.json()
-            if not result.get('choices'):
-                raise ValueError('Inference response contains no choices')
 
         except Exception as e:
             print(f"Error in llama-server request: {e}")

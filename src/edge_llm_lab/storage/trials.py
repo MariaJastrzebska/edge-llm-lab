@@ -19,8 +19,14 @@ def scalar_metrics(value, prefix=''):
     elif isinstance(value, list):
         for index, child in enumerate(value):
             yield from scalar_metrics(child, f'{prefix}.{index}')
-    elif isinstance(value, (int, float)) and math.isfinite(value):
-        yield prefix, float(value)
+    elif isinstance(value, (int, float)):
+        # Preserve the original value in the trace even when SQL REAL cannot hold it.
+        try:
+            number = float(value)
+        except (OverflowError, ValueError):
+            return
+        if math.isfinite(number):
+            yield prefix, number
 
 
 class TrialStore:

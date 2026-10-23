@@ -36,6 +36,29 @@ def test_store_rejects_resume_with_changed_protocol(tmp_path):
         TrialStore(path, {'optimisations': [{}], 'seed': 2})
 
 
+@pytest.mark.parametrize('large_integer', [10 ** 400, -(10 ** 400)], ids=['positive-overflow', 'negative-overflow'])
+def test_store_preserves_large_integer_artifacts_without_overflowing_scalar_metrics(tmp_path, large_integer):
+    store = TrialStore(tmp_path / 'capture.sqlite', {'optimisations': [{}]})
+    result = {'trial_id': 'large-output', 'case_id': 'synthetic-case', 'repeat': 0,
+              'seed': 11, 'config_id': 0, 'status': 'ok', 'started_utc': '2026-10-17',
+              'elapsed_ms': 12.5,
+              'result': {'application': {'generated_integer': large_integer},
+                         'finite': [3, 2.5, True]}}
+    try:
+        store.append(result)
+        assert store.contains('large-output')
+        assert store.trace('large-output') == result['result']
+        values = dict(store.db.execute('SELECT name, value FROM metrics WHERE trial_id=?',
+                                       ('large-output',)))
+        assert values == {'finite.0': 3.0, 'finite.1': 2.5, 'finite.2': 1.0}
+        result['trial_id'] = 'next-output'
+        result['result'] = {'finite': 7}
+        store.append(result)
+        assert store.contains('next-output')
+    finally:
+        store.close()
+
+
 def test_optimizer_rejects_test_set_and_nonfinite_objective():
     with pytest.raises(ValueError, match='dev'):
         OptimizationEngine(dataset_split='test')
